@@ -19,42 +19,55 @@ export const ServicesSection: React.FC = () => {
   const { services } = siteContent;
   const [activeIndex, setActiveIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'stack' | 'grid'>('stack');
-  const [isAutoPlay, setIsAutoPlay] = useState(false);
-  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [isHoveredStack, setIsHoveredStack] = useState(false);
+  const [progress, setProgress] = useState(0);
   const touchStartXRef = useRef<number | null>(null);
 
   const totalCards = services.cards.length;
+  const AUTOPLAY_INTERVAL = 4500; // 4.5 seconds per card
+  const STEP_TIME = 40; // 40ms update interval
 
   const handleNext = () => {
     setActiveIndex((prev) => (prev + 1) % totalCards);
+    setProgress(0);
     soundManager.playClick();
   };
 
   const handlePrev = () => {
     setActiveIndex((prev) => (prev - 1 + totalCards) % totalCards);
+    setProgress(0);
     soundManager.playClick();
   };
 
   const handleSelectCard = (index: number) => {
     setActiveIndex(index);
+    setProgress(0);
     soundManager.playClick();
   };
 
-  // Auto-play management
+  // Continuous smooth auto-moving progress loop
   useEffect(() => {
-    if (isAutoPlay && viewMode === 'stack') {
-      autoPlayRef.current = setInterval(() => {
-        setActiveIndex((prev) => (prev + 1) % totalCards);
-      }, 5000);
-    } else {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    if (!isAutoPlay || isHoveredStack || viewMode !== 'stack') {
+      return;
     }
-    return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    };
-  }, [isAutoPlay, viewMode, totalCards]);
 
-  // Touch swipe support for mobile
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        const next = prev + (STEP_TIME / AUTOPLAY_INTERVAL) * 100;
+        if (next >= 100) {
+          setActiveIndex((curr) => (curr + 1) % totalCards);
+          soundManager.playHoverTick();
+          return 0;
+        }
+        return next;
+      });
+    }, STEP_TIME);
+
+    return () => clearInterval(timer);
+  }, [isAutoPlay, isHoveredStack, viewMode, totalCards]);
+
+  // Touch swipe listeners for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
   };
@@ -63,7 +76,7 @@ export const ServicesSection: React.FC = () => {
     if (touchStartXRef.current === null) return;
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartXRef.current - touchEndX;
-    if (Math.abs(diff) > 45) {
+    if (Math.abs(diff) > 40) {
       if (diff > 0) {
         handleNext();
       } else {
@@ -88,7 +101,7 @@ export const ServicesSection: React.FC = () => {
         </span>
       </div>
 
-      {/* Decorative top-right cross lines */}
+      {/* Decorative top-right architectural cross lines */}
       <div className="absolute top-8 right-8 sm:right-16 opacity-[0.08] pointer-events-none" aria-hidden="true">
         <div className="w-20 h-[1px] bg-[#002137]" />
         <div className="w-[1px] h-20 bg-[#002137] mt-[-1px] ml-auto" />
@@ -128,7 +141,7 @@ export const ServicesSection: React.FC = () => {
             </h2>
           </div>
 
-          {/* Callout box */}
+          {/* MSME Registered Callout box */}
           <div className="border border-[#002137]/12 rounded-2xl p-5 max-w-sm bg-white/60 backdrop-blur-sm shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="font-mono text-[9px] tracking-[0.2em] text-[#64748B] uppercase font-bold">
@@ -152,31 +165,37 @@ export const ServicesSection: React.FC = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* CAROUSEL CONTROLS BAR: CATEGORY TABS, AUTOPLAY & VIEW MODE SWITCHER       */}
+        {/* CAROUSEL CONTROLS BAR: CATEGORY TABS, AUTOPLAY & VIEW SWITCHER            */}
         {/* ========================================================================= */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-3 border-b border-[#002137]/10">
-          {/* Quick Selection Category Tabs */}
+          {/* Quick Selection Category Tabs with Integrated Auto-Moving Progress Line */}
           <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
             {services.cards.map((card, idx) => {
               const isActive = activeIndex === idx;
-              const accent = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#64748B';
+              const accent = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#002137';
               return (
                 <button
                   key={card.id}
-                  onClick={() => {
-                    handleSelectCard(idx);
-                  }}
+                  onClick={() => handleSelectCard(idx)}
                   onMouseEnter={() => {
                     setCursorMode('hover');
                     soundManager.playHoverTick();
                   }}
                   onMouseLeave={() => setCursorMode('default')}
-                  className={`group relative flex items-center gap-2 px-3.5 sm:px-4.5 py-2 rounded-full font-mono text-xs tracking-wider transition-all duration-300 shrink-0 border ${
+                  className={`group relative flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-full font-mono text-xs tracking-wider transition-all duration-300 shrink-0 border overflow-hidden ${
                     isActive
                       ? 'bg-[#002137] text-white border-[#002137] shadow-md scale-105'
                       : 'bg-white/80 text-[#475569] border-[#002137]/12 hover:border-[#DFB74A] hover:bg-white'
                   }`}
                 >
+                  {/* Subtle moving countdown line inside active tab */}
+                  {isActive && viewMode === 'stack' && isAutoPlay && (
+                    <div
+                      className="absolute bottom-0 left-0 h-[2.5px] bg-[#DFB74A] transition-all duration-75"
+                      style={{ width: `${progress}%` }}
+                    />
+                  )}
+
                   <span
                     className="w-2 h-2 rounded-full transition-transform duration-300"
                     style={{
@@ -192,23 +211,38 @@ export const ServicesSection: React.FC = () => {
             })}
           </div>
 
-          {/* Right Controls: Auto-slide, Counter, & Grid/Stack Switcher */}
+          {/* Right Controls: Autoplay Button, Counter, & Grid Toggle */}
           <div className="flex items-center justify-end gap-3 shrink-0 self-end sm:self-auto">
-            {/* Auto-play toggle */}
+            {/* Auto-play toggle with status */}
             {viewMode === 'stack' && (
               <button
-                onClick={() => setIsAutoPlay(!isAutoPlay)}
+                onClick={() => {
+                  setIsAutoPlay(!isAutoPlay);
+                  soundManager.playClick();
+                }}
                 onMouseEnter={() => setCursorMode('hover')}
                 onMouseLeave={() => setCursorMode('default')}
-                className={`p-2 rounded-full border transition-colors ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-mono transition-all ${
                   isAutoPlay
-                    ? 'bg-[#DFB74A]/20 border-[#DFB74A] text-[#002137]'
+                    ? 'bg-[#DFB74A]/15 border-[#DFB74A] text-[#002137] font-semibold'
                     : 'bg-white/70 border-[#002137]/15 text-[#64748B] hover:text-[#002137]'
                 }`}
-                title={isAutoPlay ? 'Pause Auto-slide' : 'Start Auto-slide'}
+                title={isAutoPlay ? 'Auto-slide is active (hover card to pause)' : 'Auto-slide paused (click to resume)'}
                 aria-label="Toggle auto play"
               >
-                {isAutoPlay ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                {isAutoPlay ? (
+                  <>
+                    <Pause className="w-3 h-3 text-[#DFB74A]" />
+                    <span className="text-[10px] hidden md:inline">
+                      {isHoveredStack ? 'PAUSED' : 'AUTO-MOVING'}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3 h-3" />
+                    <span className="text-[10px] hidden md:inline">PLAY</span>
+                  </>
+                )}
               </button>
             )}
 
@@ -247,16 +281,32 @@ export const ServicesSection: React.FC = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* VIEW MODE 1: "ONE OVER ANOTHER" STACKED CARDS CAROUSEL                     */}
+        {/* VIEW MODE 1: ATTRACTIVE & UNIQUE "ONE OVER ANOTHER" 3D FAN STACK           */}
         {/* ========================================================================= */}
         {viewMode === 'stack' && (
-          <div className="relative w-full py-4 sm:py-6 flex flex-col items-center">
-            {/* Stack Stage Container */}
+          <div className="relative w-full py-6 sm:py-8 flex flex-col items-center">
+            {/* 3D Stack Stage Container */}
             <div
+              onMouseEnter={() => setIsHoveredStack(true)}
+              onMouseLeave={() => setIsHoveredStack(false)}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
-              className="relative w-full max-w-[430px] sm:max-w-[460px] h-[640px] sm:h-[670px] mx-auto flex items-center justify-center"
+              className="relative w-full max-w-[420px] sm:max-w-[460px] h-[640px] sm:h-[680px] mx-auto flex items-center justify-center"
             >
+              {/* Decorative Ambient Luxury Orbiting Ring behind the Stack */}
+              <div
+                className="absolute -inset-10 sm:-inset-14 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
+                style={{
+                  animation: 'spin 60s linear infinite',
+                }}
+              />
+              <div
+                className="absolute -inset-4 sm:-inset-6 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
+                style={{
+                  animation: 'spin 40s linear infinite reverse',
+                }}
+              />
+
               {/* Floating Prev Button (<) */}
               <button
                 onClick={handlePrev}
@@ -265,7 +315,7 @@ export const ServicesSection: React.FC = () => {
                   soundManager.playHoverTick();
                 }}
                 onMouseLeave={() => setCursorMode('default')}
-                className="absolute -left-3 sm:-left-16 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-sm"
+                className="absolute -left-4 sm:-left-16 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-white/95 border border-[#002137]/15 shadow-lg flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
                 aria-label="Previous card in stack"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -279,43 +329,50 @@ export const ServicesSection: React.FC = () => {
                   soundManager.playHoverTick();
                 }}
                 onMouseLeave={() => setCursorMode('default')}
-                className="absolute -right-3 sm:-right-16 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-sm"
+                className="absolute -right-4 sm:-right-16 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-white/95 border border-[#002137]/15 shadow-lg flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
                 aria-label="Next card in stack"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
 
-              {/* The 3 Cards Stacked One Over Another */}
+              {/* The 3 Cards Stacked One Over Another in a 3D Fan */}
               {services.cards.map((card, idx) => {
                 const offset = (idx - activeIndex + totalCards) % totalCards;
 
-                // Stacking transforms and depth geometry
+                // 3D Symmetrical Fanned Stack Geometry
                 let zIndex = 30;
                 let transform = 'translateY(0px) translateX(0px) scale(1) rotate(0deg)';
                 let opacity = 1;
                 let filter = 'none';
                 let pointerEvents: 'auto' | 'none' = 'auto';
+                let accentColor = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#002137';
 
                 if (offset === 0) {
-                  // Active Top Card
+                  // Active Top Card — Front and Center
                   zIndex = 30;
                   transform = 'translateY(0px) translateX(0px) scale(1) rotate(0deg)';
                   opacity = 1;
                   filter = 'none';
                   pointerEvents = 'auto';
                 } else if (offset === 1) {
-                  // Second card stacked right underneath
+                  // Next card — Fanned out to the right underneath
                   zIndex = 20;
-                  transform = 'translateY(24px) translateX(14px) scale(0.95) rotate(-2deg)';
-                  opacity = 0.92;
+                  transform =
+                    window.innerWidth < 640
+                      ? 'translateY(20px) translateX(28px) scale(0.94) rotate(3deg)'
+                      : 'translateY(20px) translateX(65px) scale(0.94) rotate(4deg)';
+                  opacity = 0.94;
                   filter = 'brightness(0.98)';
                   pointerEvents = 'auto';
                 } else {
-                  // Third card at bottom of stack
-                  zIndex = 10;
-                  transform = 'translateY(48px) translateX(-14px) scale(0.90) rotate(2deg)';
-                  opacity = 0.78;
-                  filter = 'brightness(0.96)';
+                  // Previous card — Fanned out to the left underneath
+                  zIndex = 15;
+                  transform =
+                    window.innerWidth < 640
+                      ? 'translateY(36px) translateX(-28px) scale(0.88) rotate(-3deg)'
+                      : 'translateY(20px) translateX(-65px) scale(0.94) rotate(-4deg)';
+                  opacity = 0.94;
+                  filter = 'brightness(0.98)';
                   pointerEvents = 'auto';
                 }
 
@@ -327,7 +384,7 @@ export const ServicesSection: React.FC = () => {
                         handleSelectCard(idx);
                       }
                     }}
-                    className="absolute inset-0 rounded-3xl transition-all duration-500 will-change-transform"
+                    className="absolute inset-0 rounded-3xl transition-all duration-700 ease-out will-change-transform"
                     style={{
                       zIndex,
                       transform,
@@ -337,59 +394,86 @@ export const ServicesSection: React.FC = () => {
                       cursor: offset !== 0 ? 'pointer' : 'default',
                       boxShadow:
                         offset === 0
-                          ? '0 25px 60px -15px rgba(0, 33, 55, 0.16)'
-                          : offset === 1
-                          ? '0 20px 40px -15px rgba(0, 33, 55, 0.12)'
-                          : '0 15px 30px -15px rgba(0, 33, 55, 0.08)',
+                          ? `0 25px 60px -15px rgba(0, 33, 55, 0.18), 0 8px 24px -5px ${accentColor}25`
+                          : `0 16px 36px -10px rgba(0, 33, 55, 0.14), 0 4px 16px -4px ${accentColor}30`,
                     }}
                   >
                     <ServiceCard card={card} />
 
-                    {/* Subtle click-to-focus overlay on background cards */}
+                    {/* Attractive Clickable Callout Badge for Background Cards */}
                     {offset !== 0 && (
                       <div
-                        className="absolute inset-0 rounded-3xl bg-transparent hover:bg-black/[0.03] transition-colors"
+                        className="absolute inset-0 rounded-3xl bg-[#FAF8F5]/30 hover:bg-transparent backdrop-blur-[0.5px] transition-all flex items-start justify-end p-4 group/fan"
                         title={`Click to bring ${card.title} to front`}
-                      />
+                      >
+                        <span
+                          className="px-3 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider shadow-sm transition-transform group-hover/fan:scale-105"
+                          style={{
+                            backgroundColor: accentColor,
+                            color: '#FAF8F5',
+                          }}
+                        >
+                          0{idx + 1} · {card.title} ↗
+                        </span>
+                      </div>
                     )}
                   </div>
                 );
               })}
             </div>
 
-            {/* Bottom Stack Indicators & Quick Shuffle Action */}
-            <div className="flex flex-col items-center gap-3 mt-10">
+            {/* Bottom Stack Indicators, Progress Bar, & Quick Shuffle Action */}
+            <div className="flex flex-col items-center gap-3.5 mt-12 z-20">
+              {/* Dynamic Auto-Moving Linear Progress Bar */}
+              {isAutoPlay && (
+                <div className="w-48 sm:w-64 h-1.5 rounded-full bg-[#002137]/10 overflow-hidden relative">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#004B79] to-[#DFB74A] rounded-full transition-all duration-75"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              )}
+
               {/* Pagination Dots */}
               <div className="flex items-center gap-2">
-                {services.cards.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleSelectCard(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      activeIndex === idx
-                        ? 'w-8 bg-[#DFB74A]'
-                        : 'w-2 bg-[#002137]/20 hover:bg-[#002137]/40'
-                    }`}
-                    aria-label={`Go to card ${idx + 1}`}
-                  />
-                ))}
+                {services.cards.map((card, idx) => {
+                  const isActive = activeIndex === idx;
+                  const accent = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#002137';
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectCard(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        isActive ? 'w-8' : 'w-2 bg-[#002137]/20 hover:bg-[#002137]/40'
+                      }`}
+                      style={{
+                        backgroundColor: isActive ? accent : undefined,
+                      }}
+                      aria-label={`Go to card ${idx + 1}`}
+                    />
+                  );
+                })}
               </div>
 
               {/* Status and Hint */}
-              <div className="flex items-center gap-3 font-mono text-[11px] text-[#64748B] tracking-wider uppercase">
+              <div className="flex items-center gap-2 font-mono text-[11px] text-[#64748B] tracking-wider uppercase">
                 <span className="font-bold text-[#002137]">0{activeIndex + 1}</span>
                 <span className="opacity-40">/</span>
-                <span>0{totalCards} · Stacked Carousel</span>
+                <span>0{totalCards}</span>
+                <span className="mx-1 opacity-30">·</span>
+                <span className="text-[10px] text-[#004B79] font-semibold">
+                  {isHoveredStack ? 'PAUSED (HOVERING)' : 'AUTO-CYCLING STACK'}
+                </span>
               </div>
 
-              {/* Quick Shuffle button */}
+              {/* Quick Shuffle Action Button */}
               <button
                 onClick={handleNext}
                 onMouseEnter={() => setCursorMode('hover')}
                 onMouseLeave={() => setCursorMode('default')}
-                className="mt-1 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#002137]/12 shadow-sm font-mono text-[10px] font-semibold text-[#002137] hover:border-[#DFB74A] hover:bg-[#FAF8F5] transition-all active:scale-95"
+                className="mt-1 inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-[#002137]/15 shadow-sm font-mono text-xs font-semibold text-[#002137] hover:border-[#DFB74A] hover:bg-[#FAF8F5] transition-all active:scale-95"
               >
-                <RotateCw className="w-3 h-3 text-[#DFB74A]" />
+                <RotateCw className="w-3.5 h-3.5 text-[#DFB74A]" />
                 <span>Shuffle Next Card</span>
               </button>
             </div>
