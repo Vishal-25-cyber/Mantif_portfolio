@@ -50,9 +50,9 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
     push(() => {
       setStage('handshake');
       soundManager.playHandshakeChord();
-    }, 3200);
+    }, 2800);
 
-    push(() => setStage('fadeCharacters'), 6400);
+    push(() => setStage('fadeCharacters'), 6500);
 
     push(() => {
       setStage('titleReveal');
@@ -115,7 +115,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
             }}
           />
 
-          <div className="relative w-full max-w-2xl h-72 flex items-end justify-center">
+          <div className="relative w-full max-w-3xl h-80 sm:h-[380px] flex items-end justify-center">
 
             {/* Human character */}
             <div
@@ -123,14 +123,12 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
               style={{
                 transition: stage === 'handshake' ? 'transform 0.8s cubic-bezier(0.2,1,0.3,1)' : undefined,
                 transform: stage === 'walking'
-                  ? 'translateX(-160%)'
-                  : stage === 'handshake'
-                  ? 'translateX(-52px)'
-                  : 'translateX(-52px)',
-                animation: stage === 'walking' ? 'walkHumanAnim 3.2s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
+                  ? 'translateX(-180%)'
+                  : 'translateX(var(--human-target, -68px))',
+                animation: stage === 'walking' ? 'walkHumanAnim 2.8s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
               }}
             >
-              <svg viewBox="0 0 64 130" className="w-16 h-32 sm:w-20 sm:h-40 overflow-visible" fill="none">
+              <svg viewBox="0 0 64 130" className="w-28 h-56 sm:w-36 sm:h-72 overflow-visible" fill="none">
                 {/* Head with warm skin tone */}
                 <ellipse cx="32" cy="19" rx="11" ry="12" fill="#F5CBA7" stroke="#002137" strokeWidth="2"/>
                 {/* Hair */}
@@ -150,7 +148,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 <line x1="22" y1="35" x2="14" y2="62" stroke="#002137" strokeWidth="5" strokeLinecap="round"/>
                 {/* Right arm — reaching for handshake */}
                 {stage === 'handshake' ? (
-                  <line x1="42" y1="35" x2="60" y2="52" stroke="#DFB74A" strokeWidth="4" strokeLinecap="round" className="animate-pulse"/>
+                  <line x1="42" y1="35" x2="68" y2="52" stroke="#DFB74A" strokeWidth="5" strokeLinecap="round" className="animate-pulse"/>
                 ) : (
                   <line x1="42" y1="35" x2="50" y2="60" stroke="#002137" strokeWidth="5" strokeLinecap="round"/>
                 )}
@@ -165,17 +163,17 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 {/* Shadow */}
                 <ellipse cx="32" cy="118" rx="16" ry="3.5" fill="#002137" opacity="0.08"/>
               </svg>
-              <span className="font-mono text-[9px] tracking-[0.2em] text-[#64748B] uppercase mt-1 font-semibold">HUMAN</span>
+              <span className="font-mono text-[11px] sm:text-xs tracking-[0.25em] text-[#64748B] uppercase mt-2 font-bold">HUMAN</span>
             </div>
 
             {/* Handshake convergence focal point */}
             {stage === 'handshake' && (
-              <div className="absolute bottom-20 z-30 flex items-center justify-center">
+              <div className="absolute bottom-32 sm:bottom-40 z-30 flex items-center justify-center pointer-events-none">
                 {/* Pulsing rings */}
-                <div className="absolute w-24 h-24 rounded-full border border-[#DFB74A]/60 animate-ping" style={{ animationDuration: '1.2s' }}/>
-                <div className="absolute w-16 h-16 rounded-full border border-[#004B79]/40 animate-ping" style={{ animationDuration: '1.8s' }}/>
+                <div className="absolute w-32 h-32 sm:w-44 sm:h-44 rounded-full border border-[#DFB74A]/60 animate-ping" style={{ animationDuration: '1.2s' }}/>
+                <div className="absolute w-20 h-20 sm:w-28 sm:h-28 rounded-full border border-[#004B79]/40 animate-ping" style={{ animationDuration: '1.8s' }}/>
                 {/* Central glow */}
-                <div className="w-6 h-6 rounded-full bg-[#DFB74A] shadow-[0_0_30px_10px_rgba(223,183,74,0.4)]"/>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#DFB74A] shadow-[0_0_40px_15px_rgba(223,183,74,0.5)]"/>
               </div>
             )}
 
@@ -185,14 +183,12 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
               style={{
                 transition: stage === 'handshake' ? 'transform 0.8s cubic-bezier(0.2,1,0.3,1)' : undefined,
                 transform: stage === 'walking'
-                  ? 'translateX(160%)'
-                  : stage === 'handshake'
-                  ? 'translateX(52px)'
-                  : 'translateX(52px)',
-                animation: stage === 'walking' ? 'walkRobotAnim 3.2s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
+                  ? 'translateX(180%)'
+                  : 'translateX(var(--robot-target, 68px))',
+                animation: stage === 'walking' ? 'walkRobotAnim 2.8s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
               }}
             >
-              <svg viewBox="0 0 64 130" className="w-16 h-32 sm:w-20 sm:h-40 overflow-visible" fill="none">
+              <svg viewBox="0 0 64 130" className="w-28 h-56 sm:w-36 sm:h-72 overflow-visible" fill="none">
                 {/* Antenna */}
                 <line x1="32" y1="0" x2="32" y2="10" stroke="#DFB74A" strokeWidth="2.5" strokeLinecap="round"/>
                 <circle cx="32" cy="0" r="3" fill="#DFB74A"/>
@@ -215,7 +211,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 <line x1="23" y1="60" x2="41" y2="60" stroke="#004B79" strokeWidth="1.5" strokeLinecap="round"/>
                 {/* Left arm — reaching for handshake */}
                 {stage === 'handshake' ? (
-                  <line x1="16" y1="46" x2="-2" y2="56" stroke="#DFB74A" strokeWidth="5" strokeLinecap="round" className="animate-pulse"/>
+                  <line x1="16" y1="46" x2="-6" y2="54" stroke="#DFB74A" strokeWidth="5" strokeLinecap="round" className="animate-pulse"/>
                 ) : (
                   <line x1="16" y1="46" x2="8" y2="68" stroke="#004B79" strokeWidth="5" strokeLinecap="round"/>
                 )}
@@ -232,32 +228,21 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 {/* Shadow */}
                 <ellipse cx="32" cy="118" rx="16" ry="3.5" fill="#002137" opacity="0.08"/>
               </svg>
-              <span className="font-mono text-[9px] tracking-[0.2em] text-[#004B79] uppercase mt-1 font-semibold">AI ASSISTANT</span>
+              <span className="font-mono text-[11px] sm:text-xs tracking-[0.25em] text-[#004B79] uppercase mt-2 font-bold">AI ASSISTANT</span>
             </div>
           </div>
 
           {/* Handshake tagline */}
           <div className={`text-center mt-10 transition-all duration-700 ${stage === 'handshake' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold text-[#002137]">
+            <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl font-semibold text-[#002137] tracking-tight">
               HUMAN <span className="text-[#DFB74A]">×</span> ARTIFICIAL INTELLIGENCE
             </h2>
-            <p className="font-mono text-xs sm:text-sm text-[#64748B] mt-3 tracking-wider">
-              Where empathetic teaching converges with intelligent systems.
-            </p>
           </div>
         </div>
 
         {/* ============ SCENE 4: MANTIF CINEMATIC TITLE ============ */}
         <div className={`w-full flex flex-col items-center justify-center text-center transition-all duration-1000 ${isTitleActive ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
 
-          {/* Chapter metadata strip detail */}
-          <div className="flex items-center gap-4 mb-8">
-            <span className="font-mono text-[10px] text-[#64748B] tracking-[0.25em] uppercase">Chapter 01</span>
-            <span className="w-4 h-[1px] bg-[#002137]/20" />
-            <span className="font-mono text-[10px] text-[#DFB74A] font-bold tracking-[0.25em] uppercase">Genesis & Convergence</span>
-            <span className="w-4 h-[1px] bg-[#002137]/20" />
-            <span className="font-mono text-[10px] text-[#64748B] tracking-[0.25em] uppercase hidden sm:inline">Est. 2024</span>
-          </div>
 
           {/* Giant 3D-depth letters */}
           <div className="flex items-center justify-center gap-0 sm:gap-1 md:gap-2 relative">
@@ -333,21 +318,31 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
 
       {/* Walk animations */}
       <style>{`
+        :root {
+          --human-target: -56px;
+          --robot-target: 56px;
+        }
+        @media (min-width: 640px) {
+          :root {
+            --human-target: -68px;
+            --robot-target: 68px;
+          }
+        }
         @keyframes walkHumanAnim {
-          from { transform: translateX(-160%); }
-          to   { transform: translateX(-52px); }
+          from { transform: translateX(-180%); }
+          to   { transform: translateX(var(--human-target)); }
         }
         @keyframes walkRobotAnim {
-          from { transform: translateX(160%); }
-          to   { transform: translateX(52px); }
+          from { transform: translateX(180%); }
+          to   { transform: translateX(var(--robot-target)); }
         }
         @keyframes legSwingL {
-          0%,100% { transform: rotate(-12deg); }
-          50%      { transform: rotate(12deg); }
+          0%,100% { transform: rotate(-14deg); }
+          50%      { transform: rotate(14deg); }
         }
         @keyframes legSwingR {
-          0%,100% { transform: rotate(12deg); }
-          50%      { transform: rotate(-12deg); }
+          0%,100% { transform: rotate(14deg); }
+          50%      { transform: rotate(-14deg); }
         }
       `}</style>
     </section>
