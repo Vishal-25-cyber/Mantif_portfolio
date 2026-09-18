@@ -161,36 +161,90 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
           )}
 
           {/* Feature list */}
-          <ul className="mt-3 space-y-1.5 flex-1">
+          <ul className="mt-3 space-y-1.5">
             {card.features.map((feature, idx) => (
               <li key={idx} className="flex items-start gap-2 text-xs text-[#334155]">
                 <div
                   className="w-1.5 h-1.5 rounded-full mt-[5px] shrink-0"
                   style={{ background: accent }}
                 />
-                <span>{feature}</span>
+                <span className="leading-snug">{feature}</span>
               </li>
             ))}
           </ul>
 
-          {/* Card 01 — origin photo */}
+          {/* Card 01 — Origin Milestone & Capability Tags */}
           {card.id === '01' && (
-            <div className="mt-3 pt-2.5 border-t border-[#002137]/8 flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-[#002137]/10">
-                <img
-                  src="/images/gallery_1.jpg"
-                  alt="Tutoring Hub Origin"
-                  className="w-full h-full object-cover"
-                />
+            <div className="mt-3 pt-2.5 border-t border-[#002137]/10 flex flex-col gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-[#002137]/10">
+                  <img
+                    src="/images/gallery_1.jpg"
+                    alt="Tutoring Hub Origin"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <span className="font-mono text-[8px] uppercase tracking-wider font-bold" style={{ color: accent }}>
+                    ORIGIN FOUNDATION
+                  </span>
+                  <p className="font-sans text-[10px] text-[#64748B] mt-0.5 leading-tight">
+                    From physical classrooms in 2024 to digital learning today.
+                  </p>
+                </div>
               </div>
-              <div>
-                <span className="font-mono text-[8px] uppercase tracking-wider font-bold"
-                  style={{ color: accent }}>
-                  ORIGIN MILESTONE
-                </span>
-                <p className="font-sans text-[10px] text-[#64748B] mt-0.5 leading-tight">
-                  From physical classrooms in 2024 to digital today.
-                </p>
+              <div className="flex flex-wrap gap-1 mt-0.5">
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">Classes 6–10</span>
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">AI Mentorship</span>
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">Digitised Schools</span>
+              </div>
+            </div>
+          )}
+
+          {/* Card 02 — Incubation Deliverables & Architecture */}
+          {card.id === '02' && (
+            <div className="mt-3 pt-2.5 border-t border-[#002137]/10 flex flex-col gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-[#004B79]/10 border border-[#004B79]/20 flex items-center justify-center shrink-0">
+                  <span className="font-mono text-xs font-bold text-[#004B79]">0→1</span>
+                </div>
+                <div>
+                  <span className="font-mono text-[8px] uppercase tracking-wider font-bold" style={{ color: accent }}>
+                    VENTURE ACCELERATION
+                  </span>
+                  <p className="font-sans text-[10px] text-[#64748B] mt-0.5 leading-tight">
+                    Zero-to-one product architecture & AI roadmaps for regional founders.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1 mt-0.5">
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">Architecture Sprints</span>
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">Zero-Cold-Start AI</span>
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">Lean Validation</span>
+              </div>
+            </div>
+          )}
+
+          {/* Card 03 — Full-Cycle Execution & Tech Stack */}
+          {card.id === '03' && (
+            <div className="mt-3 pt-2.5 border-t border-[#002137]/10 flex flex-col gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-[#002137]/10 border border-[#002137]/20 flex items-center justify-center shrink-0">
+                  <span className="font-mono text-xs font-bold text-[#002137]">LAB</span>
+                </div>
+                <div>
+                  <span className="font-mono text-[8px] uppercase tracking-wider font-bold" style={{ color: accent }}>
+                    FULL-CYCLE DELIVERY
+                  </span>
+                  <p className="font-sans text-[10px] text-[#64748B] mt-0.5 leading-tight">
+                    Bespoke web & mobile apps, media production & IT talent courses.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1 mt-0.5">
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">Full-Stack Web/App</span>
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">Media Production</span>
+                <span className="px-2 py-0.5 rounded-md bg-[#002137]/5 font-mono text-[8px] text-[#475569]">Workforce Training</span>
               </div>
             </div>
           )}

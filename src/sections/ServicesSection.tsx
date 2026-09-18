@@ -15,6 +15,7 @@ export const ServicesSection: React.FC = () => {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isHoveredStack, setIsHoveredStack] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
+  const [shuffleStep, setShuffleStep] = useState(0);
   const touchStartXRef = useRef<number | null>(null);
   const touchTimeoutRef = useRef<number | null>(null);
 
@@ -33,16 +34,19 @@ export const ServicesSection: React.FC = () => {
 
   const handleNext = () => {
     setActiveIndex((prev) => (prev + 1) % totalCards);
+    setShuffleStep((prev) => prev + 1);
     soundManager.playClick();
   };
 
   const handlePrev = () => {
     setActiveIndex((prev) => (prev - 1 + totalCards) % totalCards);
+    setShuffleStep((prev) => prev + 1);
     soundManager.playClick();
   };
 
   const handleSelectCard = (index: number) => {
     setActiveIndex(index);
+    setShuffleStep((prev) => prev + 1);
     soundManager.playClick();
   };
 
@@ -54,6 +58,7 @@ export const ServicesSection: React.FC = () => {
 
     const timer = setInterval(() => {
       setActiveIndex((curr) => (curr + 1) % totalCards);
+      setShuffleStep((prev) => prev + 1);
     }, AUTOPLAY_INTERVAL);
 
     return () => clearInterval(timer);
@@ -176,119 +181,124 @@ export const ServicesSection: React.FC = () => {
         <div className="relative w-full py-6 sm:py-8 flex flex-col items-center">
           {/* 3D Stack Stage Container — Symmetrical Both Sides Visibility */}
           <div
-              onMouseEnter={() => setIsHoveredStack(true)}
-              onMouseLeave={() => setIsHoveredStack(false)}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-              className="relative w-full max-w-[340px] sm:max-w-[370px] h-[490px] sm:h-[520px] mx-auto flex items-center justify-center"
+            onMouseEnter={() => setIsHoveredStack(true)}
+            onMouseLeave={() => setIsHoveredStack(false)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            style={{ perspective: '1200px' }}
+            className="relative w-full max-w-[340px] sm:max-w-[370px] h-[440px] sm:h-[465px] mx-auto flex items-center justify-center"
+          >
+            {/* Decorative Ambient Luxury Orbiting Ring behind the Stack */}
+            <div
+              className="absolute -inset-10 sm:-inset-14 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
+              style={{
+                animation: 'spin 60s linear infinite',
+              }}
+            />
+            <div
+              className="absolute -inset-4 sm:-inset-6 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
+              style={{
+                animation: 'spin 40s linear infinite reverse',
+              }}
+            />
+
+            {/* Floating Prev Button (<) — Framed outside left fanned card */}
+            <button
+              onClick={handlePrev}
+              onMouseEnter={() => {
+                setCursorMode('hover');
+                setIsHoveredStack(true);
+                soundManager.playHoverTick();
+              }}
+              onMouseLeave={() => {
+                setCursorMode('default');
+                setIsHoveredStack(false);
+              }}
+              className="absolute -left-4 sm:-left-20 lg:-left-24 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
+              aria-label="Previous card in stack"
             >
-              {/* Decorative Ambient Luxury Orbiting Ring behind the Stack */}
-              <div
-                className="absolute -inset-10 sm:-inset-14 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
-                style={{
-                  animation: 'spin 60s linear infinite',
-                }}
-              />
-              <div
-                className="absolute -inset-4 sm:-inset-6 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
-                style={{
-                  animation: 'spin 40s linear infinite reverse',
-                }}
-              />
+              <ChevronLeft className="w-5 h-5" />
+            </button>
 
-              {/* Floating Prev Button (<) — Framed outside left fanned card */}
-              <button
-                onClick={handlePrev}
-                onMouseEnter={() => {
-                  setCursorMode('hover');
-                  setIsHoveredStack(true);
-                  soundManager.playHoverTick();
-                }}
-                onMouseLeave={() => {
-                  setCursorMode('default');
-                  setIsHoveredStack(false);
-                }}
-                className="absolute -left-4 sm:-left-20 lg:-left-24 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
-                aria-label="Previous card in stack"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
+            {/* Floating Next Button (>) — Framed outside right fanned card */}
+            <button
+              onClick={handleNext}
+              onMouseEnter={() => {
+                setCursorMode('hover');
+                setIsHoveredStack(true);
+                soundManager.playHoverTick();
+              }}
+              onMouseLeave={() => {
+                setCursorMode('default');
+                setIsHoveredStack(false);
+              }}
+              className="absolute -right-4 sm:-right-20 lg:-right-24 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
+              aria-label="Next card in stack"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
 
-              {/* Floating Next Button (>) — Framed outside right fanned card */}
-              <button
-                onClick={handleNext}
-                onMouseEnter={() => {
-                  setCursorMode('hover');
-                  setIsHoveredStack(true);
-                  soundManager.playHoverTick();
-                }}
-                onMouseLeave={() => {
-                  setCursorMode('default');
-                  setIsHoveredStack(false);
-                }}
-                className="absolute -right-4 sm:-right-20 lg:-right-24 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
-                aria-label="Next card in stack"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+            {/* The 3 Cards Stacked with Both Sides Coming From the Back */}
+            {services.cards.map((card, idx) => {
+              const offset = (idx - activeIndex + totalCards) % totalCards;
 
-              {/* The 3 Cards Stacked with Both Sides Prominently Visible */}
-              {services.cards.map((card, idx) => {
-                const offset = (idx - activeIndex + totalCards) % totalCards;
+              // Responsive symmetric fan offsets for BOTH SIDES
+              const xOffset = windowWidth < 640 ? 46 : windowWidth < 1024 ? 85 : 125;
+              const rotateDeg = windowWidth < 640 ? 3 : 4.5;
+              const scaleVal = windowWidth < 640 ? 0.92 : 0.89;
 
-                // Responsive symmetric fan offsets for BOTH SIDES
-                const xOffset = windowWidth < 640 ? 45 : windowWidth < 1024 ? 85 : 125;
-                const rotateDeg = windowWidth < 640 ? 3 : 4.5;
-                const scaleVal = windowWidth < 640 ? 0.92 : 0.90;
+              // Alternate incoming entrance side from the back (Right then Left)
+              const isRightFirst = shuffleStep % 2 === 0;
+              const isRightCard = offset === 1 ? isRightFirst : !isRightFirst;
 
-                let zIndex = 30;
-                let transform = 'translateY(0px) translateX(0px) scale(1) rotate(0deg)';
-                let opacity = 1;
-                let filter = 'none';
-                let pointerEvents: 'auto' | 'none' = 'auto';
-                let accentColor = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#002137';
+              let zIndex = 30;
+              let transform = 'translate3d(0px, 0px, 40px) scale(1) rotate(0deg)';
+              let opacity = 1;
+              let filter = 'none';
+              let pointerEvents: 'auto' | 'none' = 'auto';
+              let accentColor = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#002137';
 
-                if (offset === 0) {
-                  // Active Top Card — Front and Center
-                  zIndex = 30;
-                  transform = 'translateY(0px) translateX(0px) scale(1) rotate(0deg)';
-                  opacity = 1;
-                  filter = 'none';
-                  pointerEvents = 'auto';
-                } else if (offset === 1) {
-                  // Right Card — Fanned out clearly to the RIGHT side
-                  zIndex = 20;
-                  transform = `translateY(12px) translateX(${xOffset}px) scale(${scaleVal}) rotate(${rotateDeg}deg)`;
-                  opacity = 0.94;
-                  filter = 'brightness(0.97)';
-                  pointerEvents = 'auto';
-                } else {
-                  // Left Card — Fanned out clearly to the LEFT side
-                  zIndex = 20;
-                  transform = `translateY(12px) translateX(-${xOffset}px) scale(${scaleVal}) rotate(-${rotateDeg}deg)`;
-                  opacity = 0.94;
-                  filter = 'brightness(0.97)';
-                  pointerEvents = 'auto';
-                }
+              if (offset === 0) {
+                // Active Front Card — elevated towards viewer in 3D
+                zIndex = 30;
+                transform = 'translate3d(0px, 0px, 40px) scale(1) rotate(0deg)';
+                opacity = 1;
+                filter = 'none';
+                pointerEvents = 'auto';
+              } else if (isRightCard) {
+                // Card in the BACK on the RIGHT side — tilted in 3D depth
+                zIndex = 15;
+                transform = `translate3d(${xOffset}px, 10px, -60px) scale(${scaleVal}) rotate(${rotateDeg}deg) rotateY(-8deg)`;
+                opacity = 0.92;
+                filter = 'brightness(0.96)';
+                pointerEvents = 'auto';
+              } else {
+                // Card in the BACK on the LEFT side — tilted in 3D depth
+                zIndex = 15;
+                transform = `translate3d(-${xOffset}px, 10px, -60px) scale(${scaleVal}) rotate(-${rotateDeg}deg) rotateY(8deg)`;
+                opacity = 0.92;
+                filter = 'brightness(0.96)';
+                pointerEvents = 'auto';
+              }
 
-                return (
-                  <div
-                    key={card.id}
-                    onClick={() => {
-                      if (offset !== 0) {
-                        handleSelectCard(idx);
-                      } else {
-                        // Touching / tapping the active center card toggles stop/play
-                        setIsAutoPlay((prev) => !prev);
-                        soundManager.playClick();
-                      }
-                    }}
-                    onMouseEnter={() => setIsHoveredStack(true)}
-                    onMouseLeave={() => setIsHoveredStack(false)}
-                    onTouchStart={() => {
-                      setIsTouched(true);
-                      setIsHoveredStack(true);
-                    }}
+              return (
+                <div
+                  key={card.id}
+                  onClick={() => {
+                    if (offset !== 0) {
+                      handleSelectCard(idx);
+                    } else {
+                      // Touching / tapping the active center card toggles stop/play
+                      setIsAutoPlay((prev) => !prev);
+                      soundManager.playClick();
+                    }
+                  }}
+                  onMouseEnter={() => setIsHoveredStack(true)}
+                  onMouseLeave={() => setIsHoveredStack(false)}
+                  onTouchStart={() => {
+                    setIsTouched(true);
+                    setIsHoveredStack(true);
+                  }}
                     className="absolute inset-0 rounded-3xl transition-all duration-400 ease-out will-change-transform"
                     style={{
                       zIndex,
