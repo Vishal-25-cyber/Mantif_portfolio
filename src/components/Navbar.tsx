@@ -142,13 +142,13 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
                   ? 'bg-[#004B79] text-[#FAF8F5] border-[#004B79] shadow-md shadow-[#004B79]/30'
                   : 'bg-[#FAF8F5]/80 text-[#002137]/70 border-[#002137]/15 hover:border-[#002137]/40 hover:text-[#002137]'
               }`}
-              title={!isMuted ? 'Playing: Leo Thalapathy Vijay Mass BGM (Click to mute)' : 'Click to play Tamil Mass BGM'}
+              title={!isMuted ? 'Sound active (Click to mute)' : 'Click to enable audio'}
               aria-label="Toggle Sound"
             >
               {!isMuted ? (
                 <>
                   <Volume2 className="w-3.5 h-3.5 animate-pulse text-[#DFB74A]" />
-                  <span className="text-[10px] hidden sm:inline font-bold tracking-wider">AUDIO ON · TAMIL MASS</span>
+                  <span className="text-[10px] hidden sm:inline font-bold tracking-wider">AUDIO ON</span>
                 </>
               ) : (
                 <>
