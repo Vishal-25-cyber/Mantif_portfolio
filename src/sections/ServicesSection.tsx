@@ -3,11 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowUpRight,
-  Sparkles,
-  LayoutGrid,
-  Layers,
-  Play,
-  Pause,
 } from 'lucide-react';
 import { siteContent } from '../data/content';
 import { ServiceCard } from '../components/ServiceCard';
@@ -17,7 +12,6 @@ import { setCursorMode } from '../hooks/useCursor';
 export const ServicesSection: React.FC = () => {
   const { services } = siteContent;
   const [activeIndex, setActiveIndex] = useState(0);
-  const [viewMode, setViewMode] = useState<'stack' | 'grid'>('stack');
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isHoveredStack, setIsHoveredStack] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
@@ -54,7 +48,7 @@ export const ServicesSection: React.FC = () => {
 
   // Continuous smooth auto-moving loop (stops immediately when touched or hovered)
   useEffect(() => {
-    if (!isAutoPlay || isHoveredStack || isTouched || viewMode !== 'stack') {
+    if (!isAutoPlay || isHoveredStack || isTouched) {
       return;
     }
 
@@ -63,7 +57,7 @@ export const ServicesSection: React.FC = () => {
     }, AUTOPLAY_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [isAutoPlay, isHoveredStack, isTouched, viewMode, totalCards]);
+  }, [isAutoPlay, isHoveredStack, isTouched, totalCards]);
 
   // Touch handlers for mobile / touch devices — touches stop the auto-shuffle
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -177,111 +171,11 @@ export const ServicesSection: React.FC = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* CAROUSEL CONTROLS BAR: AUTOPLAY STATUS & VIEW SWITCHER                    */}
+        {/* ATTRACTIVE & UNIQUE "ONE OVER ANOTHER" 3D FAN STACK CAROUSEL              */}
         {/* ========================================================================= */}
-        <div className="flex items-center justify-between gap-4 mb-6 pb-3 border-b border-[#002137]/10">
-          {/* Subtle Stage Label / Active Initiative */}
-          <div className="flex items-center gap-2.5 font-mono text-xs text-[#64748B]">
-            <span
-              className={`w-2 h-2 rounded-full transition-colors ${
-                isAutoPlay && !isHoveredStack && !isTouched
-                  ? 'bg-[#DFB74A] animate-pulse'
-                  : 'bg-[#004B79]'
-              }`}
-            />
-            <span className="tracking-wider uppercase font-semibold text-[#002137]">
-              {viewMode === 'stack'
-                ? isHoveredStack || isTouched || !isAutoPlay
-                  ? 'Stopped (Card Touched)'
-                  : 'Auto-Shuffling Both Sides'
-                : 'All Offerings'}
-            </span>
-            <span className="opacity-40">/</span>
-            <span className="text-[11px] font-mono text-[#004B79] font-medium">
-              {viewMode === 'stack' ? `Card 0${activeIndex + 1} of 0${totalCards}` : '3 Core Initiatives'}
-            </span>
-          </div>
-
-          {/* Right Controls: Autoplay Button, Counter, & Grid Toggle */}
-          <div className="flex items-center justify-end gap-3 shrink-0">
-            {/* Auto-play toggle with status */}
-            {viewMode === 'stack' && (
-              <button
-                onClick={() => {
-                  setIsAutoPlay(!isAutoPlay);
-                  setIsHoveredStack(false);
-                  setIsTouched(false);
-                  soundManager.playClick();
-                }}
-                onMouseEnter={() => setCursorMode('hover')}
-                onMouseLeave={() => setCursorMode('default')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-mono transition-all ${
-                  isAutoPlay && !isHoveredStack && !isTouched
-                    ? 'bg-[#DFB74A]/15 border-[#DFB74A] text-[#002137] font-semibold'
-                    : 'bg-white/80 border-[#002137]/20 text-[#004B79] font-bold shadow-sm'
-                }`}
-                title={
-                  isAutoPlay && !isHoveredStack && !isTouched
-                    ? 'Auto-shuffle active (touch or hover card to stop)'
-                    : 'Shuffle stopped (click to resume)'
-                }
-                aria-label="Toggle auto play"
-              >
-                {isAutoPlay && !isHoveredStack && !isTouched ? (
-                  <>
-                    <Pause className="w-3 h-3 text-[#DFB74A]" />
-                    <span className="text-[10px] hidden md:inline">AUTO-SHUFFLE</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-3 h-3 text-[#004B79]" />
-                    <span className="text-[10px] hidden md:inline">STOPPED · RESUME</span>
-                  </>
-                )}
-              </button>
-            )}
-
-            {/* Slide Counter */}
-            {viewMode === 'stack' && (
-              <div className="font-mono text-xs text-[#64748B] tracking-widest px-1">
-                <span className="font-bold text-[#002137]">0{activeIndex + 1}</span>
-                <span className="opacity-40 mx-1">/</span>
-                <span>0{totalCards}</span>
-              </div>
-            )}
-
-            {/* View Mode Switcher: Stacked Carousel vs Spread Grid */}
-            <button
-              onClick={() => {
-                setViewMode(viewMode === 'stack' ? 'grid' : 'stack');
-                soundManager.playClick();
-              }}
-              onMouseEnter={() => setCursorMode('hover')}
-              onMouseLeave={() => setCursorMode('default')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#002137]/15 bg-white/80 hover:bg-white text-xs font-mono text-[#002137] font-semibold transition-colors shadow-sm"
-            >
-              {viewMode === 'stack' ? (
-                <>
-                  <LayoutGrid className="w-3.5 h-3.5 text-[#004B79]" />
-                  <span className="hidden sm:inline">Spread Grid</span>
-                </>
-              ) : (
-                <>
-                  <Layers className="w-3.5 h-3.5 text-[#DFB74A]" />
-                  <span className="hidden sm:inline">Stacked Carousel</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* VIEW MODE 1: ATTRACTIVE & UNIQUE "ONE OVER ANOTHER" 3D FAN STACK           */}
-        {/* ========================================================================= */}
-        {viewMode === 'stack' && (
-          <div className="relative w-full py-6 sm:py-8 flex flex-col items-center">
-            {/* 3D Stack Stage Container — Symmetrical Both Sides Visibility */}
-            <div
+        <div className="relative w-full py-6 sm:py-8 flex flex-col items-center">
+          {/* 3D Stack Stage Container — Symmetrical Both Sides Visibility */}
+          <div
               onMouseEnter={() => setIsHoveredStack(true)}
               onMouseLeave={() => setIsHoveredStack(false)}
               onTouchStart={handleTouchStart}
@@ -433,20 +327,6 @@ export const ServicesSection: React.FC = () => {
               })}
             </div>
           </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* VIEW MODE 2: FULL SPREAD GRID (ALL 3 CARDS SIDE BY SIDE)                  */}
-        {/* ========================================================================= */}
-        {viewMode === 'grid' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {services.cards.map((card) => (
-              <div key={card.id} className="h-[480px] sm:h-[510px]">
-                <ServiceCard card={card} />
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Bottom credentials strip */}
         <div className="mt-14 pt-6 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-mono text-[#64748B]">
