@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
 import { setCursorMode } from '../hooks/useCursor';
-import { Intro3DBackground } from '../components/Intro3DBackground';
 
 interface IntroSectionProps {
   onIntroComplete?: () => void;
@@ -113,8 +112,14 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       id="intro"
       className="relative w-full min-h-screen flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
-      {/* 3D Animated Interactive Background */}
-      <Intro3DBackground />
+      {/* Ambient radial gradient spotlight */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background: 'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,75,121,0.06) 0%, transparent 70%)',
+        }}
+      />
 
 
 
