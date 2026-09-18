@@ -6,9 +6,9 @@ interface Intro3DBackgroundProps {
 }
 
 /**
- * Creates a high-contrast circular glow texture for particles (NormalBlending)
+ * Creates a luminous particle sprite texture for the spark between fingertips
  */
-function createCrispGlowTexture(): THREE.CanvasTexture {
+function createSparkTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 64;
@@ -16,9 +16,9 @@ function createCrispGlowTexture(): THREE.CanvasTexture {
   if (ctx) {
     const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.25, 'rgba(255, 230, 150, 0.95)');
-    gradient.addColorStop(0.55, 'rgba(223, 183, 74, 0.85)');
-    gradient.addColorStop(0.85, 'rgba(0, 75, 121, 0.45)');
+    gradient.addColorStop(0.2, 'rgba(255, 230, 150, 0.95)');
+    gradient.addColorStop(0.55, 'rgba(223, 183, 74, 0.7)');
+    gradient.addColorStop(0.85, 'rgba(0, 75, 121, 0.25)');
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 64, 64);
@@ -35,7 +35,7 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     y: 0,
     targetX: 0,
     targetY: 0,
-    clickRipple: 0,
+    clickPulse: 0,
   });
 
   // Strictly ONLY show once the intro animation is completed
@@ -50,8 +50,8 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
 
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 36);
+    const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 1000);
+    camera.position.set(0, 0, 34);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -64,173 +64,370 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    const glowTexture = createCrispGlowTexture();
+    const sparkTexture = createSparkTexture();
 
     // ─────────────────────────────────────────────────────────────
-    // 1. LIGHTING SETUP (High Specular for Metallic Pop)
+    // 1. LIGHTING SETUP (High Specular Reflections)
     // ─────────────────────────────────────────────────────────────
-    const ambientLight = new THREE.AmbientLight(0xFFFBF2, 1.8);
+    const ambientLight = new THREE.AmbientLight(0xFFFDF5, 1.9);
     scene.add(ambientLight);
 
-    const goldKeyLight = new THREE.DirectionalLight(0xDFB74A, 3.8);
-    goldKeyLight.position.set(20, 25, 20);
+    const goldKeyLight = new THREE.DirectionalLight(0xDFB74A, 3.6);
+    goldKeyLight.position.set(18, 22, 18);
     scene.add(goldKeyLight);
 
-    const sapphireRimLight = new THREE.DirectionalLight(0x004B79, 3.0);
-    sapphireRimLight.position.set(-20, -15, 12);
+    const sapphireRimLight = new THREE.DirectionalLight(0x004B79, 3.2);
+    sapphireRimLight.position.set(-18, -14, 14);
     scene.add(sapphireRimLight);
 
-    // Interactive point light following cursor
-    const cursorLight = new THREE.PointLight(0xFFE599, 4.5, 40);
-    cursorLight.position.set(0, 0, 15);
+    const frontLight = new THREE.DirectionalLight(0xFFFFFF, 1.4);
+    frontLight.position.set(0, 10, 20);
+    scene.add(frontLight);
+
+    // Dynamic light tracking cursor
+    const cursorLight = new THREE.PointLight(0xFFE58F, 4.0, 35);
+    cursorLight.position.set(0, 0, 14);
     scene.add(cursorLight);
 
     // ─────────────────────────────────────────────────────────────
-    // 2. CELESTIAL SACRED ARMILLARY RINGS (Clearly Visible & Elegant)
+    // 2. LEFT: 3D HUMAN HAND (Organic Sculptural Ivory & Gold)
     // ─────────────────────────────────────────────────────────────
-    const ringsGroup = new THREE.Group();
-    ringsGroup.position.set(0, 0, -4);
-    scene.add(ringsGroup);
+    const humanHand = new THREE.Group();
+    humanHand.position.set(-15.5, -0.5, -4);
+    scene.add(humanHand);
 
-    // Outer Armillary Ring (Rich Metallic Royal Gold)
-    const ring1Geo = new THREE.TorusGeometry(18.5, 0.12, 16, 120);
-    const ring1Mat = new THREE.MeshStandardMaterial({
+    const humanSkinMat = new THREE.MeshStandardMaterial({
+      color: 0xF3ECE2,
+      roughness: 0.28,
+      metalness: 0.35,
+    });
+
+    const humanGoldMat = new THREE.MeshStandardMaterial({
       color: 0xDFB74A,
+      roughness: 0.16,
       metalness: 0.95,
+    });
+
+    const humanWireMat = new THREE.MeshBasicMaterial({
+      color: 0xDFB74A,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.35,
+    });
+
+    // Human Forearm
+    const humanForearm = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.5, 2.1, 11, 24),
+      humanSkinMat
+    );
+    humanForearm.rotation.z = Math.PI / 2.25;
+    humanForearm.position.set(-8.5, -1.8, 0);
+    humanHand.add(humanForearm);
+
+    // Golden Bracelet / Interface at wrist
+    const humanBracelet = new THREE.Mesh(
+      new THREE.TorusGeometry(1.6, 0.18, 16, 32),
+      humanGoldMat
+    );
+    humanBracelet.rotation.y = Math.PI / 2;
+    humanBracelet.position.set(-4.8, -0.7, 0);
+    humanHand.add(humanBracelet);
+
+    // Human Palm
+    const humanPalm = new THREE.Mesh(
+      new THREE.BoxGeometry(4.0, 3.0, 1.3),
+      humanSkinMat
+    );
+    humanPalm.position.set(-3.0, -0.3, 0);
+    humanPalm.rotation.z = 0.12;
+    humanHand.add(humanPalm);
+
+    // Subtle golden wireframe overlay on palm
+    const humanPalmWire = new THREE.Mesh(
+      new THREE.BoxGeometry(4.08, 3.08, 1.38),
+      humanWireMat
+    );
+    humanPalmWire.position.copy(humanPalm.position);
+    humanPalmWire.rotation.copy(humanPalm.rotation);
+    humanHand.add(humanPalmWire);
+
+    // Helper to generate a human finger
+    const buildHumanFinger = (
+      baseX: number,
+      baseY: number,
+      baseZ: number,
+      lengths: number[],
+      angles: number[],
+      rotY: number = 0
+    ) => {
+      const fingerGroup = new THREE.Group();
+      fingerGroup.position.set(baseX, baseY, baseZ);
+      fingerGroup.rotation.y = rotY;
+
+      let currentParent = fingerGroup;
+      lengths.forEach((len, idx) => {
+        const phalanx = new THREE.Group();
+        const rTop = 0.36 - idx * 0.05;
+        const rBot = 0.40 - idx * 0.05;
+        const boneMesh = new THREE.Mesh(
+          new THREE.CylinderGeometry(rTop, rBot, len, 16),
+          humanSkinMat
+        );
+        boneMesh.position.y = len / 2;
+        phalanx.add(boneMesh);
+
+        // Golden knuckle bead
+        const jointMesh = new THREE.Mesh(
+          new THREE.SphereGeometry(rBot, 12, 12),
+          humanGoldMat
+        );
+        phalanx.add(jointMesh);
+
+        phalanx.rotation.z = angles[idx];
+        currentParent.add(phalanx);
+
+        const nextAnchor = new THREE.Group();
+        nextAnchor.position.y = len;
+        phalanx.add(nextAnchor);
+        currentParent = nextAnchor;
+      });
+
+      humanHand.add(fingerGroup);
+      return fingerGroup;
+    };
+
+    // Fingers in Michelangelo's "Creation of Adam" pose: Index points forward, others relaxed
+    // Index finger extending towards center
+    buildHumanFinger(-1.0, 0.45, 0.15, [2.3, 1.8, 1.4], [Math.PI / 2.05, 0.04, 0.04]);
+    // Middle finger (curled slightly back)
+    buildHumanFinger(-1.0, 0.1, -0.2, [2.3, 1.7, 1.3], [Math.PI / 2.35, 0.28, 0.35]);
+    // Ring finger (curled back)
+    buildHumanFinger(-1.1, -0.3, -0.55, [2.0, 1.5, 1.1], [Math.PI / 2.55, 0.38, 0.45]);
+    // Pinky finger (curled back)
+    buildHumanFinger(-1.2, -0.65, -0.85, [1.6, 1.2, 0.9], [Math.PI / 2.75, 0.45, 0.55]);
+    // Thumb (reaching upward and outward)
+    buildHumanFinger(-3.6, 0.7, 0.65, [1.7, 1.3], [Math.PI / 3.3, -0.15], 0.35);
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. RIGHT: 3D CYBERNETIC ROBOT HAND (Sapphire, Navy & Gold)
+    // ─────────────────────────────────────────────────────────────
+    const robotHand = new THREE.Group();
+    robotHand.position.set(15.5, -0.5, -4);
+    scene.add(robotHand);
+
+    const robotSapphireMat = new THREE.MeshStandardMaterial({
+      color: 0x004B79,
       roughness: 0.15,
+      metalness: 0.94,
+    });
+
+    const robotNavyMat = new THREE.MeshStandardMaterial({
+      color: 0x002137,
+      roughness: 0.2,
+      metalness: 0.92,
+    });
+
+    const robotGoldMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      roughness: 0.12,
+      metalness: 0.96,
+    });
+
+    const robotCoreMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      emissive: 0xDFB74A,
+      emissiveIntensity: 0.85,
+      roughness: 0.1,
+      metalness: 0.95,
+    });
+
+    // Robotic Forearm (Octagonal Arm Sleeve)
+    const robotForearm = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.6, 2.2, 11, 8),
+      robotNavyMat
+    );
+    robotForearm.rotation.z = -Math.PI / 2.25;
+    robotForearm.position.set(8.5, -1.8, 0);
+    robotHand.add(robotForearm);
+
+    // Hydraulic Gold Pistons along forearm
+    const piston1 = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 9, 12),
+      robotGoldMat
+    );
+    piston1.rotation.z = -Math.PI / 2.25;
+    piston1.position.set(8.5, -1.1, 0.9);
+    robotHand.add(piston1);
+
+    const piston2 = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 9, 12),
+      robotGoldMat
+    );
+    piston2.rotation.z = -Math.PI / 2.25;
+    piston2.position.set(8.5, -2.5, -0.9);
+    robotHand.add(piston2);
+
+    // Wrist Gimbal Joint
+    const robotWrist = new THREE.Mesh(
+      new THREE.TorusGeometry(1.7, 0.22, 16, 32),
+      robotGoldMat
+    );
+    robotWrist.rotation.y = Math.PI / 2;
+    robotWrist.position.set(4.8, -0.7, 0);
+    robotHand.add(robotWrist);
+
+    // Robotic Palm (Segmented Sapphire Chassis)
+    const robotPalm = new THREE.Mesh(
+      new THREE.BoxGeometry(4.0, 3.0, 1.3),
+      robotSapphireMat
+    );
+    robotPalm.position.set(3.0, -0.3, 0);
+    robotPalm.rotation.z = -0.12;
+    robotHand.add(robotPalm);
+
+    // Glowing core reactor in center of robotic palm
+    const palmReactor = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.65, 0.65, 1.4, 16),
+      robotCoreMat
+    );
+    palmReactor.rotation.x = Math.PI / 2;
+    palmReactor.position.set(3.0, -0.3, 0);
+    robotHand.add(palmReactor);
+
+    // Helper to generate an articulated robotic finger
+    const buildRobotFinger = (
+      baseX: number,
+      baseY: number,
+      baseZ: number,
+      lengths: number[],
+      angles: number[],
+      rotY: number = 0
+    ) => {
+      const fingerGroup = new THREE.Group();
+      fingerGroup.position.set(baseX, baseY, baseZ);
+      fingerGroup.rotation.y = rotY;
+
+      let currentParent = fingerGroup;
+      lengths.forEach((len, idx) => {
+        const phalanx = new THREE.Group();
+        const w = 0.72 - idx * 0.08;
+        const d = 0.62 - idx * 0.06;
+
+        // Mechanical Armor Segment
+        const plateMesh = new THREE.Mesh(
+          new THREE.BoxGeometry(w, len, d),
+          idx % 2 === 0 ? robotSapphireMat : robotNavyMat
+        );
+        plateMesh.position.y = len / 2;
+        phalanx.add(plateMesh);
+
+        // Cylindrical Knuckle Bolt (Gold)
+        const boltMesh = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.38 - idx * 0.04, 0.38 - idx * 0.04, w + 0.15, 12),
+          robotGoldMat
+        );
+        boltMesh.rotation.z = Math.PI / 2;
+        phalanx.add(boltMesh);
+
+        // Glowing fingertip sensor
+        if (idx === lengths.length - 1) {
+          const tipSensor = new THREE.Mesh(
+            new THREE.SphereGeometry(0.22, 12, 12),
+            robotCoreMat
+          );
+          tipSensor.position.y = len;
+          phalanx.add(tipSensor);
+        }
+
+        phalanx.rotation.z = angles[idx];
+        currentParent.add(phalanx);
+
+        const nextAnchor = new THREE.Group();
+        nextAnchor.position.y = len;
+        phalanx.add(nextAnchor);
+        currentParent = nextAnchor;
+      });
+
+      robotHand.add(fingerGroup);
+      return fingerGroup;
+    };
+
+    // Robot Fingers extending left towards human hand
+    // Index (Extended forward towards center)
+    buildRobotFinger(1.0, 0.45, 0.15, [2.3, 1.8, 1.4], [-Math.PI / 2.05, -0.04, -0.04]);
+    // Middle
+    buildRobotFinger(1.0, 0.1, -0.2, [2.3, 1.7, 1.3], [-Math.PI / 2.35, -0.28, -0.35]);
+    // Ring
+    buildRobotFinger(1.1, -0.3, -0.55, [2.0, 1.5, 1.1], [-Math.PI / 2.55, -0.38, -0.45]);
+    // Pinky
+    buildRobotFinger(1.2, -0.65, -0.85, [1.6, 1.2, 0.9], [-Math.PI / 2.75, -0.45, -0.55]);
+    // Thumb
+    buildRobotFinger(3.6, 0.7, 0.65, [1.7, 1.3], [-Math.PI / 3.3, 0.15], -0.35);
+
+    // ─────────────────────────────────────────────────────────────
+    // 4. CENTRAL TOUCH ENERGY SPARK (Between Fingertips)
+    // ─────────────────────────────────────────────────────────────
+    const sparkGroup = new THREE.Group();
+    sparkGroup.position.set(0, 0.5, -4);
+    scene.add(sparkGroup);
+
+    // Glowing core sphere
+    const coreSpark = new THREE.Mesh(
+      new THREE.SphereGeometry(0.45, 16, 16),
+      new THREE.MeshStandardMaterial({
+        color: 0xDFB74A,
+        emissive: 0xDFB74A,
+        emissiveIntensity: 1.2,
+        roughness: 0.1,
+      })
+    );
+    sparkGroup.add(coreSpark);
+
+    // Ambient floating spark particles around the nexus
+    const sparkParticleCount = 28;
+    const sparkGeo = new THREE.BufferGeometry();
+    const sparkPositions = new Float32Array(sparkParticleCount * 3);
+    for (let i = 0; i < sparkParticleCount; i++) {
+      const idx = i * 3;
+      const r = 0.6 + Math.random() * 2.8;
+      const theta = Math.random() * Math.PI * 2;
+      sparkPositions[idx] = Math.cos(theta) * r;
+      sparkPositions[idx + 1] = Math.sin(theta) * r * 0.7;
+      sparkPositions[idx + 2] = (Math.random() - 0.5) * 2.0;
+    }
+    sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3));
+
+    const sparkPointsMat = new THREE.PointsMaterial({
+      size: 0.55,
+      map: sparkTexture,
+      color: 0xDFB74A,
       transparent: true,
       opacity: 0.85,
-    });
-    const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
-    ring1.rotation.x = 1.15;
-    ring1.rotation.y = 0.35;
-    ringsGroup.add(ring1);
-
-    // Mid Armillary Ring (Deep Celestial Sapphire)
-    const ring2Geo = new THREE.TorusGeometry(14.0, 0.10, 16, 100);
-    const ring2Mat = new THREE.MeshStandardMaterial({
-      color: 0x004B79,
-      metalness: 0.92,
-      roughness: 0.18,
-      transparent: true,
-      opacity: 0.8,
-    });
-    const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
-    ring2.rotation.x = -0.75;
-    ring2.rotation.y = 0.85;
-    ringsGroup.add(ring2);
-
-    // Inner Armillary Ring (Fine Warm Gold)
-    const ring3Geo = new THREE.TorusGeometry(10.2, 0.08, 16, 80);
-    const ring3Mat = new THREE.MeshStandardMaterial({
-      color: 0xF5E0B8,
-      metalness: 0.94,
-      roughness: 0.14,
-      transparent: true,
-      opacity: 0.75,
-    });
-    const ring3 = new THREE.Mesh(ring3Geo, ring3Mat);
-    ring3.rotation.x = 0.45;
-    ring3.rotation.z = 0.65;
-    ringsGroup.add(ring3);
-
-    // Orbiting Satellite Jewels
-    const satellites: { mesh: THREE.Mesh; radius: number; speed: number; angle: number; parent: THREE.Mesh }[] = [];
-    for (let i = 0; i < 6; i++) {
-      const parent = i % 2 === 0 ? ring1 : ring2;
-      const radius = i % 2 === 0 ? 18.5 : 14.0;
-      const satMat = new THREE.MeshStandardMaterial({
-        color: i % 2 === 0 ? 0xDFB74A : 0x0088CC,
-        emissive: i % 2 === 0 ? 0xDFB74A : 0x004B79,
-        emissiveIntensity: 0.85,
-        metalness: 0.95,
-        roughness: 0.1,
-      });
-      const satMesh = new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 16), satMat);
-      parent.add(satMesh);
-      satellites.push({
-        mesh: satMesh,
-        radius,
-        speed: (0.35 + (i % 3) * 0.2) * (i % 2 === 0 ? 1 : -1),
-        angle: (i / 6) * Math.PI * 2,
-        parent,
-      });
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // 3. 3D UNDULATING WAVE TERRAIN (Lower Depth Horizon)
-    // ─────────────────────────────────────────────────────────────
-    const waveCols = 50;
-    const waveRows = 50;
-    const waveCount = waveCols * waveRows;
-    const waveGeo = new THREE.BufferGeometry();
-    const wavePositions = new Float32Array(waveCount * 3);
-    const waveColors = new Float32Array(waveCount * 3);
-
-    const cGold = new THREE.Color('#DFB74A');
-    const cSapphire = new THREE.Color('#004B79');
-    const cNavy = new THREE.Color('#002137');
-
-    const spacing = 1.2;
-    const xOff = ((waveCols - 1) * spacing) / 2;
-    const zOff = ((waveRows - 1) * spacing) / 2;
-
-    for (let i = 0; i < waveCols; i++) {
-      for (let j = 0; j < waveRows; j++) {
-        const idx = (i * waveRows + j) * 3;
-        wavePositions[idx] = i * spacing - xOff;
-        wavePositions[idx + 1] = 0;
-        wavePositions[idx + 2] = j * spacing - zOff;
-
-        // Rich contrasting colors: Gold & Sapphire alternating with Navy
-        const col = new THREE.Color();
-        if ((i + j) % 3 === 0) col.copy(cGold);
-        else if ((i + j) % 3 === 1) col.copy(cSapphire);
-        else col.copy(cNavy);
-
-        waveColors[idx] = col.r;
-        waveColors[idx + 1] = col.g;
-        waveColors[idx + 2] = col.b;
-      }
-    }
-
-    waveGeo.setAttribute('position', new THREE.BufferAttribute(wavePositions, 3));
-    waveGeo.setAttribute('color', new THREE.BufferAttribute(waveColors, 3));
-
-    const waveMat = new THREE.PointsMaterial({
-      size: 0.62,
-      map: glowTexture,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.88,
-      blending: THREE.NormalBlending, // 100% visible on light cream!
+      blending: THREE.NormalBlending,
       depthWrite: false,
     });
-
-    const waveMesh = new THREE.Points(waveGeo, waveMat);
-    waveMesh.rotation.x = -Math.PI / 2.75;
-    waveMesh.position.set(0, -10.5, -4);
-    scene.add(waveMesh);
+    const sparkParticles = new THREE.Points(sparkGeo, sparkPointsMat);
+    sparkGroup.add(sparkParticles);
 
     // ─────────────────────────────────────────────────────────────
-    // 4. FLOATING GOLDEN STARDUST (Ambient Micro-Photons)
+    // 5. FLOATING GOLDEN AMBIENT STARDUST
     // ─────────────────────────────────────────────────────────────
-    const dustCount = 45;
+    const dustCount = 40;
     const dustGeo = new THREE.BufferGeometry();
     const dustPos = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount; i++) {
       const idx = i * 3;
-      dustPos[idx] = (Math.random() - 0.5) * 48;
-      dustPos[idx + 1] = (Math.random() - 0.5) * 32;
-      dustPos[idx + 2] = (Math.random() - 0.5) * 18;
+      dustPos[idx] = (Math.random() - 0.5) * 44;
+      dustPos[idx + 1] = (Math.random() - 0.5) * 28;
+      dustPos[idx + 2] = (Math.random() - 0.5) * 16;
     }
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
     const dustMat = new THREE.PointsMaterial({
       size: 0.45,
-      map: glowTexture,
+      map: sparkTexture,
       color: 0xDFB74A,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.65,
       blending: THREE.NormalBlending,
       depthWrite: false,
     });
@@ -248,7 +445,7 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     };
 
     const handleClick = () => {
-      mouseRef.current.clickRipple = 1.0;
+      mouseRef.current.clickPulse = 1.0;
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
@@ -266,7 +463,7 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     window.addEventListener('resize', handleResize);
 
     // ─────────────────────────────────────────────────────────────
-    // ANIMATION & PHYSICS LOOP
+    // ANIMATION & KINEMATICS LOOP
     // ─────────────────────────────────────────────────────────────
     let animId: number;
     const clock = new THREE.Clock();
@@ -279,76 +476,40 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.045;
       mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.045;
 
-      if (mouseRef.current.clickRipple > 0.01) {
-        mouseRef.current.clickRipple *= 0.94;
+      if (mouseRef.current.clickPulse > 0.01) {
+        mouseRef.current.clickPulse *= 0.92;
       }
 
       const mx = mouseRef.current.x;
       const my = mouseRef.current.y;
-      const ripple = mouseRef.current.clickRipple;
+      const pulse = mouseRef.current.clickPulse;
 
       // Authentic 3D Camera Parallax
-      camera.position.x = mx * 4.2;
-      camera.position.y = my * 3.2;
+      camera.position.x = mx * 3.8;
+      camera.position.y = my * 2.8;
       camera.lookAt(0, 0, 0);
 
-      // Point light follows cursor in 3D
-      cursorLight.position.set(mx * 16, my * 12, 12);
-      cursorLight.intensity = 4.5 + ripple * 6.0;
+      // Point light follows cursor
+      cursorLight.position.set(mx * 16, my * 12, 10);
+      cursorLight.intensity = 4.0 + pulse * 6.0;
 
-      // --- Animate Armillary Rings ---
-      ring1.rotation.z = elapsed * 0.08 + mx * 0.15;
-      ring1.rotation.x = 1.15 + my * 0.12;
+      // --- Subtle Hand Gestures & Breathing ---
+      // Human Hand (organic breathing)
+      humanHand.position.y = -0.5 + Math.sin(elapsed * 1.2) * 0.25 + my * 0.8;
+      humanHand.rotation.z = Math.sin(elapsed * 0.9) * 0.03 + mx * 0.06;
+      humanHand.rotation.x = Math.cos(elapsed * 1.0) * 0.03 - my * 0.06;
 
-      ring2.rotation.z = -elapsed * 0.11 - mx * 0.18;
-      ring2.rotation.y = 0.85 + my * 0.15;
+      // Robot Hand (robotic micro-articulation)
+      robotHand.position.y = -0.5 + Math.sin(elapsed * 1.2 + 0.8) * 0.25 + my * 0.8;
+      robotHand.rotation.z = -Math.sin(elapsed * 0.9 + 0.5) * 0.03 + mx * 0.06;
+      robotHand.rotation.x = -Math.cos(elapsed * 1.0 + 0.5) * 0.03 - my * 0.06;
 
-      ring3.rotation.y = elapsed * 0.14 + mx * 0.12;
-      ring3.rotation.x = 0.45 - my * 0.10;
+      // Spark nexus breathing & pulse
+      const sparkScale = 1.0 + Math.sin(elapsed * 3.0) * 0.15 + pulse * 1.8;
+      coreSpark.scale.set(sparkScale, sparkScale, sparkScale);
+      sparkParticles.rotation.z = elapsed * 0.4;
 
-      // Subtle group breathing
-      ringsGroup.rotation.y = Math.sin(elapsed * 0.22) * 0.08;
-      ringsGroup.rotation.x = Math.cos(elapsed * 0.18) * 0.06;
-
-      // Animate satellites
-      satellites.forEach((sat) => {
-        sat.angle += sat.speed * 0.016;
-        sat.mesh.position.x = Math.cos(sat.angle) * sat.radius;
-        sat.mesh.position.y = Math.sin(sat.angle) * sat.radius;
-      });
-
-      // --- Animate Wave Terrain ---
-      const positions = waveGeo.attributes.position.array as Float32Array;
-      for (let i = 0; i < waveCols; i++) {
-        for (let j = 0; j < waveRows; j++) {
-          const idx = (i * waveRows + j) * 3;
-          const x = positions[idx];
-          const z = positions[idx + 2];
-
-          // Harmonic compound waves
-          const wave1 = Math.sin(x * 0.22 + elapsed * 1.5) * 1.4;
-          const wave2 = Math.cos(z * 0.20 + elapsed * 1.2) * 1.3;
-          const wave3 = Math.sin((x + z) * 0.12 + elapsed * 0.8) * 0.8;
-
-          // Interactive cursor ripple
-          const dx = x - mx * 18;
-          const dz = z - (my * 14 - 4);
-          const distToCursor = Math.sqrt(dx * dx + dz * dz);
-          const mouseDisplace = Math.sin(distToCursor * 0.5 - elapsed * 3.2) * Math.max(0, 3.5 - distToCursor * 0.25) * 0.45;
-
-          // Click shockwave
-          const clickWave = Math.sin(distToCursor * 0.8 - elapsed * 6.0) * ripple * 3.0;
-
-          // Center dip: keep center calm so typography is 100% crisp
-          const distFromOrig = Math.sqrt(x * x + z * z);
-          const centerAttenuation = Math.min(1.0, distFromOrig / 14);
-
-          positions[idx + 1] = (wave1 + wave2 + wave3 + mouseDisplace + clickWave) * centerAttenuation;
-        }
-      }
-      waveGeo.attributes.position.needsUpdate = true;
-
-      // --- Animate Stardust ---
+      // Floating stardust drift
       dustMesh.rotation.y = elapsed * 0.018 + mx * 0.04;
       dustMesh.rotation.x = elapsed * 0.012 - my * 0.04;
 
@@ -366,18 +527,11 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       window.removeEventListener('click', handleClick);
       window.removeEventListener('resize', handleResize);
 
-      glowTexture.dispose();
-      ring1Geo.dispose();
-      ring1Mat.dispose();
-      ring2Geo.dispose();
-      ring2Mat.dispose();
-      ring3Geo.dispose();
-      ring3Mat.dispose();
-      satellites.forEach((sat) => sat.mesh.geometry.dispose());
-      waveGeo.dispose();
-      waveMat.dispose();
+      sparkTexture.dispose();
       dustGeo.dispose();
       dustMat.dispose();
+      sparkGeo.dispose();
+      sparkPointsMat.dispose();
       renderer.dispose();
 
       if (container.contains(renderer.domElement)) {
