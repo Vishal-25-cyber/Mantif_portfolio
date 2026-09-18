@@ -6,9 +6,9 @@ interface Intro3DBackgroundProps {
 }
 
 /**
- * Creates an ultra-crisp circular glow texture for stardust particles
+ * Creates an ultra-crisp circular glow texture for synaptic data pulses
  */
-function createCrispGlowTexture(): THREE.CanvasTexture {
+function createGlowTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 64;
@@ -50,8 +50,8 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
 
-    const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 36);
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+    camera.position.set(0, 0, 32);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -61,70 +61,276 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    const glowTexture = createCrispGlowTexture();
+    const glowTexture = createGlowTexture();
 
     // ─────────────────────────────────────────────────────────────
-    // 1. LIGHTING
+    // 1. LIGHTING SETUP (High Specular for Metallic Pop)
     // ─────────────────────────────────────────────────────────────
     const ambientLight = new THREE.AmbientLight(0xFFFDF5, 1.8);
     scene.add(ambientLight);
 
-    const goldKeyLight = new THREE.DirectionalLight(0xDFB74A, 3.2);
-    goldKeyLight.position.set(20, 25, 20);
+    const goldKeyLight = new THREE.DirectionalLight(0xDFB74A, 3.8);
+    goldKeyLight.position.set(18, 22, 18);
     scene.add(goldKeyLight);
 
-    const sapphireRimLight = new THREE.DirectionalLight(0x004B79, 2.5);
-    sapphireRimLight.position.set(-20, -15, 12);
+    const sapphireRimLight = new THREE.DirectionalLight(0x004B79, 3.2);
+    sapphireRimLight.position.set(-18, -14, 14);
     scene.add(sapphireRimLight);
 
-    // Interactive cursor light
-    const cursorLight = new THREE.PointLight(0xFFE58F, 3.5, 40);
+    const frontSun = new THREE.DirectionalLight(0xFFFFFF, 1.4);
+    frontSun.position.set(0, 10, 20);
+    scene.add(frontSun);
+
+    // Dynamic point light tracking cursor
+    const cursorLight = new THREE.PointLight(0xFFE58F, 4.5, 35);
     cursorLight.position.set(0, 0, 14);
     scene.add(cursorLight);
 
     // ─────────────────────────────────────────────────────────────
-    // 2. CELESTIAL HOROLOGICAL HALO RINGS (Minimal, Elegant, Framing)
+    // 2. THE 3D COLLABORATION CORE: HUMAN BRAIN × ROBOT AI MATRIX
     // ─────────────────────────────────────────────────────────────
-    const ringsGroup = new THREE.Group();
-    ringsGroup.position.set(0, 0, -6);
-    scene.add(ringsGroup);
+    const collaborationModel = new THREE.Group();
+    collaborationModel.position.set(0, 0, -5);
+    scene.add(collaborationModel);
+
+    // Shared Materials
+    const goldBrainMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      metalness: 0.88,
+      roughness: 0.22,
+      transparent: true,
+      opacity: 0.85,
+    });
+
+    const goldWireMat = new THREE.MeshBasicMaterial({
+      color: 0xF5E0B8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.45,
+    });
+
+    const robotSapphireMat = new THREE.MeshStandardMaterial({
+      color: 0x004B79,
+      metalness: 0.94,
+      roughness: 0.16,
+      transparent: true,
+      opacity: 0.85,
+    });
+
+    const robotNavyMat = new THREE.MeshStandardMaterial({
+      color: 0x002137,
+      metalness: 0.92,
+      roughness: 0.20,
+      transparent: true,
+      opacity: 0.85,
+    });
+
+    const goldPistonMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      metalness: 0.96,
+      roughness: 0.12,
+    });
+
+    const coreGlowMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      emissive: 0xDFB74A,
+      emissiveIntensity: 1.0,
+      metalness: 0.9,
+      roughness: 0.1,
+    });
+
+    // ── LEFT HEMISPHERE: ORGANIC HUMAN BRAIN ──
+    const humanBrain = new THREE.Group();
+    humanBrain.position.set(-0.2, 0, 0);
+    collaborationModel.add(humanBrain);
+
+    // Frontal Lobe (Organic curved ellipsoid)
+    const frontalLobe = new THREE.Mesh(new THREE.SphereGeometry(3.6, 24, 24), goldBrainMat);
+    frontalLobe.scale.set(0.95, 1.2, 0.9);
+    frontalLobe.position.set(-2.2, 1.2, 0.5);
+    humanBrain.add(frontalLobe);
+
+    const frontalWire = new THREE.Mesh(new THREE.SphereGeometry(3.65, 16, 16), goldWireMat);
+    frontalWire.scale.copy(frontalLobe.scale);
+    frontalWire.position.copy(frontalLobe.position);
+    humanBrain.add(frontalWire);
+
+    // Parietal & Occipital Lobes
+    const parietalLobe = new THREE.Mesh(new THREE.SphereGeometry(3.4, 24, 24), goldBrainMat);
+    parietalLobe.scale.set(0.9, 1.15, 1.0);
+    parietalLobe.position.set(-2.0, -1.0, -0.4);
+    humanBrain.add(parietalLobe);
+
+    const parietalWire = new THREE.Mesh(new THREE.SphereGeometry(3.45, 16, 16), goldWireMat);
+    parietalWire.scale.copy(parietalLobe.scale);
+    parietalWire.position.copy(parietalLobe.position);
+    humanBrain.add(parietalWire);
+
+    // Temporal Lobe
+    const temporalLobe = new THREE.Mesh(new THREE.SphereGeometry(2.6, 20, 20), goldBrainMat);
+    temporalLobe.scale.set(1.0, 0.85, 1.1);
+    temporalLobe.position.set(-3.2, -0.6, 0.6);
+    humanBrain.add(temporalLobe);
+
+    // Cerebellum
+    const cerebellum = new THREE.Mesh(new THREE.SphereGeometry(2.0, 16, 16), goldBrainMat);
+    cerebellum.scale.set(1.1, 0.7, 0.9);
+    cerebellum.position.set(-2.2, -2.8, -0.8);
+    humanBrain.add(cerebellum);
+
+    // Luminous Neural Synaptic Points along the Human Brain
+    const synCount = 32;
+    const synGeo = new THREE.BufferGeometry();
+    const synPositions = new Float32Array(synCount * 3);
+    for (let i = 0; i < synCount; i++) {
+      const idx = i * 3;
+      const angle = (i / synCount) * Math.PI * 2;
+      const rad = 2.4 + Math.random() * 2.2;
+      synPositions[idx] = -1.0 - Math.cos(angle) * rad * 0.9;
+      synPositions[idx + 1] = Math.sin(angle) * rad * 1.1;
+      synPositions[idx + 2] = (Math.random() - 0.5) * 3.2;
+    }
+    synGeo.setAttribute('position', new THREE.BufferAttribute(synPositions, 3));
+    const synMat = new THREE.PointsMaterial({
+      size: 0.55,
+      map: glowTexture,
+      color: 0xDFB74A,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+    });
+    const synPoints = new THREE.Points(synGeo, synMat);
+    humanBrain.add(synPoints);
+
+    // ── RIGHT HEMISPHERE: CYBERNETIC ROBOT CHASSIS & AI CORE ──
+    const robotChassis = new THREE.Group();
+    robotChassis.position.set(0.2, 0, 0);
+    collaborationModel.add(robotChassis);
+
+    // Upper Cranial Shield (Geometric beveled sapphire plates)
+    const upperShield = new THREE.Mesh(new THREE.BoxGeometry(3.2, 4.2, 3.4), robotSapphireMat);
+    upperShield.position.set(2.0, 1.1, 0.3);
+    upperShield.rotation.z = -0.15;
+    robotChassis.add(upperShield);
+
+    // Lower Mechanical Chassis Plate
+    const lowerChassis = new THREE.Mesh(new THREE.BoxGeometry(3.0, 3.8, 3.2), robotNavyMat);
+    lowerChassis.position.set(2.2, -1.2, -0.2);
+    lowerChassis.rotation.z = 0.12;
+    robotChassis.add(lowerChassis);
+
+    // Cybernetic Optical Sensor / Visor Ring
+    const visorTorus = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.22, 16, 32), goldPistonMat);
+    visorTorus.position.set(3.4, 0.6, 1.2);
+    visorTorus.rotation.y = Math.PI / 3.5;
+    robotChassis.add(visorTorus);
+
+    // Glowing Optical AI Lens inside visor
+    const opticalCore = new THREE.Mesh(new THREE.SphereGeometry(0.9, 20, 20), coreGlowMat);
+    opticalCore.position.set(3.3, 0.6, 1.1);
+    robotChassis.add(opticalCore);
+
+    // Mechanical Hydraulic Actuators & Cooling Ribs
+    for (let i = 0; i < 4; i++) {
+      const rib = new THREE.Mesh(new THREE.BoxGeometry(0.35, 2.8, 0.25), goldPistonMat);
+      rib.position.set(3.8, -0.8 - i * 0.6, -0.4 + i * 0.3);
+      robotChassis.add(rib);
+    }
+
+    // ── CENTRAL COLLABORATION ZONE: SYNAPTIC DATA BRIDGES ──
+    const bridgeGroup = new THREE.Group();
+    collaborationModel.add(bridgeGroup);
+
+    // Center Core Reactor bridging Human & AI
+    const fusionCore = new THREE.Mesh(new THREE.SphereGeometry(1.2, 24, 24), coreGlowMat);
+    fusionCore.position.set(0, 0, 0.2);
+    bridgeGroup.add(fusionCore);
+
+    // Connecting Synaptic Bridges (Golden and Sapphire Arcs)
+    const bridgeCount = 10;
+    const bridgeLinesGeo = new THREE.BufferGeometry();
+    const bridgePositions = new Float32Array(bridgeCount * 6);
+    const bridgeColors = new Float32Array(bridgeCount * 6);
+
+    const cGold = new THREE.Color('#DFB74A');
+    const cSapphire = new THREE.Color('#004B79');
+
+    for (let i = 0; i < bridgeCount; i++) {
+      const idx = i * 6;
+      const yPos = -2.5 + (i / (bridgeCount - 1)) * 5.0;
+
+      // Left Human anchor
+      bridgePositions[idx] = -1.2;
+      bridgePositions[idx + 1] = yPos;
+      bridgePositions[idx + 2] = (Math.random() - 0.5) * 1.5;
+      bridgeColors[idx] = cGold.r;
+      bridgeColors[idx + 1] = cGold.g;
+      bridgeColors[idx + 2] = cGold.b;
+
+      // Right Robot anchor
+      bridgePositions[idx + 3] = 1.2;
+      bridgePositions[idx + 4] = yPos + (Math.random() - 0.5) * 0.4;
+      bridgePositions[idx + 5] = bridgePositions[idx + 2];
+      bridgeColors[idx + 3] = cSapphire.r;
+      bridgeColors[idx + 4] = cSapphire.g;
+      bridgeColors[idx + 5] = cSapphire.b;
+    }
+
+    bridgeLinesGeo.setAttribute('position', new THREE.BufferAttribute(bridgePositions, 3));
+    bridgeLinesGeo.setAttribute('color', new THREE.BufferAttribute(bridgeColors, 3));
+
+    const bridgeMat = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      linewidth: 2,
+    });
+    const bridgeLines = new THREE.LineSegments(bridgeLinesGeo, bridgeMat);
+    bridgeGroup.add(bridgeLines);
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. CELESTIAL SACRED GIMBAL RINGS (Orbiting the Brain-Robot Model)
+    // ─────────────────────────────────────────────────────────────
+    const haloGroup = new THREE.Group();
+    collaborationModel.add(haloGroup);
 
     // Outer Thin Gold Orbit
-    const ring1Geo = new THREE.TorusGeometry(21.0, 0.08, 16, 120);
+    const ring1Geo = new THREE.TorusGeometry(8.5, 0.08, 16, 100);
     const ring1Mat = new THREE.MeshStandardMaterial({
       color: 0xDFB74A,
       metalness: 0.95,
       roughness: 0.15,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.7,
     });
     const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
     ring1.rotation.x = 1.15;
     ring1.rotation.y = 0.35;
-    ringsGroup.add(ring1);
+    haloGroup.add(ring1);
 
-    // Mid Thin Sapphire Orbit
-    const ring2Geo = new THREE.TorusGeometry(16.5, 0.065, 16, 100);
+    // Mid Sapphire Orbit
+    const ring2Geo = new THREE.TorusGeometry(6.8, 0.06, 16, 90);
     const ring2Mat = new THREE.MeshStandardMaterial({
       color: 0x004B79,
       metalness: 0.92,
       roughness: 0.18,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.6,
     });
     const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
     ring2.rotation.x = -0.75;
     ring2.rotation.y = 0.85;
-    ringsGroup.add(ring2);
+    haloGroup.add(ring2);
 
-    // 4 Tiny Gliding Satellites
+    // Orbiting Satellites on the Halos
     const satellites: { mesh: THREE.Mesh; radius: number; speed: number; angle: number; parent: THREE.Mesh }[] = [];
     for (let i = 0; i < 4; i++) {
       const parent = i % 2 === 0 ? ring1 : ring2;
-      const radius = i % 2 === 0 ? 21.0 : 16.5;
+      const radius = i % 2 === 0 ? 8.5 : 6.8;
       const satMat = new THREE.MeshStandardMaterial({
         color: i % 2 === 0 ? 0xDFB74A : 0x0088CC,
         emissive: i % 2 === 0 ? 0xDFB74A : 0x004B79,
@@ -132,107 +338,36 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
         metalness: 0.95,
         roughness: 0.1,
       });
-      const satMesh = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), satMat);
+      const satMesh = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), satMat);
       parent.add(satMesh);
       satellites.push({
         mesh: satMesh,
         radius,
-        speed: (0.35 + i * 0.15) * (i % 2 === 0 ? 1 : -1),
+        speed: (0.4 + i * 0.15) * (i % 2 === 0 ? 1 : -1),
         angle: (i / 4) * Math.PI * 2,
         parent,
       });
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 3. ELEGANT 3D NEURAL CONSTELLATION NODES & SYNAPSES
-    // ─────────────────────────────────────────────────────────────
-    const nodeCount = 50;
-    const nodeGeo = new THREE.BufferGeometry();
-    const nodePositions = new Float32Array(nodeCount * 3);
-    const nodeColors = new Float32Array(nodeCount * 3);
-    const nodeVelocities: { x: number; y: number; z: number }[] = [];
-
-    const cGold = new THREE.Color('#DFB74A');
-    const cSapphire = new THREE.Color('#004B79');
-    const cNavy = new THREE.Color('#002137');
-
-    for (let i = 0; i < nodeCount; i++) {
-      const idx = i * 3;
-      // Periphery distribution: leaving the center open for title & logo
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 8.5 + Math.random() * 20.0;
-      nodePositions[idx] = Math.cos(angle) * dist;
-      nodePositions[idx + 1] = Math.sin(angle) * dist * 0.72;
-      nodePositions[idx + 2] = (Math.random() - 0.5) * 14.0;
-
-      const col = new THREE.Color();
-      if (i % 3 === 0) col.copy(cGold);
-      else if (i % 3 === 1) col.copy(cSapphire);
-      else col.copy(cNavy);
-
-      nodeColors[idx] = col.r;
-      nodeColors[idx + 1] = col.g;
-      nodeColors[idx + 2] = col.b;
-
-      nodeVelocities.push({
-        x: (Math.random() - 0.5) * 0.012,
-        y: (Math.random() - 0.5) * 0.012,
-        z: (Math.random() - 0.5) * 0.008,
-      });
-    }
-
-    nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodePositions, 3));
-    nodeGeo.setAttribute('color', new THREE.BufferAttribute(nodeColors, 3));
-
-    const nodeMat = new THREE.PointsMaterial({
-      size: 0.65,
-      map: glowTexture,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.9,
-      blending: THREE.NormalBlending,
-      depthWrite: false,
-    });
-    const nodePoints = new THREE.Points(nodeGeo, nodeMat);
-    scene.add(nodePoints);
-
-    // Dynamic Connecting Lines
-    const maxLines = (nodeCount * (nodeCount - 1)) / 2;
-    const linePositions = new Float32Array(maxLines * 6);
-    const lineColors = new Float32Array(maxLines * 6);
-    const lineGeo = new THREE.BufferGeometry();
-    lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage));
-    lineGeo.setAttribute('color', new THREE.BufferAttribute(lineColors, 3).setUsage(THREE.DynamicDrawUsage));
-
-    const lineMat = new THREE.LineBasicMaterial({
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.45,
-      blending: THREE.NormalBlending,
-      depthWrite: false,
-    });
-    const lineMesh = new THREE.LineSegments(lineGeo, lineMat);
-    scene.add(lineMesh);
-
-    // ─────────────────────────────────────────────────────────────
-    // 4. FLOATING GOLDEN AMBIENT STARDUST
+    // 4. FLOATING GOLDEN STARDUST (Ambient Micro-Photons)
     // ─────────────────────────────────────────────────────────────
     const dustCount = 45;
     const dustGeo = new THREE.BufferGeometry();
     const dustPos = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount; i++) {
       const idx = i * 3;
-      dustPos[idx] = (Math.random() - 0.5) * 48;
-      dustPos[idx + 1] = (Math.random() - 0.5) * 32;
+      dustPos[idx] = (Math.random() - 0.5) * 44;
+      dustPos[idx + 1] = (Math.random() - 0.5) * 28;
       dustPos[idx + 2] = (Math.random() - 0.5) * 16;
     }
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
     const dustMat = new THREE.PointsMaterial({
-      size: 0.4,
+      size: 0.42,
       map: glowTexture,
       color: 0xDFB74A,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.65,
       blending: THREE.NormalBlending,
       depthWrite: false,
     });
@@ -290,79 +425,33 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       const pulse = mouseRef.current.clickPulse;
 
       // Authentic 3D Camera Parallax
-      camera.position.x = mx * 3.8;
-      camera.position.y = my * 2.8;
+      camera.position.x = mx * 3.5;
+      camera.position.y = my * 2.5;
       camera.lookAt(0, 0, 0);
 
       // Point light follows cursor
       cursorLight.position.set(mx * 16, my * 12, 10);
-      cursorLight.intensity = 3.5 + pulse * 4.0;
+      cursorLight.intensity = 4.5 + pulse * 5.0;
 
-      // Rotate celestial rings
-      ring1.rotation.z = elapsed * 0.07 + mx * 0.12;
-      ring1.rotation.x = 1.15 + my * 0.10;
-      ring2.rotation.z = -elapsed * 0.09 - mx * 0.14;
-      ring2.rotation.y = 0.85 + my * 0.12;
+      // --- Model Kinematics (Human × Robot Collaboration) ---
+      // Gentle floating rotation and mouse tilt
+      collaborationModel.rotation.y = elapsed * 0.25 + mx * 0.45;
+      collaborationModel.rotation.x = Math.sin(elapsed * 0.3) * 0.06 - my * 0.35;
+      collaborationModel.position.y = Math.sin(elapsed * 1.2) * 0.35;
 
-      // Animate satellites
+      // Fusion Core Breathing & Click Pulse
+      const coreScale = 1.0 + Math.sin(elapsed * 3.5) * 0.12 + pulse * 1.6;
+      fusionCore.scale.set(coreScale, coreScale, coreScale);
+
+      // Orbiting rings animation
+      ring1.rotation.z = elapsed * 0.08;
+      ring2.rotation.z = -elapsed * 0.11;
+
       satellites.forEach((sat) => {
-        sat.angle += sat.speed * 0.016;
+        sat.angle += sat.speed * 0.018;
         sat.mesh.position.x = Math.cos(sat.angle) * sat.radius;
         sat.mesh.position.y = Math.sin(sat.angle) * sat.radius;
       });
-
-      // Animate Constellation Nodes
-      const nPos = nodeGeo.attributes.position.array as Float32Array;
-      for (let i = 0; i < nodeCount; i++) {
-        const idx = i * 3;
-        nPos[idx] += nodeVelocities[i].x;
-        nPos[idx + 1] += nodeVelocities[i].y;
-        nPos[idx + 2] += nodeVelocities[i].z;
-
-        if (Math.abs(nPos[idx]) > 24) nodeVelocities[i].x *= -1;
-        if (Math.abs(nPos[idx + 1]) > 16) nodeVelocities[i].y *= -1;
-        if (Math.abs(nPos[idx + 2]) > 10) nodeVelocities[i].z *= -1;
-      }
-      nodeGeo.attributes.position.needsUpdate = true;
-
-      // Update connecting synaptic lines
-      let lineIdx = 0;
-      const maxConnectDist = 6.5;
-
-      for (let i = 0; i < nodeCount; i++) {
-        for (let j = i + 1; j < nodeCount; j++) {
-          const idxI = i * 3;
-          const idxJ = j * 3;
-
-          const dx = nPos[idxI] - nPos[idxJ];
-          const dy = nPos[idxI + 1] - nPos[idxJ + 1];
-          const dz = nPos[idxI + 2] - nPos[idxJ + 2];
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-          if (dist < maxConnectDist) {
-            const alpha = (1.0 - dist / maxConnectDist) * 0.55;
-
-            linePositions[lineIdx] = nPos[idxI];
-            linePositions[lineIdx + 1] = nPos[idxI + 1];
-            linePositions[lineIdx + 2] = nPos[idxI + 2];
-            lineColors[lineIdx] = cGold.r * alpha;
-            lineColors[lineIdx + 1] = cGold.g * alpha;
-            lineColors[lineIdx + 2] = cGold.b * alpha;
-
-            linePositions[lineIdx + 3] = nPos[idxJ];
-            linePositions[lineIdx + 4] = nPos[idxJ + 1];
-            linePositions[lineIdx + 5] = nPos[idxJ + 2];
-            lineColors[lineIdx + 3] = cSapphire.r * alpha;
-            lineColors[lineIdx + 4] = cSapphire.g * alpha;
-            lineColors[lineIdx + 5] = cSapphire.b * alpha;
-
-            lineIdx += 6;
-          }
-        }
-      }
-      lineGeo.setDrawRange(0, lineIdx / 3);
-      lineGeo.attributes.position.needsUpdate = true;
-      lineGeo.attributes.color.needsUpdate = true;
 
       // Floating dust drift
       dustMesh.rotation.y = elapsed * 0.015 + mx * 0.03;
@@ -383,17 +472,12 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       window.removeEventListener('resize', handleResize);
 
       glowTexture.dispose();
-      ring1Geo.dispose();
-      ring1Mat.dispose();
-      ring2Geo.dispose();
-      ring2Mat.dispose();
-      satellites.forEach((sat) => sat.mesh.geometry.dispose());
-      nodeGeo.dispose();
-      nodeMat.dispose();
-      lineGeo.dispose();
-      lineMat.dispose();
       dustGeo.dispose();
       dustMat.dispose();
+      synGeo.dispose();
+      synMat.dispose();
+      bridgeLinesGeo.dispose();
+      bridgeMat.dispose();
       renderer.dispose();
 
       if (container.contains(renderer.domElement)) {
