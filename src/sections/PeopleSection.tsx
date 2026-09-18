@@ -336,15 +336,16 @@ export const PeopleSection: React.FC = () => (
     <div className="w-full bg-[#F3EFE6] py-20 sm:py-24 px-5 sm:px-10 lg:px-16">
       <div className="max-w-7xl mx-auto">
 
-        {/* Sub-header */}
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-4">
-            <span className="w-6 h-[1px] bg-[#DFB74A]" />
-            <span className="font-mono text-xs font-bold tracking-[0.22em] text-[#004B79] uppercase">
+        {/* Sub-header — Centered */}
+        <div className="flex flex-col items-center justify-center text-center mb-10">
+          <div className="flex items-center justify-center gap-3">
+            <span className="w-8 h-[1px] bg-[#DFB74A]" />
+            <span className="font-mono text-xs font-bold tracking-[0.25em] text-[#004B79] uppercase">
               Mentors & Development Team
             </span>
+            <span className="w-8 h-[1px] bg-[#DFB74A]" />
           </div>
-          <p className="font-mono text-[10px] text-[#94A3B8] hidden sm:block">
+          <p className="font-mono text-[10px] text-[#94A3B8] mt-2 tracking-wider">
             Click any card to view profile
           </p>
         </div>
@@ -356,8 +357,8 @@ export const PeopleSection: React.FC = () => (
           ))}
         </div>
 
-        {/* Bottom legend */}
-        <div className="flex items-center gap-3 mt-8 pt-6 border-t border-[#002137]/10">
+        {/* Bottom legend — Centered */}
+        <div className="flex items-center justify-center gap-6 mt-8 pt-6 border-t border-[#002137]/10">
           {[['#004B79', 'Educational Mentor'], ['#DFB74A', 'Development Team']].map(([c, l]) => (
             <span key={l} className="flex items-center gap-1.5 font-mono text-[10px] text-[#64748B]">
               <span className="w-2 h-2 rounded-full shrink-0" style={{ background: c }} />
