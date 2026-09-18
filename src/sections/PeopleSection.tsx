@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Quote,
   ArrowUpRight,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  CheckCircle2,
   Globe,
   Play,
   Pause,
@@ -122,11 +119,10 @@ const CORE_LEADERS: CoreLeader[] = [
   },
 ];
 
-
-
 /* ─── MAIN PEOPLE SECTION ─── */
 export const PeopleSection: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [phase, setPhase] = useState<'entering' | 'showing' | 'exiting'>('entering');
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
@@ -136,10 +132,12 @@ export const PeopleSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const touchTimeoutRef = useRef<number | null>(null);
 
-  const AUTOPLAY_DURATION = 5000; // 5 seconds per person
-  const activeLeader = CORE_LEADERS[activeIndex];
+  const activeLeader = CORE_LEADERS[currentIndex];
+  const ENTER_DURATION = 550; // Entrance glide time
+  const HOLD_DURATION = 2000;  // User requested: "wait for 2 sec"
+  const EXIT_DURATION = 450;  // Exit glide time
 
-  // IntersectionObserver to trigger animation when the section scrolls into view
+  // Trigger when section scrolls into viewport
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -159,42 +157,64 @@ export const PeopleSection: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Autoplay progression loop with smooth progress bar
+  // Main animation loop state machine:
+  // entering (550ms) -> showing (wait for 2 sec) -> exiting (450ms) -> next person -> loop!
   useEffect(() => {
     if (!isAutoPlay || isHovered || isTouched || !hasEnteredView) {
       return;
     }
 
-    const intervalTime = 50;
-    const step = (intervalTime / AUTOPLAY_DURATION) * 100;
+    let timer: number;
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          setActiveIndex((curr) => (curr + 1) % CORE_LEADERS.length);
-          return 0;
-        }
-        return prev + step;
-      });
-    }, intervalTime);
+    if (phase === 'entering') {
+      setProgress(0);
+      timer = window.setTimeout(() => {
+        setPhase('showing');
+      }, ENTER_DURATION);
+    } else if (phase === 'showing') {
+      const stepInterval = 40;
+      const stepPercent = (stepInterval / HOLD_DURATION) * 100;
+      const progressTimer = setInterval(() => {
+        setProgress((prev) => Math.min(100, prev + stepPercent));
+      }, stepInterval);
 
-    return () => clearInterval(timer);
-  }, [isAutoPlay, isHovered, isTouched, hasEnteredView]);
+      timer = window.setTimeout(() => {
+        clearInterval(progressTimer);
+        setPhase('exiting');
+      }, HOLD_DURATION);
+
+      return () => {
+        window.clearTimeout(timer);
+        clearInterval(progressTimer);
+      };
+    } else if (phase === 'exiting') {
+      timer = window.setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % CORE_LEADERS.length);
+        setPhase('entering');
+      }, EXIT_DURATION);
+    }
+
+    return () => window.clearTimeout(timer);
+  }, [phase, isAutoPlay, isHovered, isTouched, hasEnteredView]);
 
   const handleSelectLeader = (index: number) => {
-    setActiveIndex(index);
+    if (index === currentIndex && phase === 'showing') return;
+    setCurrentIndex(index);
+    setPhase('entering');
     setProgress(0);
     soundManager.playClick();
   };
 
   const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % CORE_LEADERS.length);
+    setCurrentIndex((prev) => (prev + 1) % CORE_LEADERS.length);
+    setPhase('entering');
     setProgress(0);
     soundManager.playClick();
   };
 
   const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + CORE_LEADERS.length) % CORE_LEADERS.length);
+    setCurrentIndex((prev) => (prev - 1 + CORE_LEADERS.length) % CORE_LEADERS.length);
+    setPhase('entering');
     setProgress(0);
     soundManager.playClick();
   };
@@ -222,12 +242,12 @@ export const PeopleSection: React.FC = () => {
       id="people"
       className="relative w-full bg-[#FAF8F5] pt-20 sm:pt-28 pb-16 sm:pb-24 overflow-hidden select-none"
     >
-      {/* Dynamic Keyframes for smooth entrance */}
+      {/* Dynamic Keyframes: Image and words come from the RIGHT, hold 2s, exit, and loop */}
       <style>{`
-        @keyframes leaderCutoutEntrance {
+        @keyframes personComeFromRight {
           0% {
             opacity: 0;
-            transform: translate3d(-70px, 0, 0) scale(0.95);
+            transform: translate3d(140px, 0, 0) scale(0.96);
             filter: blur(4px) drop-shadow(0 10px 20px rgba(0, 33, 55, 0.05));
           }
           100% {
@@ -236,21 +256,54 @@ export const PeopleSection: React.FC = () => {
             filter: blur(0px) drop-shadow(0 25px 35px rgba(0, 33, 55, 0.20));
           }
         }
-        @keyframes leaderTextEntrance {
+
+        @keyframes personGoExit {
+          0% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+            filter: blur(0px) drop-shadow(0 25px 35px rgba(0, 33, 55, 0.20));
+          }
+          100% {
+            opacity: 0;
+            transform: translate3d(-120px, 0, 0) scale(0.95);
+            filter: blur(4px) drop-shadow(0 10px 20px rgba(0, 33, 55, 0.05));
+          }
+        }
+
+        @keyframes wordsComeFromRight {
           0% {
             opacity: 0;
-            transform: translate3d(60px, 0, 0);
+            transform: translate3d(80px, 0, 0);
           }
           100% {
             opacity: 1;
             transform: translate3d(0, 0, 0);
           }
         }
-        .animate-leader-cutout {
-          animation: leaderCutoutEntrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+        @keyframes wordsGoExit {
+          0% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            opacity: 0;
+            transform: translate3d(-80px, 0, 0);
+          }
         }
-        .animate-leader-text {
-          animation: leaderTextEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards;
+
+        .anim-person-enter {
+          animation: personComeFromRight 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .anim-person-exit {
+          animation: personGoExit 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
+
+        .anim-words-enter {
+          animation: wordsComeFromRight 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.04s forwards;
+        }
+        .anim-words-exit {
+          animation: wordsGoExit 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
         }
       `}</style>
 
@@ -297,7 +350,7 @@ export const PeopleSection: React.FC = () => {
         </div>
 
         {/* Section Header — editorial split layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-6 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-6 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-4">
               <span className="w-8 h-[1px] bg-[#DFB74A]" />
@@ -314,15 +367,10 @@ export const PeopleSection: React.FC = () => {
             </h2>
           </div>
 
-          {/* Callout box */}
-          <div className="border border-[#002137]/12 rounded-2xl p-5 max-w-sm bg-white/60 backdrop-blur-sm shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-mono text-[9px] tracking-[0.2em] text-[#64748B] uppercase font-bold">
-                Leadership & Pedagogy
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-[#DFB74A]/15 border border-[#DFB74A]/30 font-mono text-[8px] font-bold text-[#002137] uppercase">
-                FOUNDER × DEV
-              </span>
+          {/* Minimalist Subtitle */}
+          <div className="max-w-sm">
+            <div className="font-mono text-[10px] font-bold tracking-[0.2em] text-[#C49326] uppercase mb-1">
+              Founder & Engineering
             </div>
             <p className="font-sans text-xs text-[#475569] leading-relaxed">
               From the founder pioneering empathetic learning to software developers engineering
@@ -332,367 +380,295 @@ export const PeopleSection: React.FC = () => {
         </div>
 
         {/* ═════════════════════════════════════════════════════════════════════════ */}
-        {/* LEADER SPOTLIGHT STAGE — CUTOUT WITHOUT BACKGROUND & SIDE ENTRANCE TEXT  */}
+        {/* CARD-FREE ARCHITECTURAL CONTROL BAR (HAIRLINE MINIMALIST DESIGN)          */}
+        {/* ═════════════════════════════════════════════════════════════════════════ */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 mb-6 border-b border-[#002137]/10">
+          {/* Segmented Leader Selector Tabs (Floating, Card-Free) */}
+          <div className="flex items-center gap-2">
+            {CORE_LEADERS.map((leader, idx) => {
+              const isActive = currentIndex === idx;
+              return (
+                <button
+                  key={leader.id}
+                  onClick={() => handleSelectLeader(idx)}
+                  onMouseEnter={() => {
+                    setCursorMode('hover');
+                    soundManager.playHoverTick();
+                  }}
+                  onMouseLeave={() => setCursorMode('default')}
+                  className={`relative px-4 py-1.5 rounded-full font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-300 flex items-center gap-2 ${
+                    isActive
+                      ? 'bg-[#002137] text-white shadow-sm'
+                      : 'text-[#64748B] hover:text-[#002137] hover:bg-[#002137]/5'
+                  }`}
+                >
+                  {idx === 0 && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] shadow-[0_0_6px_#DFB74A]" />
+                  )}
+                  <span>
+                    {leader.order} · {leader.name}
+                  </span>
+                  {idx === 0 && (
+                    <span className="hidden md:inline px-1.5 py-0.2 rounded-sm bg-[#DFB74A]/25 text-[#DFB74A] text-[8px]">
+                      FOUNDER
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Autoplay & Navigation Controls */}
+          <div className="flex items-center gap-3">
+            {/* Play/Pause Button */}
+            <button
+              onClick={() => {
+                setIsAutoPlay((prev) => !prev);
+                soundManager.playClick();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full font-mono text-[9px] text-[#64748B] hover:text-[#002137] transition-colors"
+              title={isAutoPlay ? 'Pause auto progression' : 'Resume auto progression'}
+            >
+              {isAutoPlay && !isHovered ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <Pause className="w-2.5 h-2.5" />
+                  <span>2s Loop</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <Play className="w-2.5 h-2.5" />
+                  <span>Paused</span>
+                </>
+              )}
+            </button>
+
+            {/* Prev Button */}
+            <button
+              onClick={handlePrev}
+              onMouseEnter={() => {
+                setCursorMode('hover');
+                soundManager.playHoverTick();
+              }}
+              onMouseLeave={() => setCursorMode('default')}
+              className="w-8 h-8 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
+              aria-label="Previous leader"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Next Button */}
+            <button
+              onClick={handleNext}
+              onMouseEnter={() => {
+                setCursorMode('hover');
+                soundManager.playHoverTick();
+              }}
+              onMouseLeave={() => setCursorMode('default')}
+              className="w-8 h-8 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
+              aria-label="Next leader"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* 2-Second Hold Progress Line */}
+        <div className="w-full h-[2px] bg-[#002137]/6 rounded-full mb-10 overflow-hidden">
+          <div
+            className="h-full transition-all duration-75 ease-linear"
+            style={{
+              width: `${progress}%`,
+              background: `linear-gradient(to right, ${activeLeader.accent}, ${activeLeader.secondaryAccent})`,
+            }}
+          />
+        </div>
+
+        {/* ═════════════════════════════════════════════════════════════════════════ */}
+        {/* OPEN ARCHITECTURAL STAGE (WITHOUT CARD) — COMES FROM RIGHT & 2 SEC LOOP  */}
         {/* ═════════════════════════════════════════════════════════════════════════ */}
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="relative w-full rounded-3xl bg-white/85 border border-[#002137]/10 shadow-xl overflow-hidden p-6 sm:p-10 lg:p-12 mb-12 backdrop-blur-sm"
+          className="relative w-full py-4 lg:py-8 min-h-[520px] lg:min-h-[580px] grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] items-center gap-10 lg:gap-16"
         >
-          {/* Subtle Ambient Radial Glow on the stage */}
+          {/* Subtle Ambient Radial Glow on the background canvas */}
           <div
-            className="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none transition-all duration-700 blur-3xl"
+            className="absolute top-1/2 right-12 -translate-y-1/2 w-[480px] h-[480px] rounded-full pointer-events-none transition-all duration-700 blur-3xl"
             style={{
-              background: `radial-gradient(circle, ${activeLeader.accent}20 0%, ${activeLeader.secondaryAccent}10 60%, transparent 80%)`,
+              background: `radial-gradient(circle, ${activeLeader.accent}18 0%, ${activeLeader.secondaryAccent}08 55%, transparent 75%)`,
             }}
           />
 
-          {/* Top Control Bar: Person Switcher Tabs + Playback State */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b border-[#002137]/8">
-            {/* Segmented Leader Selector Tabs */}
-            <div className="flex items-center gap-1.5 p-1 rounded-full bg-[#FAF8F5] border border-[#002137]/12 shadow-inner">
-              {CORE_LEADERS.map((leader, idx) => {
-                const isActive = activeIndex === idx;
-                return (
-                  <button
-                    key={leader.id}
-                    onClick={() => handleSelectLeader(idx)}
-                    onMouseEnter={() => {
-                      setCursorMode('hover');
-                      soundManager.playHoverTick();
-                    }}
-                    onMouseLeave={() => setCursorMode('default')}
-                    className={`relative px-3.5 sm:px-4 py-1.5 rounded-full font-mono text-[9px] sm:text-[10px] font-bold tracking-wider uppercase transition-all duration-300 flex items-center gap-2 ${
-                      isActive
-                        ? 'bg-[#002137] text-white shadow-md'
-                        : 'text-[#475569] hover:text-[#002137] hover:bg-white/60'
-                    }`}
-                  >
-                    {idx === 0 && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] shadow-[0_0_6px_#DFB74A]" />
-                    )}
-                    <span>
-                      {leader.order} · {leader.name}
-                    </span>
-                    {idx === 0 && (
-                      <span className="hidden md:inline px-1.5 py-0.2 rounded-sm bg-[#DFB74A]/25 text-[#DFB74A] text-[7px]">
-                        FOUNDER
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+          {/* ───────────────────────────────────────────────────────────── */}
+          {/* LEFT: The Words (Arrive with photo, hold 2s, then go)         */}
+          {/* ───────────────────────────────────────────────────────────── */}
+          <div
+            key={activeLeader.id + '-words'}
+            className={`relative z-10 flex flex-col justify-center ${
+              phase === 'entering'
+                ? 'anim-words-enter'
+                : phase === 'exiting'
+                ? 'anim-words-exit'
+                : 'opacity-100'
+            }`}
+          >
+            {/* Eyebrow & Category */}
+            <div className="flex items-center gap-2.5 mb-2">
+              <span
+                className="font-mono text-[10px] font-bold tracking-[0.25em] uppercase"
+                style={{ color: activeLeader.accent }}
+              >
+                {activeLeader.category}
+              </span>
+              <span className="text-[#002137]/25">✦</span>
+              <span className="font-mono text-[10px] tracking-wider text-[#004B79]">
+                {activeLeader.subtitle}
+              </span>
             </div>
 
-            {/* Prev / Next Controls + Autoplay Status */}
-            <div className="flex items-center gap-3">
-              {/* Autoplay Pause/Play Toggle Button */}
-              <button
-                onClick={() => {
-                  setIsAutoPlay((prev) => !prev);
-                  soundManager.playClick();
-                }}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#002137]/10 font-mono text-[9px] text-[#64748B] hover:text-[#002137] transition-colors"
-                title={isAutoPlay ? 'Pause auto progression' : 'Resume auto progression'}
-              >
-                {isAutoPlay && !isHovered ? (
-                  <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <Pause className="w-2.5 h-2.5" />
-                    <span>Auto</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                    <Play className="w-2.5 h-2.5" />
-                    <span>Paused</span>
-                  </>
-                )}
-              </button>
+            {/* Name */}
+            <h3 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl text-[#002137] tracking-tight mb-1.5">
+              {activeLeader.name}
+            </h3>
 
-              {/* Prev Button */}
-              <button
-                onClick={handlePrev}
-                onMouseEnter={() => {
-                  setCursorMode('hover');
-                  soundManager.playHoverTick();
-                }}
-                onMouseLeave={() => setCursorMode('default')}
-                className="w-8 h-8 rounded-full bg-[#FAF8F5] border border-[#002137]/12 shadow-xs hover:border-[#DFB74A] hover:bg-white flex items-center justify-center text-[#002137] transition-all"
-                aria-label="Previous leader"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
+            {/* Role Title */}
+            <p className="font-mono text-xs sm:text-sm font-semibold text-[#004B79] tracking-wide mb-6">
+              {activeLeader.role}
+            </p>
 
-              {/* Next Button */}
-              <button
-                onClick={handleNext}
-                onMouseEnter={() => {
-                  setCursorMode('hover');
-                  soundManager.playHoverTick();
-                }}
-                onMouseLeave={() => setCursorMode('default')}
-                className="w-8 h-8 rounded-full bg-[#FAF8F5] border border-[#002137]/12 shadow-xs hover:border-[#DFB74A] hover:bg-white flex items-center justify-center text-[#002137] transition-all"
-                aria-label="Next leader"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Autoplay Progress Line Indicator */}
-          <div className="w-full h-[2px] bg-[#002137]/8 rounded-full mb-8 overflow-hidden">
+            {/* Open Editorial Quote (Card-Free) */}
             <div
-              className="h-full transition-all duration-75 ease-linear"
-              style={{
-                width: `${progress}%`,
-                background: `linear-gradient(to right, ${activeLeader.accent}, ${activeLeader.secondaryAccent})`,
-              }}
-            />
-          </div>
-
-          {/* ─── The Main Split: Figure (Without Background) + Explanation ─── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] items-center gap-10 lg:gap-14 min-h-[460px]">
-            {/* ───────────────────────────────────────────────────────────── */}
-            {/* LEFT: Cutout Image WITHOUT BACKGROUND — Glides in from side    */}
-            {/* ───────────────────────────────────────────────────────────── */}
-            <div className="relative w-full flex flex-col items-center justify-end h-[420px] sm:h-[480px] lg:h-[520px]">
-              {/* Subtle Architectural Orbit behind the figure */}
-              <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[380px] h-[300px] sm:h-[380px] rounded-full border border-dashed border-[#002137]/10 pointer-events-none"
-                style={{ animation: 'spin 50s linear infinite' }}
-              />
-              <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] sm:w-[280px] h-[220px] sm:h-[280px] rounded-full blur-3xl pointer-events-none"
-                style={{
-                  background: `radial-gradient(circle, ${activeLeader.accent}25 0%, transparent 70%)`,
-                }}
-              />
-
-              {/* Pedestal Shadow under the feet */}
-              <div
-                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[260px] sm:w-[300px] h-[26px] rounded-full pointer-events-none"
-                style={{
-                  background: `radial-gradient(ellipse at center, rgba(0, 33, 55, 0.22) 0%, rgba(223, 183, 74, 0.15) 45%, transparent 75%)`,
-                  filter: 'blur(6px)',
-                }}
-              />
-
-              {/* The Standing Cutout Figure (KEYED to retrigger entrance animation) */}
-              <div
-                key={activeLeader.id + '-cutout'}
-                className="relative z-10 w-full h-full flex items-end justify-center animate-leader-cutout"
-              >
-                <img
-                  src={activeLeader.cutoutImage}
-                  alt={`${activeLeader.name} — ${activeLeader.role}`}
-                  className="h-full w-auto max-h-[420px] sm:max-h-[480px] lg:max-h-[520px] object-contain object-bottom pointer-events-none select-none transition-transform duration-500 ease-out hover:scale-[1.03]"
-                  style={{
-                    filter: 'drop-shadow(0 20px 30px rgba(0, 33, 55, 0.18))',
-                  }}
-                  onError={(e) => {
-                    // Fallback in case of network issue
-                    (e.target as HTMLImageElement).src = activeLeader.fallbackImage;
-                  }}
-                />
-
-                {/* Floating Role Badge pill near bottom */}
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap">
-                  <span
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-white font-mono text-[9px] font-bold tracking-[0.2em] uppercase shadow-lg border"
-                    style={{
-                      background: '#002137',
-                      borderColor: `${activeLeader.accent}60`,
-                    }}
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{
-                        backgroundColor: activeLeader.accent,
-                        boxShadow: `0 0 6px ${activeLeader.accent}`,
-                      }}
-                    />
-                    {activeLeader.badge}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* ───────────────────────────────────────────────────────────── */}
-            {/* RIGHT: Rich Explanation — Glides in simultaneously beside her  */}
-            {/* ───────────────────────────────────────────────────────────── */}
-            <div
-              key={activeLeader.id + '-explanation'}
-              className="relative z-10 flex flex-col justify-center animate-leader-text"
+              className="relative pl-5 py-2 border-l-2 mb-6"
+              style={{ borderColor: activeLeader.accent }}
             >
-              {/* Eyebrow & Category */}
-              <div className="flex items-center gap-2 mb-2">
-                <span
-                  className="font-mono text-[10px] font-bold tracking-[0.25em] uppercase"
-                  style={{ color: activeLeader.accent }}
-                >
-                  {activeLeader.category}
-                </span>
-                <span className="text-[#002137]/25">✦</span>
-                <span className="font-mono text-[10px] tracking-wider text-[#004B79]">
-                  {activeLeader.subtitle}
-                </span>
-              </div>
-
-              {/* Name */}
-              <h3 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-[#002137] tracking-tight mb-1">
-                {activeLeader.name}
-              </h3>
-
-              {/* Role Title */}
-              <p className="font-mono text-xs sm:text-sm font-semibold text-[#004B79] tracking-wide mb-5">
-                {activeLeader.role}
+              <p className="font-serif italic text-base sm:text-lg text-[#002137]/90 leading-relaxed">
+                "{activeLeader.quote}"
               </p>
-
-              {/* Vision Quote Block */}
-              <div
-                className="relative p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border mb-5 transition-colors duration-500"
-                style={{ borderColor: `${activeLeader.accent}40` }}
-              >
-                <div
-                  className="absolute -top-3 left-6 px-2 bg-white rounded font-serif text-lg leading-none"
-                  style={{ color: activeLeader.accent }}
+              {activeLeader.subquote && (
+                <p
+                  className="font-sans text-xs font-semibold mt-2"
+                  style={{ color: activeLeader.secondaryAccent }}
                 >
-                  “
-                </div>
-                <p className="font-serif italic text-sm sm:text-base text-[#002137]/90 leading-relaxed">
-                  "{activeLeader.quote}"
+                  — {activeLeader.subquote}
                 </p>
-                {activeLeader.subquote && (
-                  <p
-                    className="font-sans text-[11px] font-semibold mt-2.5"
-                    style={{ color: activeLeader.secondaryAccent }}
-                  >
-                    — {activeLeader.subquote}
-                  </p>
-                )}
-              </div>
+              )}
+            </div>
 
-              {/* Biography Narrative */}
-              <p className="font-sans text-xs sm:text-sm text-[#475569] leading-relaxed mb-6">
-                {activeLeader.bio}
-              </p>
+            {/* Biography Narrative */}
+            <p className="font-sans text-xs sm:text-sm text-[#475569] leading-relaxed mb-6 max-w-xl">
+              {activeLeader.bio}
+            </p>
 
-              {/* Capability & Domain Tags */}
-              <div className="flex flex-wrap gap-1.5 mb-6">
-                {activeLeader.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2.5 py-1 rounded-md bg-[#FAF8F5] border border-[#002137]/10 font-mono text-[9px] font-semibold text-[#334155]"
-                  >
-                    {tag}
-                  </span>
+            {/* Capability & Domain Tags */}
+            <div className="flex flex-wrap gap-2 mb-8">
+              {activeLeader.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 rounded-md bg-[#002137]/5 border border-[#002137]/10 font-mono text-[9px] font-semibold text-[#334155]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* Key Milestones & Platform Link */}
+            <div className="pt-6 border-t border-[#002137]/10 flex flex-wrap items-center justify-between gap-6 max-w-xl">
+              <div className="flex items-center gap-8 sm:gap-10">
+                {activeLeader.highlights.map(([val, label]) => (
+                  <div key={label}>
+                    <div className="font-serif font-bold text-[#002137] text-xl sm:text-2xl leading-none">
+                      <span style={{ color: activeLeader.accent }}>{val}</span>
+                    </div>
+                    <div className="font-mono text-[9px] text-[#64748B] mt-1 uppercase tracking-wider">
+                      {label}
+                    </div>
+                  </div>
                 ))}
               </div>
 
-              {/* Key Milestones & Platform Link */}
-              <div className="pt-4 border-t border-[#002137]/10 flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-6 sm:gap-8">
-                  {activeLeader.highlights.map(([val, label]) => (
-                    <div key={label}>
-                      <div className="font-serif font-bold text-[#002137] text-lg sm:text-xl leading-none">
-                        <span style={{ color: activeLeader.accent }}>{val}</span>
-                      </div>
-                      <div className="font-mono text-[8px] sm:text-[9px] text-[#64748B] mt-1 uppercase tracking-wider">
-                        {label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <a
+                href={activeLeader.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#002137] text-white hover:bg-[#004B79] font-mono text-[10px] font-semibold tracking-wider transition-all uppercase shadow-sm"
+              >
+                <Globe className="w-3 h-3" style={{ color: activeLeader.accent }} />
+                <span>mantif.com</span>
+                <ArrowUpRight className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
 
-                <a
-                  href={activeLeader.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#002137] text-white hover:bg-[#004B79] font-mono text-[10px] font-semibold tracking-wider transition-all uppercase shadow-sm"
+          {/* ───────────────────────────────────────────────────────────── */}
+          {/* RIGHT: Cutout Image WITHOUT BACKGROUND — Comes from RIGHT     */}
+          {/* ───────────────────────────────────────────────────────────── */}
+          <div className="relative w-full flex flex-col items-center lg:items-end justify-end h-[440px] sm:h-[500px] lg:h-[560px]">
+            {/* Subtle Architectural Orbit behind the figure */}
+            <div
+              className="absolute top-1/2 left-1/2 lg:left-auto lg:right-16 -translate-x-1/2 lg:translate-x-0 -translate-y-1/2 w-[320px] sm:w-[400px] h-[320px] sm:h-[400px] rounded-full border border-dashed border-[#002137]/10 pointer-events-none"
+              style={{ animation: 'spin 50s linear infinite' }}
+            />
+
+            {/* Soft Ambient Pedestal Floor Shadow */}
+            <div
+              className="absolute bottom-2 left-1/2 lg:left-auto lg:right-16 -translate-x-1/2 lg:translate-x-0 w-[260px] sm:w-[320px] h-[28px] rounded-full pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse at center, rgba(0, 33, 55, 0.22) 0%, rgba(223, 183, 74, 0.15) 45%, transparent 75%)`,
+                filter: 'blur(6px)',
+              }}
+            />
+
+            {/* Standing Cutout Figure (Comes from RIGHT side, waits 2 sec, then goes) */}
+            <div
+              key={activeLeader.id + '-cutout'}
+              className={`relative z-10 w-full h-full flex items-end justify-center lg:justify-end ${
+                phase === 'entering'
+                  ? 'anim-person-enter'
+                  : phase === 'exiting'
+                  ? 'anim-person-exit'
+                  : 'opacity-100'
+              }`}
+            >
+              <img
+                src={activeLeader.cutoutImage}
+                alt={`${activeLeader.name} — ${activeLeader.role}`}
+                className="h-full w-auto max-h-[440px] sm:max-h-[500px] lg:max-h-[560px] object-contain object-bottom pointer-events-none select-none transition-transform duration-500 ease-out hover:scale-[1.02]"
+                style={{
+                  filter: 'drop-shadow(0 25px 35px rgba(0, 33, 55, 0.20))',
+                }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = activeLeader.fallbackImage;
+                }}
+              />
+
+              {/* Floating Role Badge pill */}
+              <div className="absolute -bottom-3 left-1/2 lg:left-auto lg:right-28 -translate-x-1/2 lg:translate-x-0 z-20 whitespace-nowrap">
+                <span
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-white font-mono text-[9px] font-bold tracking-[0.2em] uppercase shadow-lg border"
+                  style={{
+                    background: '#002137',
+                    borderColor: `${activeLeader.accent}60`,
+                  }}
                 >
-                  <Globe className="w-3 h-3" style={{ color: activeLeader.accent }} />
-                  <span>mantif.com</span>
-                  <ArrowUpRight className="w-3 h-3" />
-                </a>
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{
+                      backgroundColor: activeLeader.accent,
+                      boxShadow: `0 0 6px ${activeLeader.accent}`,
+                    }}
+                  />
+                  {activeLeader.badge}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ═════════════════════════════════════════════════════════════════════════ */}
-        {/* INTERACTIVE TRIO DOCK — Click any person to load their spotlight stage    */}
-        {/* ═════════════════════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16">
-          {CORE_LEADERS.map((leader, idx) => {
-            const isActive = activeIndex === idx;
-            return (
-              <div
-                key={leader.id}
-                onClick={() => handleSelectLeader(idx)}
-                onMouseEnter={() => {
-                  setCursorMode('hover');
-                  soundManager.playHoverTick();
-                }}
-                onMouseLeave={() => setCursorMode('default')}
-                className={`relative p-4 rounded-2xl border transition-all duration-300 cursor-pointer flex items-center gap-4 ${
-                  isActive
-                    ? 'bg-white border-[#DFB74A] shadow-md -translate-y-1'
-                    : 'bg-white/60 border-[#002137]/10 hover:border-[#002137]/25 hover:bg-white/80'
-                }`}
-              >
-                {/* Silhouette preview without background */}
-                <div className="w-14 h-16 shrink-0 relative flex items-end justify-center overflow-hidden rounded-xl bg-[#FAF8F5] border border-[#002137]/8">
-                  <img
-                    src={leader.cutoutImage}
-                    alt={leader.name}
-                    className="h-full w-auto object-contain object-bottom"
-                  />
-                  {isActive && (
-                    <div className="absolute inset-0 bg-[#DFB74A]/10 border border-[#DFB74A]/40 rounded-xl" />
-                  )}
-                </div>
-
-                {/* Details */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="font-mono text-[9px] font-bold"
-                      style={{ color: leader.accent }}
-                    >
-                      {leader.order}
-                    </span>
-                    <span className="font-mono text-[8px] uppercase tracking-wider text-[#64748B] truncate">
-                      {idx === 0 ? 'Founder' : 'Software Dev'}
-                    </span>
-                  </div>
-                  <h4 className="font-serif font-bold text-base text-[#002137] truncate mt-0.5">
-                    {leader.name}
-                  </h4>
-                  <p className="font-mono text-[9px] text-[#004B79] truncate mt-0.5">
-                    {leader.role.split('·')[0]}
-                  </p>
-                </div>
-
-                {/* Active Indicator Arrow */}
-                {isActive ? (
-                  <span className="w-6 h-6 rounded-full bg-[#DFB74A] text-[#002137] flex items-center justify-center font-bold text-xs shrink-0">
-                    ✓
-                  </span>
-                ) : (
-                  <span className="text-xs font-mono text-[#64748B] shrink-0 opacity-40">
-                    ↗
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-
-        {/* Bottom credentials bar */}
+        {/* Bottom credentials strip */}
         <div className="mt-14 pt-6 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-mono text-[#64748B]">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#DFB74A]" />
