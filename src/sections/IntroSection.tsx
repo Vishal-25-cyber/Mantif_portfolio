@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
 import { setCursorMode } from '../hooks/useCursor';
+import { Intro3DBackground } from '../components/Intro3DBackground';
 
 interface IntroSectionProps {
   onIntroComplete?: () => void;
@@ -12,6 +13,29 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
   const [lettersRevealed, setLettersRevealed] = useState<number[]>([]);
   const [showSubtitle, setShowSubtitle] = useState(false);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // 3D Logo interaction states
+  const [logoTilt, setLogoTilt] = useState({ x: 0, y: 0 });
+  const [isLogoHovered, setIsLogoHovered] = useState(false);
+  const [logoBurst, setLogoBurst] = useState(false);
+
+  const handleLogoMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setLogoTilt({ x: -y * 22, y: x * 22 });
+  };
+
+  const handleLogoMouseLeave = () => {
+    setLogoTilt({ x: 0, y: 0 });
+    setIsLogoHovered(false);
+  };
+
+  const handleLogoClick = () => {
+    setLogoBurst(true);
+    soundManager.playHandshakeChord();
+    setTimeout(() => setLogoBurst(false), 800);
+  };
 
   const letters = [
     { char: 'M', isLambda: false },
@@ -89,12 +113,8 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       id="intro"
       className="relative w-full min-h-screen flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
-      {/* Ambient radial gradient spotlight */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
-        style={{
-          background: 'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,75,121,0.07) 0%, transparent 70%)'
-        }}
-      />
+      {/* 3D Animated Interactive Background */}
+      <Intro3DBackground />
 
 
 
@@ -289,10 +309,91 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
               <span className="w-10 sm:w-20 h-[1px] bg-[#DFB74A]" />
             </div>
 
-            <p className="font-serif italic text-xl sm:text-2xl md:text-3xl text-[#004B79] font-light">
-              "Learning. Building. Evolving."
-            </p>
+            {/* 3D Pop-Up Logo Badge */}
+            <div
+              onMouseMove={handleLogoMouseMove}
+              onMouseEnter={() => {
+                setIsLogoHovered(true);
+                setCursorMode('hover');
+              }}
+              onMouseLeave={() => {
+                handleLogoMouseLeave();
+                setCursorMode('default');
+              }}
+              onClick={handleLogoClick}
+              className="relative flex flex-col items-center cursor-pointer group select-none mt-2"
+              style={{
+                perspective: '1000px',
+              }}
+            >
+              {/* Expanding shockwave ring on click */}
+              {logoBurst && (
+                <div
+                  className="absolute inset-0 rounded-full border-2 border-[#DFB74A] animate-ping pointer-events-none"
+                  style={{ animationDuration: '0.8s' }}
+                />
+              )}
 
+              {/* Ambient radial glowing aura */}
+              <div
+                className="absolute -inset-6 rounded-full bg-gradient-to-tr from-[#DFB74A]/30 via-[#004B79]/20 to-[#DFB74A]/25 blur-2xl pointer-events-none transition-opacity duration-500"
+                style={{
+                  animation: showSubtitle ? 'logoAuraPulse 4s ease-in-out infinite' : undefined,
+                  opacity: isLogoHovered ? 0.95 : 0.65,
+                }}
+              />
+
+              {/* Outer decorative spinning orbital ring */}
+              <div
+                className="absolute -inset-4 sm:-inset-5 rounded-full border border-dashed border-[#DFB74A]/50 pointer-events-none"
+                style={{
+                  animation: 'ringSpinSlow 26s linear infinite',
+                }}
+              />
+              <div
+                className="absolute -inset-2 rounded-full border border-dotted border-[#002137]/30 pointer-events-none"
+                style={{
+                  animation: 'ringSpinReverse 20s linear infinite',
+                }}
+              />
+
+              {/* 3D Pop-Up Medallion Container */}
+              <div
+                className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl sm:rounded-3xl bg-[#FAF8F5]/95 backdrop-blur-md border-2 border-[#DFB74A]/40 shadow-[0_20px_50px_rgba(0,33,55,0.12),0_6px_24px_rgba(223,183,74,0.22)] flex items-center justify-center p-3 sm:p-4.5 transition-transform duration-150 ease-out"
+                style={{
+                  animation: showSubtitle ? 'logoPopIn 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' : undefined,
+                  transform: isLogoHovered
+                    ? `rotateX(${logoTilt.x}deg) rotateY(${logoTilt.y}deg) scale(1.08) translateZ(24px)`
+                    : 'rotateX(0deg) rotateY(0deg) scale(1)',
+                  transformStyle: 'preserve-3d',
+                }}
+              >
+                <img
+                  src="/images/mantif_icon.png"
+                  alt="MANTIF Emblem"
+                  className="w-full h-full object-contain filter drop-shadow-[0_8px_16px_rgba(0,33,55,0.15)] transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png';
+                  }}
+                />
+
+                {/* Dynamic 3D specular glare on hover */}
+                <div
+                  className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-transparent via-white/50 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    transform: 'translateZ(12px)',
+                  }}
+                />
+              </div>
+
+              {/* Micro interactive pill badge */}
+              <div
+                className="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FAF8F5] border border-[#002137]/15 shadow-sm text-[9px] sm:text-[10px] font-mono tracking-widest text-[#002137] uppercase transition-all duration-300 group-hover:border-[#DFB74A] group-hover:bg-[#DFB74A]/10 group-hover:text-[#002137]"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] animate-pulse" />
+                <span className="font-semibold">MANTIF EMBLEM</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -316,7 +417,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
         </button>
       </div>
 
-      {/* Walk animations */}
+      {/* Walk and 3D Logo Pop-Up animations */}
       <style>{`
         :root {
           --human-target: -56px;
@@ -343,6 +444,41 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
         @keyframes legSwingR {
           0%,100% { transform: rotate(14deg); }
           50%      { transform: rotate(-14deg); }
+        }
+        @keyframes logoPopIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.15) translateY(60px) rotateX(45deg) rotateZ(-15deg);
+          }
+          55% {
+            opacity: 1;
+            transform: scale(1.18) translateY(-10px) rotateX(-8deg) rotateZ(3deg);
+          }
+          75% {
+            transform: scale(0.96) translateY(3px) rotateX(3deg) rotateZ(-1deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0px) rotateX(0deg) rotateZ(0deg);
+          }
+        }
+        @keyframes logoAuraPulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.5;
+          }
+          50% {
+            transform: scale(1.18);
+            opacity: 0.85;
+          }
+        }
+        @keyframes ringSpinSlow {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes ringSpinReverse {
+          from { transform: rotate(360deg); }
+          to   { transform: rotate(0deg); }
         }
       `}</style>
     </section>
