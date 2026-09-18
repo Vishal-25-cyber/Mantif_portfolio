@@ -7,7 +7,7 @@ interface Intro3DBackgroundProps {
 
 export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'walking' }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0, worldX: 0, worldY: 0 });
 
   // Strictly ONLY show once the intro animation is completed
   const isIntroComplete = stage === 'completed';
@@ -16,15 +16,17 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     const container = containerRef.current;
     if (!container) return;
 
-    // --- Scene Setup ---
+    // --- Scene & Fog Setup ---
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0xFAF8F5, 0.002);
+    scene.fog = new THREE.FogExp2(0xFAF8F5, 0.0032);
 
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
 
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 40);
+    const camera = new THREE.PerspectiveCamera(52, width / height, 0.1, 1000);
+    // Angled top-down perspective to give massive depth across the full screen
+    camera.position.set(0, 16, 42);
+    camera.lookAt(0, -2, 0);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -34,146 +36,200 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.1;
     container.appendChild(renderer.domElement);
 
-    // --- Soft Ambient Lighting ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    // --- Lighting ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
     scene.add(ambientLight);
 
-    const goldCornerLight = new THREE.PointLight(0xDFB74A, 2.5, 90);
-    goldCornerLight.position.set(22, 16, 12);
-    scene.add(goldCornerLight);
+    const goldLight = new THREE.PointLight(0xDFB74A, 3.5, 90);
+    goldLight.position.set(0, 10, 15);
+    scene.add(goldLight);
 
-    const blueCornerLight = new THREE.PointLight(0x004B79, 2.0, 90);
-    blueCornerLight.position.set(-22, -14, 12);
-    scene.add(blueCornerLight);
+    const sapphireLight = new THREE.DirectionalLight(0x004B79, 1.8);
+    sapphireLight.position.set(-25, 30, 20);
+    scene.add(sapphireLight);
 
-    // Master container for smooth mouse parallax
+    // Master container for smooth camera parallax
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
 
     // ─────────────────────────────────────────────────────────────
-    // 1. PERIPHERAL 3D LIGHT ORBS (Kept strictly outside the text zone)
-    // Soft, luminous floating 3D spheres drifting in corners
+    // 1. FULL-PAGE 3D NEURAL SILK WAVE FIELD
+    // Dense 3D matrix covering the entire screen edge-to-edge
     // ─────────────────────────────────────────────────────────────
-    const orbGroup = new THREE.Group();
-    worldGroup.add(orbGroup);
+    const cols = 72;
+    const rows = 52;
+    const totalPoints = cols * rows;
+    const spacingX = 1.85;
+    const spacingZ = 1.45;
+    const startX = -(cols * spacingX) / 2;
+    const startZ = -(rows * spacingZ) / 2;
 
-    const orbData = [
-      // Top-Right Corner (Golden warm glow)
-      { basePos: new THREE.Vector3(25, 14, -8), radius: 5.2, color: 0xDFB74A, speed: 0.6, phase: 0 },
-      // Top-Left Corner (Soft ethereal champagne)
-      { basePos: new THREE.Vector3(-26, 15, -12), radius: 4.8, color: 0xE6C975, speed: 0.5, phase: 2.1 },
-      // Bottom-Left Corner (Deep sapphire harmony)
-      { basePos: new THREE.Vector3(-27, -13, -6), radius: 5.5, color: 0x004B79, speed: 0.55, phase: 4.2 },
-      // Bottom-Right Corner (Warm amber gold)
-      { basePos: new THREE.Vector3(26, -14, -10), radius: 4.6, color: 0xC99A2C, speed: 0.7, phase: 1.5 },
-      // Far Deep Ambient Horizon Orb
-      { basePos: new THREE.Vector3(0, -22, -16), radius: 7.0, color: 0xDFB74A, speed: 0.4, phase: 3.3 },
-    ];
+    const waveGeometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(totalPoints * 3);
+    const baseCoords = new Float32Array(totalPoints * 3);
+    const colors = new Float32Array(totalPoints * 3);
+    const sizes = new Float32Array(totalPoints);
 
-    const orbs: { mesh: THREE.Mesh; base: THREE.Vector3; speed: number; phase: number }[] = [];
+    const colorGold = new THREE.Color(0xDFB74A);
+    const colorSapphire = new THREE.Color(0x004B79);
+    const colorChampagne = new THREE.Color(0xE6C975);
+    const colorNavy = new THREE.Color(0x002137);
 
-    orbData.forEach((data) => {
-      const geo = new THREE.SphereGeometry(data.radius, 32, 32);
-      const mat = new THREE.MeshPhysicalMaterial({
-        color: data.color,
-        emissive: data.color,
-        emissiveIntensity: 0.12,
-        roughness: 0.25,
-        metalness: 0.1,
-        clearcoat: 0.9,
-        clearcoatRoughness: 0.1,
-        transparent: true,
-        opacity: 0.26,
-        depthWrite: false,
-      });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.copy(data.basePos);
-      orbGroup.add(mesh);
-      orbs.push({ mesh, base: data.basePos, speed: data.speed, phase: data.phase });
-    });
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c;
+        const i3 = i * 3;
 
-    // ─────────────────────────────────────────────────────────────
-    // 2. DELICATE PERIPHERAL CELESTIAL ORBITS (Outer Border Only)
-    // Ultra-thin, graceful hairline rings outside the text zone
-    // ─────────────────────────────────────────────────────────────
-    const ringGroup = new THREE.Group();
-    worldGroup.add(ringGroup);
+        const x = startX + c * spacingX;
+        const y = -8; // Resting floor elevation
+        const z = startZ + r * spacingZ;
 
-    // Large outer hairline ring (radius 22 - far outside text)
-    const outerRingGeo = new THREE.TorusGeometry(22, 0.022, 16, 160);
-    const ringMat = new THREE.MeshStandardMaterial({
-      color: 0xDFB74A,
-      transparent: true,
-      opacity: 0.22,
-      roughness: 0.3,
-      metalness: 0.8,
-    });
-    const outerRing = new THREE.Mesh(outerRingGeo, ringMat);
-    outerRing.rotation.x = Math.PI / 2.8;
-    outerRing.rotation.y = Math.PI / 8;
-    ringGroup.add(outerRing);
+        positions[i3] = x;
+        positions[i3 + 1] = y;
+        positions[i3 + 2] = z;
 
-    // Subtle golden satellite node orbiting far outside text
-    const nodeGeo = new THREE.SphereGeometry(0.22, 16, 16);
-    const nodeMat = new THREE.MeshStandardMaterial({
-      color: 0xDFB74A,
-      emissive: 0xDFB74A,
-      emissiveIntensity: 0.6,
-      metalness: 0.9,
-    });
-    const satelliteNode = new THREE.Mesh(nodeGeo, nodeMat);
-    ringGroup.add(satelliteNode);
+        baseCoords[i3] = x;
+        baseCoords[i3 + 1] = y;
+        baseCoords[i3 + 2] = z;
 
-    // Secondary subtle sapphire hairline ring
-    const innerRingGeo = new THREE.TorusGeometry(26, 0.018, 16, 160);
-    const sapphireRingMat = new THREE.MeshStandardMaterial({
-      color: 0x004B79,
-      transparent: true,
-      opacity: 0.16,
-      roughness: 0.4,
-      metalness: 0.7,
-    });
-    const sapphireRing = new THREE.Mesh(innerRingGeo, sapphireRingMat);
-    sapphireRing.rotation.x = -Math.PI / 3.1;
-    sapphireRing.rotation.z = Math.PI / 6;
-    ringGroup.add(sapphireRing);
+        // Gradient coloring: Golden crests, deep sapphire troughs
+        const normZ = r / rows;
+        const normX = c / cols;
+        const blend = (normX + normZ) * 0.5;
 
-    // ─────────────────────────────────────────────────────────────
-    // 3. AMBIENT PARTICLES (Excluding the central text zone)
-    // 50 subtle golden dust motes only around the outer borders
-    // ─────────────────────────────────────────────────────────────
-    const particleCount = 50;
-    const particleGeo = new THREE.BufferGeometry();
-    const particlePositions = new Float32Array(particleCount * 3);
+        let ptColor: THREE.Color;
+        if (blend < 0.35) {
+          ptColor = colorGold.clone().lerp(colorChampagne, blend / 0.35);
+        } else if (blend < 0.7) {
+          ptColor = colorChampagne.clone().lerp(colorSapphire, (blend - 0.35) / 0.35);
+        } else {
+          ptColor = colorSapphire.clone().lerp(colorNavy, (blend - 0.7) / 0.3);
+        }
 
-    for (let i = 0; i < particleCount; i++) {
-      const idx = i * 3;
-      // Distribute particles outwards away from center (radius > 16)
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 16 + Math.random() * 26;
-      particlePositions[idx] = Math.cos(angle) * dist;
-      particlePositions[idx + 1] = Math.sin(angle) * (dist * 0.65);
-      particlePositions[idx + 2] = (Math.random() - 0.5) * 25;
+        colors[i3] = ptColor.r;
+        colors[i3 + 1] = ptColor.g;
+        colors[i3 + 2] = ptColor.b;
+
+        // Point size variation based on depth (nearer = slightly larger)
+        sizes[i] = (1 - normZ * 0.5) * 0.32;
+      }
     }
 
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    const particleMat = new THREE.PointsMaterial({
-      color: 0xDFB74A,
-      size: 0.22,
-      transparent: true,
-      opacity: 0.35,
-    });
-    const particleSystem = new THREE.Points(particleGeo, particleMat);
-    worldGroup.add(particleSystem);
+    waveGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    waveGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    // --- Mouse Parallax Handler ---
+    // Circular soft particle texture
+    const createCircleTexture = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 30);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      grad.addColorStop(0.35, 'rgba(255, 255, 255, 0.85)');
+      grad.addColorStop(0.7, 'rgba(255, 255, 255, 0.25)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.premultiplyAlpha = true;
+      return texture;
+    };
+
+    const particleTexture = createCircleTexture();
+
+    const waveMaterial = new THREE.PointsMaterial({
+      size: 0.32,
+      map: particleTexture,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+    });
+
+    const waveMesh = new THREE.Points(waveGeometry, waveMaterial);
+    worldGroup.add(waveMesh);
+
+    // ─────────────────────────────────────────────────────────────
+    // 2. CELESTIAL HORIZON RINGS (Deep Background Depth)
+    // Delicate, giant orbital rings encircling the full scene
+    // ─────────────────────────────────────────────────────────────
+    const ringGroup = new THREE.Group();
+    ringGroup.position.set(0, -2, -15);
+    worldGroup.add(ringGroup);
+
+    // Giant Golden Horizon Halo
+    const horizonRingGeo = new THREE.TorusGeometry(32, 0.04, 16, 180);
+    const horizonRingMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      metalness: 0.85,
+      roughness: 0.25,
+      transparent: true,
+      opacity: 0.28,
+    });
+    const horizonRing = new THREE.Mesh(horizonRingGeo, horizonRingMat);
+    horizonRing.rotation.x = Math.PI / 2.3;
+    horizonRing.rotation.y = Math.PI / 10;
+    ringGroup.add(horizonRing);
+
+    // Secondary Sapphire Hairline Counter-Ring
+    const subRingGeo = new THREE.TorusGeometry(38, 0.025, 16, 180);
+    const subRingMat = new THREE.MeshStandardMaterial({
+      color: 0x004B79,
+      metalness: 0.75,
+      roughness: 0.3,
+      transparent: true,
+      opacity: 0.2,
+    });
+    const subRing = new THREE.Mesh(subRingGeo, subRingMat);
+    subRing.rotation.x = -Math.PI / 2.5;
+    subRing.rotation.z = Math.PI / 6;
+    ringGroup.add(subRing);
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. GENTLE DRIFTING PARTICLES IN FULL VOLUME
+    // 120 subtle golden dust motes scattered across full screen depth
+    // ─────────────────────────────────────────────────────────────
+    const dustCount = 120;
+    const dustGeo = new THREE.BufferGeometry();
+    const dustPositions = new Float32Array(dustCount * 3);
+
+    for (let i = 0; i < dustCount; i++) {
+      const idx = i * 3;
+      dustPositions[idx] = (Math.random() - 0.5) * 110;
+      dustPositions[idx + 1] = (Math.random() - 0.5) * 55 + 5;
+      dustPositions[idx + 2] = (Math.random() - 0.5) * 60;
+    }
+
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+    const dustMat = new THREE.PointsMaterial({
+      color: 0xDFB74A,
+      size: 0.26,
+      transparent: true,
+      opacity: 0.45,
+      map: particleTexture,
+      depthWrite: false,
+    });
+    const dustSystem = new THREE.Points(dustGeo, dustMat);
+    worldGroup.add(dustSystem);
+
+    // --- Mouse Movement & Ray Projection ---
     const handleMouseMove = (e: MouseEvent) => {
       const { innerWidth, innerHeight } = window;
       mouseRef.current.targetX = (e.clientX / innerWidth - 0.5) * 2;
       mouseRef.current.targetY = -(e.clientY / innerHeight - 0.5) * 2;
+
+      // Project mouse coordinates into approximate 3D world space
+      mouseRef.current.worldX = mouseRef.current.targetX * 28;
+      mouseRef.current.worldY = mouseRef.current.targetY * 18 - 4;
     };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
@@ -198,34 +254,51 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       const elapsed = clock.getElapsedTime();
 
       // Smooth mouse interpolation (LERP)
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.03;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.03;
+      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.04;
+      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.04;
 
-      // Soft, tranquil camera rotation with mouse
+      // Gentle camera parallax
       worldGroup.rotation.y = mouseRef.current.x * 0.12;
-      worldGroup.rotation.x = -mouseRef.current.y * 0.08;
+      worldGroup.rotation.x = -mouseRef.current.y * 0.07;
 
-      // 1. Gently float the peripheral 3D light orbs
-      orbs.forEach(({ mesh, base, speed, phase }) => {
-        mesh.position.x = base.x + Math.sin(elapsed * speed + phase) * 1.8;
-        mesh.position.y = base.y + Math.cos(elapsed * (speed * 0.85) + phase) * 1.5;
-        mesh.position.z = base.z + Math.sin(elapsed * (speed * 0.6) + phase) * 1.2;
-      });
+      // Rotate horizon rings
+      horizonRing.rotation.z = elapsed * 0.035;
+      subRing.rotation.z = -elapsed * 0.025;
 
-      // 2. Slow rotation of outer hairline orbit
-      outerRing.rotation.z = elapsed * 0.04;
-      sapphireRing.rotation.z = -elapsed * 0.035;
+      // ─────────────────────────────────────────────────────────────
+      // Full-Page Multi-Harmonic Wave Math with Mouse Ripple Force
+      // ─────────────────────────────────────────────────────────────
+      const posArr = waveGeometry.attributes.position.array as Float32Array;
+      const mX = mouseRef.current.worldX;
+      const mZ = mouseRef.current.worldY * 1.5;
 
-      // Orbiting satellite bead far outside text
-      const beadAngle = elapsed * 0.35;
-      satelliteNode.position.set(
-        Math.cos(beadAngle) * 22,
-        Math.sin(beadAngle) * 11,
-        Math.sin(beadAngle) * 8
-      );
+      for (let i = 0; i < totalPoints; i++) {
+        const i3 = i * 3;
+        const bx = baseCoords[i3];
+        const bz = baseCoords[i3 + 2];
 
-      // 3. Ambient dust slow drift
-      particleSystem.rotation.y = elapsed * 0.012;
+        // 1. Primary harmonic fluid wave
+        const wave1 = Math.sin(bx * 0.11 + elapsed * 1.25) * 2.2;
+        const wave2 = Math.cos(bz * 0.14 + elapsed * 0.95) * 1.8;
+        const wave3 = Math.sin((bx + bz) * 0.07 + elapsed * 0.8) * 1.1;
+
+        // 2. Interactive mouse fluid ripple
+        const dx = bx - mX;
+        const dz = bz - mZ;
+        const distSq = dx * dx + dz * dz;
+        let mouseRipple = 0;
+        if (distSq < 400) {
+          const dist = Math.sqrt(distSq);
+          mouseRipple = Math.cos(dist * 0.35 - elapsed * 3.5) * (1 - dist / 20) * 2.8;
+        }
+
+        // Apply synthesized wave displacement
+        posArr[i3 + 1] = baseCoords[i3 + 1] + wave1 + wave2 + wave3 + mouseRipple;
+      }
+      waveGeometry.attributes.position.needsUpdate = true;
+
+      // Slow ambient dust drift
+      dustSystem.rotation.y = elapsed * 0.012;
 
       renderer.render(scene, camera);
     };
@@ -238,18 +311,15 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
 
-      orbs.forEach(({ mesh }) => {
-        mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
-      });
-      outerRingGeo.dispose();
-      ringMat.dispose();
-      innerRingGeo.dispose();
-      sapphireRingMat.dispose();
-      nodeGeo.dispose();
-      nodeMat.dispose();
-      particleGeo.dispose();
-      particleMat.dispose();
+      waveGeometry.dispose();
+      waveMaterial.dispose();
+      horizonRingGeo.dispose();
+      horizonRingMat.dispose();
+      subRingGeo.dispose();
+      subRingMat.dispose();
+      dustGeo.dispose();
+      dustMat.dispose();
+      particleTexture?.dispose();
       renderer.dispose();
 
       if (container.contains(renderer.domElement)) {
@@ -261,15 +331,15 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
   return (
     <div
       ref={containerRef}
-      className={`absolute inset-0 pointer-events-none z-0 overflow-hidden transition-all duration-1000 ease-out ${
+      className={`absolute inset-0 pointer-events-none z-0 overflow-hidden transition-all duration-1200 ease-out ${
         isIntroComplete
           ? 'opacity-100 scale-100 visible'
-          : 'opacity-0 scale-95 pointer-events-none invisible'
+          : 'opacity-0 scale-98 pointer-events-none invisible'
       }`}
       style={{
-        // Radial clearing mask: center 40% is completely clear so text is 100% pristine!
-        maskImage: 'radial-gradient(ellipse 55% 50% at 50% 50%, transparent 25%, rgba(0,0,0,0.5) 55%, black 85%)',
-        WebkitMaskImage: 'radial-gradient(ellipse 55% 50% at 50% 50%, transparent 25%, rgba(0,0,0,0.5) 55%, black 85%)',
+        // Full page coverage with subtle bottom & edge fade
+        maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 75%, rgba(0,0,0,0.2) 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 75%, rgba(0,0,0,0.2) 100%)',
       }}
       aria-hidden="true"
     />
