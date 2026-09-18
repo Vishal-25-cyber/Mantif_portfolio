@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function useLenis() {
+export function useLenis(isLocked = false) {
+  const lenisRef = useRef<Lenis | null>(null);
+
   useEffect(() => {
     // Check if user prefers reduced motion
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -18,6 +20,7 @@ export function useLenis() {
       smoothWheel: true,
       touchMultiplier: 1.25,
     });
+    lenisRef.current = lenis;
 
     // Synchronize Lenis with GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
@@ -32,6 +35,18 @@ export function useLenis() {
     return () => {
       gsap.ticker.remove(updateTicker);
       lenis.destroy();
+      lenisRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (!lenisRef.current) return;
+    if (isLocked) {
+      lenisRef.current.stop();
+      document.body.style.overflow = 'hidden';
+    } else {
+      lenisRef.current.start();
+      document.body.style.overflow = '';
+    }
+  }, [isLocked]);
 }

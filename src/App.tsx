@@ -12,10 +12,18 @@ import { PhilosophySection } from './sections/PhilosophySection';
 import { FooterSection } from './sections/FooterSection';
 
 export function App() {
-  useLenis();
-
   // Track if the animated intro sequence is currently active/playing
-  const [isIntroActive, setIsIntroActive] = useState(true);
+  // If user navigated directly via hash (e.g. #people, #services), bypass intro
+  const [isIntroActive, setIsIntroActive] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.hash && window.location.hash !== '#intro') {
+      return false;
+    }
+    return true;
+  });
+
+  // Freeze smooth scroll & wheel while intro is active to prevent bottom layer from peeking
+  useLenis(isIntroActive);
+
   const [isPastThreshold, setIsPastThreshold] = useState(false);
 
   useEffect(() => {
