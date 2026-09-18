@@ -48,6 +48,17 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, mobileMenuOpen]);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const toggleSound = () => {
     const muted = soundManager.toggleMute();
     setIsMuted(muted);
@@ -62,18 +73,18 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
   };
 
   const navItems = [
-    { id: 'intro', label: '01 Intro' },
-    { id: 'services', label: '02 What We Do' },
-    { id: 'people', label: '03 People' },
-    { id: 'journey', label: '04 Journey' },
-    { id: 'philosophy', label: '05 Philosophy' },
+    { id: 'intro', num: '01', title: 'Intro' },
+    { id: 'services', num: '02', title: 'What We Do' },
+    { id: 'people', num: '03', title: 'People' },
+    { id: 'journey', num: '04', title: 'Journey' },
+    { id: 'philosophy', num: '05', title: 'Philosophy' },
   ];
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4 sm:py-6 transition-all duration-700 ease-out will-change-transform ${
-          !hidden && isVisible
+        className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out will-change-transform ${
+          !hidden && isVisible && !mobileMenuOpen
             ? 'translate-y-0 opacity-100 visible'
             : '-translate-y-full opacity-0 pointer-events-none invisible'
         }`}
@@ -124,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
                       : 'text-[#002137]/70 hover:text-[#002137] hover:bg-[#002137]/5'
                   }`}
                 >
-                  {item.label}
+                  {item.num} {item.title}
                 </button>
               );
             })}
@@ -173,36 +184,88 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
         </div>
       </header>
 
-      {/* Fullscreen Mobile / Flyout Menu Overlay */}
+      {/* Fullscreen Mobile / Flyout Menu Overlay (z-[60] clean takeover, navbar hidden) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-[#FAF8F5] flex flex-col justify-between p-8 sm:p-16 animate-fadeIn">
+        <div className="fixed inset-0 z-[60] bg-[#FAF8F5] flex flex-col justify-between p-6 sm:p-12 md:p-16 animate-fadeIn overflow-y-auto">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <img src="/images/mantif_icon.png" alt="MANTIF" className="w-6 h-6 object-contain" />
-              <span className="font-serif tracking-widest text-lg font-bold text-[#002137]">
-                M<span className="text-[#DFB74A]">Λ</span>NTIF
-              </span>
-            </div>
             <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-full border border-[#002137]/20 text-[#002137] hover:bg-[#002137]/5"
-              aria-label="Close Menu"
+              onClick={() => scrollToSection('intro')}
+              className="flex items-center gap-3 group text-left focus:outline-none"
+              aria-label="MANTIF Home"
             >
-              <X className="w-6 h-6" />
+              <div className="w-8 h-8 rounded-full border border-[#002137]/20 flex items-center justify-center bg-[#FAF8F5] group-hover:border-[#004B79] transition-colors">
+                <img
+                  src="/images/mantif_icon.png"
+                  alt="MANTIF"
+                  className="w-5 h-5 object-contain"
+                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png'; }}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-serif tracking-widest text-base font-bold text-[#002137]">
+                  M<span className="text-[#DFB74A]">Λ</span>NTIF
+                </span>
+                <span className="font-mono text-[8px] tracking-wider text-[#64748B] uppercase hidden sm:inline">
+                  HUMAN × AI
+                </span>
+              </div>
             </button>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Audio Ambience Synthesizer Toggle */}
+              <button
+                onClick={toggleSound}
+                onMouseEnter={() => setCursorMode('hover')}
+                onMouseLeave={() => setCursorMode('default')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono transition-all ${
+                  !isMuted
+                    ? 'bg-[#004B79] text-[#FAF8F5] border-[#004B79] shadow-md shadow-[#004B79]/30'
+                    : 'bg-[#FAF8F5] text-[#002137]/70 border-[#002137]/15 hover:border-[#002137]/40 hover:text-[#002137]'
+                }`}
+                title={!isMuted ? 'Sound active (Click to mute)' : 'Click to enable audio'}
+                aria-label="Toggle Sound"
+              >
+                {!isMuted ? (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 animate-pulse text-[#DFB74A]" />
+                    <span className="text-[10px] hidden sm:inline font-bold tracking-wider">AUDIO ON</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5" />
+                    <span className="text-[10px] hidden sm:inline">AUDIO OFF</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                onMouseEnter={() => setCursorMode('hover')}
+                onMouseLeave={() => setCursorMode('default')}
+                className="w-9 h-9 rounded-full border border-[#002137]/20 flex items-center justify-center text-[#002137] hover:bg-[#002137]/5 transition-colors"
+                aria-label="Close Menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-col space-y-6 my-auto">
-            {navItems.map((item, idx) => (
+          <div className="flex flex-col space-y-6 my-auto py-8">
+            {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className="group flex items-baseline justify-between text-left border-b border-[#002137]/10 pb-4"
+                onMouseEnter={() => {
+                  setCursorMode('hover');
+                  soundManager.playHoverTick();
+                }}
+                onMouseLeave={() => setCursorMode('default')}
+                className="group flex items-baseline justify-between text-left border-b border-[#002137]/10 pb-4 transition-colors"
               >
-                <div className="flex items-baseline gap-4">
-                  <span className="font-mono text-xs text-[#DFB74A]">0{idx + 1}</span>
+                <div className="flex items-baseline gap-4 sm:gap-6">
+                  <span className="font-mono text-xs sm:text-sm text-[#DFB74A] font-bold">{item.num}</span>
                   <span className="font-serif text-3xl sm:text-5xl text-[#002137] group-hover:text-[#004B79] transition-colors">
-                    {item.label.split(' ')[1] || item.label}
+                    {item.title}
                   </span>
                 </div>
                 <ArrowUpRight className="w-6 h-6 text-[#64748B] group-hover:text-[#004B79] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
