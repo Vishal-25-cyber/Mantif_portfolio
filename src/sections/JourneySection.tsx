@@ -136,11 +136,10 @@ export const JourneySection: React.FC = () => {
               onClick={handleZoomOut}
               onMouseEnter={() => setCursorMode('hover')}
               onMouseLeave={() => setCursorMode('default')}
-              className={`ml-3 px-4 py-1.5 rounded-full font-mono text-[11px] font-bold border transition-all ${
-                isZoomedOut
+              className={`ml-3 px-4 py-1.5 rounded-full font-mono text-[11px] font-bold border transition-all ${isZoomedOut
                   ? 'bg-[#DFB74A] text-[#002137] border-[#DFB74A]'
                   : 'border-[#DFB74A]/40 text-[#DFB74A] hover:bg-[#DFB74A]/10'
-              }`}
+                }`}
             >
               {isZoomedOut ? '✦ MANTIF UNITED' : 'ZOOM OUT → MANTIF'}
             </button>
@@ -163,7 +162,7 @@ export const JourneySection: React.FC = () => {
                   {/* SVG rope from gantry */}
                   <svg className="w-full h-14 sm:h-20 overflow-visible" preserveAspectRatio="xMidYMid meet">
                     {/* Pulley ring at top */}
-                    <circle cx="50%" cy="6" r="4" fill="#DFB74A" stroke="#001A2C" strokeWidth="1.5"/>
+                    <circle cx="50%" cy="6" r="4" fill="#DFB74A" stroke="#001A2C" strokeWidth="1.5" />
                     {/* Rope cord */}
                     <line x1="50%" y1="6" x2="50%" y2="100%"
                       stroke={isActive ? '#DFB74A' : '#334155'}
@@ -178,23 +177,21 @@ export const JourneySection: React.FC = () => {
                     onClick={() => handleSelectLetter(idx)}
                     onMouseEnter={() => setCursorMode('explore')}
                     onMouseLeave={() => setCursorMode('default')}
-                    className={`relative w-10 h-12 sm:w-14 sm:h-16 md:w-16 md:h-20 rounded-xl flex flex-col items-center justify-center border transition-all duration-500 will-change-transform group ${
-                      isActive
+                    className={`relative w-10 h-12 sm:w-14 sm:h-16 md:w-16 md:h-20 rounded-xl flex flex-col items-center justify-center border transition-all duration-500 will-change-transform group ${isActive
                         ? 'bg-[#DFB74A] text-[#002137] border-[#DFB74A] shadow-[0_0_30px_rgba(223,183,74,0.4)] scale-110'
                         : isPassed
-                        ? 'bg-[#002137] text-[#FAF8F5] border-[#004B79]/50 hover:border-[#DFB74A]/60'
-                        : 'bg-[#001626] text-[#334155] border-[#334155]/30 hover:border-[#004B79]/50'
-                    }`}
+                          ? 'bg-[#002137] text-[#FAF8F5] border-[#004B79]/50 hover:border-[#DFB74A]/60'
+                          : 'bg-[#001626] text-[#334155] border-[#334155]/30 hover:border-[#004B79]/50'
+                      }`}
                     style={isActive ? {
                       animation: 'puppetSwayDark 3s ease-in-out infinite',
                       transformOrigin: 'top center',
                     } : undefined}
                   >
                     {/* Hook on top */}
-                    <div className={`absolute -top-2 w-3 h-3 rounded-full border-2 ${isActive ? 'bg-[#002137] border-[#DFB74A]' : 'bg-[#DFB74A] border-[#001A2C]'}`}/>
-                    <span className={`font-serif font-bold leading-none ${
-                      isActive ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-3xl'
-                    }`}>
+                    <div className={`absolute -top-2 w-3 h-3 rounded-full border-2 ${isActive ? 'bg-[#002137] border-[#DFB74A]' : 'bg-[#DFB74A] border-[#001A2C]'}`} />
+                    <span className={`font-serif font-bold leading-none ${isActive ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-3xl'
+                      }`}>
                       {displayChar}
                     </span>
                     <span className="font-mono text-[7px] sm:text-[8px] mt-0.5 opacity-60">0{idx + 1}</span>
@@ -248,12 +245,12 @@ export const JourneySection: React.FC = () => {
                       <div className="grid grid-cols-3 gap-2 mt-2">
                         {['/images/gallery_1.jpg', '/images/gallery_2.jpg', '/images/gallery_3.jpg'].map((img, i) => (
                           <div key={i}
-                            onClick={() => setSelectedMedia({ isOpen: true, title: `Tutoring Hub — Study #${i+1}`, mediaType: 'image', src: img, caption: 'Authentic Tutoring Hub classroom collaboration.' })}
+                            onClick={() => setSelectedMedia({ isOpen: true, title: `Tutoring Hub — Study #${i + 1}`, mediaType: 'image', src: img, caption: 'Authentic Tutoring Hub classroom collaboration.' })}
                             onMouseEnter={() => setCursorMode('view')}
                             onMouseLeave={() => setCursorMode('default')}
                             className="aspect-square rounded-lg overflow-hidden border border-[#004B79]/30 cursor-pointer hover:opacity-80 transition-opacity hover:border-[#DFB74A]/50"
                           >
-                            <img src={img} alt={`Gallery ${i+1}`} className="w-full h-full object-cover"/>
+                            <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
                           </div>
                         ))}
                       </div>
@@ -280,27 +277,27 @@ export const JourneySection: React.FC = () => {
                 >
                   {activeItem.mediaType === 'video' ? (
                     <div className="relative w-full h-full">
-                      <video src={activeItem.mediaSrc} poster={activeItem.poster} muted playsInline className="w-full h-full object-cover opacity-70"/>
+                      <video src={activeItem.mediaSrc} poster={activeItem.poster} muted playsInline className="w-full h-full object-cover opacity-70" />
                       <div className="absolute inset-0 bg-[#001A2C]/50 flex items-center justify-center group-hover:bg-[#001A2C]/30 transition-colors">
                         <div className="w-14 h-14 rounded-full bg-[#DFB74A] text-[#002137] flex items-center justify-center shadow-[0_0_30px_rgba(223,183,74,0.5)] group-hover:scale-110 transition-transform">
-                          <Play className="w-6 h-6 fill-current ml-0.5"/>
+                          <Play className="w-6 h-6 fill-current ml-0.5" />
                         </div>
                       </div>
                     </div>
                   ) : activeItem.mediaType === 'image' && activeItem.mediaSrc ? (
                     <div className="relative w-full h-full">
                       <img src={activeItem.mediaSrc} alt={activeItem.milestone}
-                        className="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"/>
+                        className="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#001A2C]/70 via-transparent to-transparent flex items-end p-4">
                         <span className="font-mono text-xs text-[#FAF8F5] flex items-center gap-1.5">
-                          <Eye className="w-3.5 h-3.5 text-[#DFB74A]"/> Click to expand
+                          <Eye className="w-3.5 h-3.5 text-[#DFB74A]" /> Click to expand
                         </span>
                       </div>
                     </div>
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
                       <div className="w-12 h-12 rounded-full border border-[#DFB74A]/40 flex items-center justify-center mb-3">
-                        <Sparkles className="w-5 h-5 text-[#DFB74A]"/>
+                        <Sparkles className="w-5 h-5 text-[#DFB74A]" />
                       </div>
                       <span className="font-mono text-[10px] tracking-[0.2em] text-[#DFB74A] uppercase">
                         Upcoming Talent Cohort
@@ -325,7 +322,7 @@ export const JourneySection: React.FC = () => {
               <div className="flex items-end justify-center gap-4 sm:gap-8">
                 {letterDisplays.map((char, idx) => (
                   <div key={idx} className="flex flex-col items-center">
-                    <div className="w-[1px] h-8 sm:h-12 bg-gradient-to-b from-[#DFB74A] to-[#DFB74A]/20 mb-2"/>
+                    <div className="w-[1px] h-8 sm:h-12 bg-gradient-to-b from-[#DFB74A] to-[#DFB74A]/20 mb-2" />
                     <span className={`font-serif font-bold leading-none ${char === 'Λ' ? 'text-[#DFB74A]' : 'text-[#FAF8F5]'}`}
                       style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>
                       {char}
@@ -336,9 +333,9 @@ export const JourneySection: React.FC = () => {
 
               <div className="mt-12 max-w-lg">
                 <div className="flex items-center justify-center gap-4 mb-5">
-                  <span className="w-8 h-[1px] bg-[#DFB74A]/60"/>
+                  <span className="w-8 h-[1px] bg-[#DFB74A]/60" />
                   <span className="font-mono text-[10px] tracking-[0.25em] text-[#475569] uppercase">The Continuous Thread</span>
-                  <span className="w-8 h-[1px] bg-[#DFB74A]/60"/>
+                  <span className="w-8 h-[1px] bg-[#DFB74A]/60" />
                 </div>
                 <p className="font-serif italic text-2xl sm:text-3xl text-[#FAF8F5] font-light">
                   "{journey.finalePrompt}"
