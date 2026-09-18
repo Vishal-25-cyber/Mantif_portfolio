@@ -12,24 +12,27 @@ import { PhilosophySection } from './sections/PhilosophySection';
 import { FooterSection } from './sections/FooterSection';
 
 export function App() {
-  // Track if the animated intro sequence is currently active/playing
-  // If user navigated directly via hash (e.g. #people, #services), bypass intro
-  const [isIntroActive, setIsIntroActive] = useState(() => {
-    if (typeof window !== 'undefined' && window.location.hash && window.location.hash !== '#intro') {
-      return false;
-    }
-    return true;
-  });
+  // Track if the animated intro sequence is currently active/playing.
+  // ALWAYS starts true so the navbar is STRICTLY hidden while animation is running.
+  const [isIntroActive, setIsIntroActive] = useState(true);
 
   // Freeze smooth scroll & wheel while intro is active to prevent bottom layer from peeking
   useLenis(isIntroActive);
 
   useEffect(() => {
     // When intro is active on mount, ensure page stays pinned at the very top
-    if (isIntroActive && typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      // Clear any lingering section hash so it doesn't conflict with intro playback
+      if (window.location.hash && window.location.hash !== '#intro') {
+        try {
+          history.replaceState(null, '', window.location.pathname);
+        } catch {
+          // ignore
+        }
+      }
     }
-  }, [isIntroActive]);
+  }, []);
 
   // While the intro animation is playing, navbar is strictly hidden.
   // The moment intro completes (or is skipped), the navbar emerges smoothly.

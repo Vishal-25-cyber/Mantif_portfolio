@@ -90,9 +90,12 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
 
     push(() => {
       setShowSubtitle(true);
-      onIntroComplete?.();
     }, 9000);
-    push(() => setStage('completed'), 9500);
+
+    push(() => {
+      setStage('completed');
+      onIntroComplete?.();
+    }, 9500);
   };
 
   useEffect(() => {
