@@ -27,7 +27,7 @@ export const mediaConfig = {
     {
       id: 'vishal',
       name: 'Vishal K',
-      role: 'Development Team · Full Stack Engineering',
+      role: 'Development Team · Software Developer',
       image: '/images/team_vishal.jpg',
       fallbackImage: 'https://mantif.com/images/team_vishal.jpg',
       description: 'Architecting dynamic reactive interfaces, responsive systems, and high-performance educational web applications.',
@@ -35,7 +35,7 @@ export const mediaConfig = {
     {
       id: 'solairaj',
       name: 'Solairaj R',
-      role: 'Development Team · Platform Architecture',
+      role: 'Development Team · Software Developer',
       image: '/images/team_solairaj.jpg',
       fallbackImage: 'https://mantif.com/images/team_solairaj.jpg',
       description: 'Engineering resilient backend pipelines, cloud microservices, and AI inference integrations for adaptive learning.',

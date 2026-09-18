@@ -104,7 +104,7 @@ export const siteContent = {
       {
         id: 'vishal',
         name: 'Vishal K',
-        role: 'Development Team · Full Stack Engineering',
+        role: 'Development Team · Software Developer',
         portrait: '/images/team_vishal.jpg',
         bio: 'Focused on creating seamless reactive frontend architectures, fluid micro-interactions, and resilient client-side state. Vishal ensures that every interface feels alive, accessible, and extraordinarily fast.',
         specialty: 'Interactive Motion Design & Component Architecture',
@@ -112,7 +112,7 @@ export const siteContent = {
       {
         id: 'solairaj',
         name: 'Solairaj R',
-        role: 'Development Team · Platform Architecture',
+        role: 'Development Team · Software Developer',
         portrait: '/images/team_solairaj.jpg',
         bio: 'Architecting robust server infrastructure, database schemas, and AI pipeline orchestration. Solairaj builds the invisible foundation that enables personalized diagnostics and real-time learning metrics.',
         specialty: 'Backend Infrastructure & Cloud Microservices',
