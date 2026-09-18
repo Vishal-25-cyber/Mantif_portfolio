@@ -6,7 +6,7 @@ interface Intro3DBackgroundProps {
 }
 
 /**
- * Creates a soft, circular luminous glow sprite texture
+ * Creates a crisp circular glowing sprite texture for points with high opacity
  */
 function createGlowTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -16,9 +16,9 @@ function createGlowTexture(): THREE.CanvasTexture {
   if (ctx) {
     const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.2, 'rgba(255, 230, 160, 0.95)');
-    gradient.addColorStop(0.5, 'rgba(223, 183, 74, 0.45)');
-    gradient.addColorStop(0.8, 'rgba(0, 75, 121, 0.15)');
+    gradient.addColorStop(0.25, 'rgba(255, 235, 170, 0.95)');
+    gradient.addColorStop(0.55, 'rgba(223, 183, 74, 0.8)');
+    gradient.addColorStop(0.85, 'rgba(0, 75, 121, 0.35)');
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 64, 64);
@@ -55,187 +55,279 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
     const glowTexture = createGlowTexture();
 
     // ─────────────────────────────────────────────────────────────
-    // 1. DYNAMIC 3D NEURAL WAVE TERRAIN (Grid of glowing points)
+    // 1. LIGHTING ARCHITECTURE (Luxury Gold & Sapphire Speculars)
     // ─────────────────────────────────────────────────────────────
-    const waveCols = 60;
-    const waveRows = 60;
-    const waveCount = waveCols * waveRows;
-    const waveGeometry = new THREE.BufferGeometry();
-    const wavePositions = new Float32Array(waveCount * 3);
-    const waveColors = new Float32Array(waveCount * 3);
+    const ambientLight = new THREE.AmbientLight(0xFFFBF2, 1.8);
+    scene.add(ambientLight);
 
-    const cGold = new THREE.Color('#DFB74A');
-    const cSapphire = new THREE.Color('#004B79');
-    const cChampagne = new THREE.Color('#F5E0B8');
+    const goldKeyLight = new THREE.DirectionalLight(0xDFB74A, 3.8);
+    goldKeyLight.position.set(22, 28, 20);
+    scene.add(goldKeyLight);
 
-    const waveSpacing = 0.95;
-    const xOffset = ((waveCols - 1) * waveSpacing) / 2;
-    const zOffset = ((waveRows - 1) * waveSpacing) / 2;
+    const sapphireRimLight = new THREE.DirectionalLight(0x004B79, 3.0);
+    sapphireRimLight.position.set(-22, -18, 14);
+    scene.add(sapphireRimLight);
 
-    for (let i = 0; i < waveCols; i++) {
-      for (let j = 0; j < waveRows; j++) {
-        const idx = (i * waveRows + j) * 3;
-        wavePositions[idx] = i * waveSpacing - xOffset;
-        wavePositions[idx + 1] = 0; // calculated in render loop
-        wavePositions[idx + 2] = j * waveSpacing - zOffset;
+    const topSun = new THREE.DirectionalLight(0xFFFFFF, 1.6);
+    topSun.position.set(0, 30, 10);
+    scene.add(topSun);
 
-        // Radial color mix: golden center fading to celestial sapphire edges
-        const distFromCenter = Math.sqrt(
-          Math.pow((i - waveCols / 2) / (waveCols / 2), 2) +
-          Math.pow((j - waveRows / 2) / (waveRows / 2), 2)
-        );
-        const col = new THREE.Color();
-        if (distFromCenter < 0.45) {
-          col.lerpColors(cGold, cChampagne, distFromCenter / 0.45);
-        } else {
-          col.lerpColors(cGold, cSapphire, Math.min(1, (distFromCenter - 0.45) / 0.55));
-        }
-
-        waveColors[idx] = col.r;
-        waveColors[idx + 1] = col.g;
-        waveColors[idx + 2] = col.b;
-      }
-    }
-
-    waveGeometry.setAttribute('position', new THREE.BufferAttribute(wavePositions, 3));
-    waveGeometry.setAttribute('color', new THREE.BufferAttribute(waveColors, 3));
-
-    const waveMaterial = new THREE.PointsMaterial({
-      size: 0.52,
-      map: glowTexture,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.72,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-
-    const waveMesh = new THREE.Points(waveGeometry, waveMaterial);
-    // Position terrain tilted in dramatic 3D perspective below & into the depth
-    waveMesh.rotation.x = -Math.PI / 2.7;
-    waveMesh.position.set(0, -9.5, -4);
-    scene.add(waveMesh);
+    // Interactive cursor-following 3D Point Light
+    const cursorLight = new THREE.PointLight(0xFFE58F, 5.5, 45);
+    cursorLight.position.set(0, 0, 16);
+    scene.add(cursorLight);
 
     // ─────────────────────────────────────────────────────────────
-    // 2. CELESTIAL SACRED ARMILLARY RINGS (3D Tourbillon Kinematics)
+    // 2. CELESTIAL HALO ORBITAL RINGS (Framing Full Screen)
     // ─────────────────────────────────────────────────────────────
-    const ringsGroup = new THREE.Group();
-    scene.add(ringsGroup);
-    ringsGroup.position.set(0, 0.5, -6);
+    const haloGroup = new THREE.Group();
+    haloGroup.position.set(0, 0, -12);
+    scene.add(haloGroup);
 
-    // Outer Armillary Ring (Fine Gold Torus)
-    const ring1Geo = new THREE.TorusGeometry(17.5, 0.045, 16, 120);
-    const ring1Mat = new THREE.MeshStandardMaterial({
+    // Outer Celestial Orbit
+    const halo1Geo = new THREE.TorusGeometry(26, 0.1, 16, 120);
+    const haloMatGold = new THREE.MeshStandardMaterial({
       color: 0xDFB74A,
       metalness: 0.95,
       roughness: 0.15,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.65,
     });
-    const ring1Mesh = new THREE.Mesh(ring1Geo, ring1Mat);
-    ring1Mesh.rotation.x = 1.15;
-    ring1Mesh.rotation.y = 0.35;
-    ringsGroup.add(ring1Mesh);
+    const halo1 = new THREE.Mesh(halo1Geo, haloMatGold);
+    halo1.rotation.x = 1.12;
+    halo1.rotation.y = 0.28;
+    haloGroup.add(halo1);
 
-    // Mid Armillary Ring (Sapphire & Gold Harmonic)
-    const ring2Geo = new THREE.TorusGeometry(14.0, 0.038, 16, 100);
-    const ring2Mat = new THREE.MeshStandardMaterial({
+    // Mid Celestial Orbit
+    const halo2Geo = new THREE.TorusGeometry(20, 0.08, 16, 100);
+    const haloMatSapphire = new THREE.MeshStandardMaterial({
       color: 0x004B79,
       metalness: 0.9,
       roughness: 0.2,
       transparent: true,
-      opacity: 0.38,
+      opacity: 0.6,
     });
-    const ring2Mesh = new THREE.Mesh(ring2Geo, ring2Mat);
-    ring2Mesh.rotation.x = -0.75;
-    ring2Mesh.rotation.y = 0.85;
-    ringsGroup.add(ring2Mesh);
+    const halo2 = new THREE.Mesh(halo2Geo, haloMatSapphire);
+    halo2.rotation.x = -0.85;
+    halo2.rotation.y = 0.65;
+    haloGroup.add(halo2);
 
-    // Inner Armillary Ring (Fine Golden Compass Ring)
-    const ring3Geo = new THREE.TorusGeometry(10.8, 0.032, 16, 90);
-    const ring3Mat = new THREE.MeshStandardMaterial({
+    // Inner Delicate Orbit
+    const halo3Geo = new THREE.TorusGeometry(15, 0.06, 16, 80);
+    const haloMatChampagne = new THREE.MeshStandardMaterial({
       color: 0xF5E0B8,
       metalness: 0.92,
       roughness: 0.18,
       transparent: true,
-      opacity: 0.32,
+      opacity: 0.5,
     });
-    const ring3Mesh = new THREE.Mesh(ring3Geo, ring3Mat);
-    ring3Mesh.rotation.x = 0.5;
-    ring3Mesh.rotation.z = 0.65;
-    ringsGroup.add(ring3Mesh);
+    const halo3 = new THREE.Mesh(halo3Geo, haloMatChampagne);
+    halo3.rotation.x = 0.45;
+    halo3.rotation.z = 0.55;
+    haloGroup.add(halo3);
 
-    // Orbiting Satellite Gem Beads along the outer rings
+    // Orbiting Satellites on Halos
     const satellites: { mesh: THREE.Mesh; radius: number; speed: number; angle: number; parent: THREE.Mesh }[] = [];
-    const satGeo = new THREE.SphereGeometry(0.18, 16, 16);
-    const satMatGold = new THREE.MeshStandardMaterial({
-      color: 0xDFB74A,
-      emissive: 0xDFB74A,
-      emissiveIntensity: 0.8,
-      metalness: 0.95,
-      roughness: 0.1,
-    });
-    const satMatSapphire = new THREE.MeshStandardMaterial({
-      color: 0x0088CC,
-      emissive: 0x004B79,
-      emissiveIntensity: 0.8,
-      metalness: 0.95,
-      roughness: 0.1,
-    });
-
-    for (let i = 0; i < 6; i++) {
-      const parent = i % 2 === 0 ? ring1Mesh : ring2Mesh;
-      const radius = i % 2 === 0 ? 17.5 : 14.0;
-      const mesh = new THREE.Mesh(satGeo, i % 2 === 0 ? satMatGold : satMatSapphire);
-      parent.add(mesh);
+    for (let i = 0; i < 8; i++) {
+      const parent = i % 2 === 0 ? halo1 : halo2;
+      const radius = i % 2 === 0 ? 26 : 20;
+      const satMat = new THREE.MeshStandardMaterial({
+        color: i % 2 === 0 ? 0xDFB74A : 0x0088CC,
+        emissive: i % 2 === 0 ? 0xDFB74A : 0x004B79,
+        emissiveIntensity: 0.85,
+        metalness: 0.95,
+        roughness: 0.1,
+      });
+      const satMesh = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), satMat);
+      parent.add(satMesh);
       satellites.push({
-        mesh,
+        mesh: satMesh,
         radius,
-        speed: (0.4 + Math.random() * 0.4) * (i % 2 === 0 ? 1 : -1),
-        angle: (i / 6) * Math.PI * 2,
+        speed: (0.35 + (i % 3) * 0.25) * (i % 2 === 0 ? 1 : -1),
+        angle: (i / 8) * Math.PI * 2,
         parent,
       });
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 3. 3D CONSTELLATION NODES & DYNAMIC SYNAPTIC FILAMENTS
+    // 3. TOP-LEFT: 3D DUAL-LAYER ICOSAHEDRON & SAPPHIRE CORE
     // ─────────────────────────────────────────────────────────────
-    const nodeCount = 42;
+    const icoGroup = new THREE.Group();
+    icoGroup.position.set(-22, 11, -8);
+    scene.add(icoGroup);
+
+    // Outer Wireframe Cage
+    const icoGeo = new THREE.IcosahedronGeometry(4.2, 0);
+    const icoWireMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      wireframe: true,
+      metalness: 0.95,
+      roughness: 0.12,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const icoWire = new THREE.Mesh(icoGeo, icoWireMat);
+    icoGroup.add(icoWire);
+
+    // Inner Glowing Solid Gem
+    const innerGemGeo = new THREE.OctahedronGeometry(2.3, 0);
+    const innerGemMat = new THREE.MeshStandardMaterial({
+      color: 0x004B79,
+      emissive: 0x002137,
+      emissiveIntensity: 0.4,
+      metalness: 0.92,
+      roughness: 0.15,
+      transparent: true,
+      opacity: 0.88,
+    });
+    const innerGem = new THREE.Mesh(innerGemGeo, innerGemMat);
+    icoGroup.add(innerGem);
+
+    // ─────────────────────────────────────────────────────────────
+    // 4. TOP-RIGHT: 3D HOROLOGICAL GIMBAL / ARMILLARY SPHERE
+    // ─────────────────────────────────────────────────────────────
+    const gimbalGroup = new THREE.Group();
+    gimbalGroup.position.set(22, 11, -8);
+    scene.add(gimbalGroup);
+
+    const gRingMatGold = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      metalness: 0.95,
+      roughness: 0.15,
+      transparent: true,
+      opacity: 0.85,
+    });
+
+    const gRingMatSapphire = new THREE.MeshStandardMaterial({
+      color: 0x004B79,
+      metalness: 0.92,
+      roughness: 0.18,
+      transparent: true,
+      opacity: 0.85,
+    });
+
+    const gRing1 = new THREE.Mesh(new THREE.TorusGeometry(4.4, 0.14, 16, 64), gRingMatGold);
+    gimbalGroup.add(gRing1);
+
+    const gRing2 = new THREE.Mesh(new THREE.TorusGeometry(3.4, 0.11, 16, 64), gRingMatSapphire);
+    gRing2.rotation.x = Math.PI / 2;
+    gimbalGroup.add(gRing2);
+
+    const gRing3 = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.09, 16, 64), gRingMatGold);
+    gRing3.rotation.y = Math.PI / 2;
+    gimbalGroup.add(gRing3);
+
+    // Central Sphere Core
+    const gCore = new THREE.Mesh(
+      new THREE.SphereGeometry(1.1, 24, 24),
+      new THREE.MeshStandardMaterial({
+        color: 0xDFB74A,
+        emissive: 0x8C6B18,
+        emissiveIntensity: 0.5,
+        metalness: 0.98,
+        roughness: 0.1,
+      })
+    );
+    gimbalGroup.add(gCore);
+
+    // ─────────────────────────────────────────────────────────────
+    // 5. BOTTOM-LEFT: 3D METALLIC GOLD TORUS KNOT
+    // ─────────────────────────────────────────────────────────────
+    const knotGroup = new THREE.Group();
+    knotGroup.position.set(-21, -11, -7);
+    scene.add(knotGroup);
+
+    const knotGeo = new THREE.TorusKnotGeometry(3.2, 0.55, 96, 16, 2, 3);
+    const knotMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      metalness: 0.94,
+      roughness: 0.18,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const knotMesh = new THREE.Mesh(knotGeo, knotMat);
+    knotGroup.add(knotMesh);
+
+    // ─────────────────────────────────────────────────────────────
+    // 6. BOTTOM-RIGHT: 3D GEOMETRIC DODECAHEDRON CRYSTAL
+    // ─────────────────────────────────────────────────────────────
+    const dodecaGroup = new THREE.Group();
+    dodecaGroup.position.set(21, -11, -7);
+    scene.add(dodecaGroup);
+
+    const dodecaMat = new THREE.MeshStandardMaterial({
+      color: 0x004B79,
+      metalness: 0.9,
+      roughness: 0.18,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const dodecaMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(3.5, 0), dodecaMat);
+    dodecaGroup.add(dodecaMesh);
+
+    const dodecaWireMat = new THREE.MeshStandardMaterial({
+      color: 0xDFB74A,
+      wireframe: true,
+      metalness: 0.95,
+      roughness: 0.1,
+    });
+    const dodecaWire = new THREE.Mesh(new THREE.DodecahedronGeometry(3.9, 0), dodecaWireMat);
+    dodecaGroup.add(dodecaWire);
+
+    // ─────────────────────────────────────────────────────────────
+    // 7. 3D NEURAL CONSTELLATION NETWORK (Crisp NormalBlending)
+    // ─────────────────────────────────────────────────────────────
+    const nodeCount = 75;
     const nodeGeo = new THREE.BufferGeometry();
     const nodePositions = new Float32Array(nodeCount * 3);
+    const nodeColors = new Float32Array(nodeCount * 3);
     const nodeVelocities: { x: number; y: number; z: number }[] = [];
+
+    const cGold = new THREE.Color('#DFB74A');
+    const cSapphire = new THREE.Color('#004B79');
+    const cNavy = new THREE.Color('#002137');
 
     for (let i = 0; i < nodeCount; i++) {
       const idx = i * 3;
-      // Distribute nodes around the edges and background
+      // Distribute across screen periphery so center text remains clear
       const angle = Math.random() * Math.PI * 2;
-      const rad = 8 + Math.random() * 16;
-      nodePositions[idx] = Math.cos(angle) * rad;
-      nodePositions[idx + 1] = (Math.random() - 0.5) * 18;
-      nodePositions[idx + 2] = (Math.random() - 0.5) * 14;
+      const dist = 7.5 + Math.random() * 22;
+      nodePositions[idx] = Math.cos(angle) * dist;
+      nodePositions[idx + 1] = Math.sin(angle) * dist * 0.72;
+      nodePositions[idx + 2] = (Math.random() - 0.5) * 16;
+
+      const col = new THREE.Color();
+      if (i % 3 === 0) col.copy(cGold);
+      else if (i % 3 === 1) col.copy(cSapphire);
+      else col.copy(cNavy);
+
+      nodeColors[idx] = col.r;
+      nodeColors[idx + 1] = col.g;
+      nodeColors[idx + 2] = col.b;
 
       nodeVelocities.push({
-        x: (Math.random() - 0.5) * 0.012,
-        y: (Math.random() - 0.5) * 0.012,
-        z: (Math.random() - 0.5) * 0.008,
+        x: (Math.random() - 0.5) * 0.016,
+        y: (Math.random() - 0.5) * 0.016,
+        z: (Math.random() - 0.5) * 0.01,
       });
     }
 
     nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodePositions, 3));
+    nodeGeo.setAttribute('color', new THREE.BufferAttribute(nodeColors, 3));
 
     const nodeMat = new THREE.PointsMaterial({
-      size: 0.65,
+      size: 0.75,
       map: glowTexture,
-      color: 0xDFB74A,
+      vertexColors: true,
       transparent: true,
-      opacity: 0.8,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.95,
+      blending: THREE.NormalBlending,
       depthWrite: false,
     });
     const nodePoints = new THREE.Points(nodeGeo, nodeMat);
@@ -252,59 +344,87 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     const lineMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.35,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.5,
+      blending: THREE.NormalBlending,
       depthWrite: false,
     });
     const lineMesh = new THREE.LineSegments(lineGeo, lineMat);
     scene.add(lineMesh);
 
     // ─────────────────────────────────────────────────────────────
-    // 4. FLOATING GOLDEN STARDUST / MICRO-PHOTONS
+    // 8. 3D UNDULATING WAVE TOPOGRAPHY (Lower Horizon Perspective)
     // ─────────────────────────────────────────────────────────────
-    const dustCount = 80;
+    const waveCols = 46;
+    const waveRows = 46;
+    const waveCount = waveCols * waveRows;
+    const waveGeo = new THREE.BufferGeometry();
+    const wavePos = new Float32Array(waveCount * 3);
+    const waveColsArr = new Float32Array(waveCount * 3);
+
+    const spacing = 1.35;
+    const xOff = ((waveCols - 1) * spacing) / 2;
+    const zOff = ((waveRows - 1) * spacing) / 2;
+
+    for (let i = 0; i < waveCols; i++) {
+      for (let j = 0; j < waveRows; j++) {
+        const idx = (i * waveRows + j) * 3;
+        wavePos[idx] = i * spacing - xOff;
+        wavePos[idx + 1] = 0;
+        wavePos[idx + 2] = j * spacing - zOff;
+
+        const col = new THREE.Color();
+        if ((i + j) % 2 === 0) col.copy(cGold);
+        else col.copy(cSapphire);
+
+        waveColsArr[idx] = col.r;
+        waveColsArr[idx + 1] = col.g;
+        waveColsArr[idx + 2] = col.b;
+      }
+    }
+    waveGeo.setAttribute('position', new THREE.BufferAttribute(wavePos, 3));
+    waveGeo.setAttribute('color', new THREE.BufferAttribute(waveColsArr, 3));
+
+    const wavePointsMat = new THREE.PointsMaterial({
+      size: 0.6,
+      map: glowTexture,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+    });
+    const wavePoints = new THREE.Points(waveGeo, wavePointsMat);
+    wavePoints.rotation.x = -Math.PI / 2.75;
+    wavePoints.position.set(0, -11.5, -6);
+    scene.add(wavePoints);
+
+    // ─────────────────────────────────────────────────────────────
+    // 9. AMBIENT GOLDEN STARDUST / MICRO-PHOTONS
+    // ─────────────────────────────────────────────────────────────
+    const dustCount = 90;
     const dustGeo = new THREE.BufferGeometry();
     const dustPos = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount; i++) {
       const idx = i * 3;
-      dustPos[idx] = (Math.random() - 0.5) * 44;
-      dustPos[idx + 1] = (Math.random() - 0.5) * 32;
-      dustPos[idx + 2] = (Math.random() - 0.5) * 20;
+      dustPos[idx] = (Math.random() - 0.5) * 50;
+      dustPos[idx + 1] = (Math.random() - 0.5) * 36;
+      dustPos[idx + 2] = (Math.random() - 0.5) * 24;
     }
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
     const dustMat = new THREE.PointsMaterial({
-      size: 0.32,
+      size: 0.38,
       map: glowTexture,
       color: 0xDFB74A,
       transparent: true,
-      opacity: 0.55,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.65,
+      blending: THREE.NormalBlending,
       depthWrite: false,
     });
     const dustMesh = new THREE.Points(dustGeo, dustMat);
     scene.add(dustMesh);
 
     // ─────────────────────────────────────────────────────────────
-    // 5. LIGHTING ARCHITECTURE
-    // ─────────────────────────────────────────────────────────────
-    const ambientLight = new THREE.AmbientLight(0xFFFDF7, 1.4);
-    scene.add(ambientLight);
-
-    const goldKeyLight = new THREE.DirectionalLight(0xDFB74A, 3.2);
-    goldKeyLight.position.set(20, 25, 20);
-    scene.add(goldKeyLight);
-
-    const sapphireRimLight = new THREE.DirectionalLight(0x004B79, 2.4);
-    sapphireRimLight.position.set(-20, -15, 10);
-    scene.add(sapphireRimLight);
-
-    // Interactive cursor-following point light
-    const cursorLight = new THREE.PointLight(0xFFE599, 4.0, 35);
-    cursorLight.position.set(0, 0, 15);
-    scene.add(cursorLight);
-
-    // ─────────────────────────────────────────────────────────────
-    // INTERACTION & LISTENERS
+    // INTERACTION LISTENERS
     // ─────────────────────────────────────────────────────────────
     const handleMouseMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth) * 2 - 1;
@@ -332,7 +452,7 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     window.addEventListener('resize', handleResize);
 
     // ─────────────────────────────────────────────────────────────
-    // MAIN RENDER & PHYSICS LOOP
+    // ANIMATION & PHYSICS LOOP
     // ─────────────────────────────────────────────────────────────
     let animId: number;
     const clock = new THREE.Clock();
@@ -341,11 +461,10 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       animId = requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      // Smooth mouse interpolation (Damping)
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.045;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.045;
+      // Smooth mouse interpolation
+      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.05;
+      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.05;
 
-      // Ripple decay
       if (mouseRef.current.clickRipple > 0.01) {
         mouseRef.current.clickRipple *= 0.94;
       }
@@ -355,66 +474,81 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       const ripple = mouseRef.current.clickRipple;
 
       // Dynamic 3D Camera Parallax
-      camera.position.x = mx * 4.5;
-      camera.position.y = my * 3.5;
+      camera.position.x = mx * 5.2;
+      camera.position.y = my * 4.2;
       camera.lookAt(0, 0, 0);
 
-      // Cursor light coordinates
-      cursorLight.position.set(mx * 16, my * 12, 10);
+      // Cursor light tracking
+      cursorLight.position.set(mx * 18, my * 14, 12);
+      cursorLight.intensity = 5.0 + ripple * 8.0;
 
-      // --- 1. Animate Wave Mesh ---
-      const positions = waveGeometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < waveCols; i++) {
-        for (let j = 0; j < waveRows; j++) {
-          const idx = (i * waveRows + j) * 3;
-          const x = positions[idx];
-          const z = positions[idx + 2];
+      // --- Animate Corner 3D Sculptures ---
+      // Top-Left Icosahedron
+      icoGroup.rotation.y = elapsed * 0.35 + mx * 0.4;
+      icoGroup.rotation.x = elapsed * 0.22 + my * 0.35;
+      innerGem.rotation.y = -elapsed * 0.6;
+      innerGem.rotation.z = elapsed * 0.4;
 
-          // Compound harmonic waves
-          const wave1 = Math.sin(x * 0.22 + elapsed * 1.6) * 1.5;
-          const wave2 = Math.cos(z * 0.2 + elapsed * 1.3) * 1.4;
-          const wave3 = Math.sin((x + z) * 0.12 + elapsed * 0.9) * 0.9;
+      // Top-Right Gimbal
+      gimbalGroup.rotation.y = -elapsed * 0.45 - mx * 0.4;
+      gimbalGroup.rotation.x = Math.sin(elapsed * 0.3) * 0.2 + my * 0.35;
+      gRing1.rotation.z = elapsed * 0.7;
+      gRing2.rotation.y = -elapsed * 0.8;
+      gRing3.rotation.x = elapsed * 0.6;
 
-          // Interactive cursor gravity wave
-          const dx = x - mx * 18;
-          const dz = z - (my * 14 - 4);
-          const distToCursor = Math.sqrt(dx * dx + dz * dz);
-          const mouseDisplace = Math.sin(distToCursor * 0.5 - elapsed * 3.5) * Math.max(0, 3.5 - distToCursor * 0.25) * 0.45;
+      // Bottom-Left Torus Knot
+      knotGroup.rotation.x = elapsed * 0.3 + my * 0.3;
+      knotGroup.rotation.y = elapsed * 0.4 + mx * 0.3;
+      knotMesh.rotation.z = elapsed * 0.2;
 
-          // Click shockwave pulse
-          const clickWave = Math.sin(distToCursor * 0.8 - elapsed * 6.0) * ripple * 3.0;
+      // Bottom-Right Dodecahedron
+      dodecaGroup.rotation.y = elapsed * 0.3 - mx * 0.4;
+      dodecaGroup.rotation.x = elapsed * 0.22 + my * 0.3;
+      dodecaWire.rotation.y = -elapsed * 0.4;
+      dodecaWire.rotation.z = elapsed * 0.25;
 
-          // Center dip: gently depress wave under central text so letters stay 100% readable
-          const distFromOrig = Math.sqrt(x * x + z * z);
-          const centerAttenuation = Math.min(1.0, distFromOrig / 14);
+      // --- Animate Celestial Halos & Satellites ---
+      halo1.rotation.z = elapsed * 0.07;
+      halo2.rotation.z = -elapsed * 0.1;
+      halo3.rotation.y = elapsed * 0.12;
 
-          positions[idx + 1] = (wave1 + wave2 + wave3 + mouseDisplace + clickWave) * centerAttenuation;
-        }
-      }
-      waveGeometry.attributes.position.needsUpdate = true;
-
-      // --- 2. Animate Armillary Rings ---
-      ring1Mesh.rotation.z = elapsed * 0.08 + mx * 0.2;
-      ring1Mesh.rotation.x = 1.15 + my * 0.15;
-
-      ring2Mesh.rotation.z = -elapsed * 0.11 - mx * 0.25;
-      ring2Mesh.rotation.y = 0.85 + my * 0.2;
-
-      ring3Mesh.rotation.y = elapsed * 0.14 + mx * 0.18;
-      ring3Mesh.rotation.x = 0.5 - my * 0.12;
-
-      // Subtle group breathing
-      ringsGroup.rotation.y = Math.sin(elapsed * 0.2) * 0.08 + mx * 0.15;
-      ringsGroup.rotation.x = Math.cos(elapsed * 0.18) * 0.06 - my * 0.15;
-
-      // Animate satellites along rings
       satellites.forEach((sat) => {
-        sat.angle += sat.speed * 0.015;
+        sat.angle += sat.speed * 0.016;
         sat.mesh.position.x = Math.cos(sat.angle) * sat.radius;
         sat.mesh.position.y = Math.sin(sat.angle) * sat.radius;
       });
 
-      // --- 3. Animate Constellation Nodes & Connecting Lines ---
+      // --- Animate Wave Topography ---
+      const wPositions = waveGeo.attributes.position.array as Float32Array;
+      for (let i = 0; i < waveCols; i++) {
+        for (let j = 0; j < waveRows; j++) {
+          const idx = (i * waveRows + j) * 3;
+          const x = wPositions[idx];
+          const z = wPositions[idx + 2];
+
+          const wave1 = Math.sin(x * 0.24 + elapsed * 1.5) * 1.4;
+          const wave2 = Math.cos(z * 0.22 + elapsed * 1.2) * 1.3;
+          const wave3 = Math.sin((x + z) * 0.12 + elapsed * 0.8) * 0.8;
+
+          // Interactive cursor ripple
+          const dx = x - mx * 18;
+          const dz = z - (my * 14 - 4);
+          const distToCursor = Math.sqrt(dx * dx + dz * dz);
+          const mouseDisplace = Math.sin(distToCursor * 0.5 - elapsed * 3.2) * Math.max(0, 3.5 - distToCursor * 0.25) * 0.5;
+
+          // Click shockwave
+          const clickWave = Math.sin(distToCursor * 0.8 - elapsed * 6.0) * ripple * 3.2;
+
+          // Center clearing so text is crisp
+          const distFromOrig = Math.sqrt(x * x + z * z);
+          const centerAttenuation = Math.min(1.0, distFromOrig / 14);
+
+          wPositions[idx + 1] = (wave1 + wave2 + wave3 + mouseDisplace + clickWave) * centerAttenuation;
+        }
+      }
+      waveGeo.attributes.position.needsUpdate = true;
+
+      // --- Animate Constellation Nodes & Synapses ---
       const nPos = nodeGeo.attributes.position.array as Float32Array;
       for (let i = 0; i < nodeCount; i++) {
         const idx = i * 3;
@@ -422,16 +556,15 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
         nPos[idx + 1] += nodeVelocities[i].y;
         nPos[idx + 2] += nodeVelocities[i].z;
 
-        // Bounce boundaries
-        if (Math.abs(nPos[idx]) > 22) nodeVelocities[i].x *= -1;
-        if (Math.abs(nPos[idx + 1]) > 14) nodeVelocities[i].y *= -1;
-        if (Math.abs(nPos[idx + 2]) > 10) nodeVelocities[i].z *= -1;
+        if (Math.abs(nPos[idx]) > 26) nodeVelocities[i].x *= -1;
+        if (Math.abs(nPos[idx + 1]) > 17) nodeVelocities[i].y *= -1;
+        if (Math.abs(nPos[idx + 2]) > 12) nodeVelocities[i].z *= -1;
       }
       nodeGeo.attributes.position.needsUpdate = true;
 
-      // Update connecting line segments
+      // Update dynamic connecting lines
       let lineIdx = 0;
-      const maxConnectDist = 6.5;
+      const maxConnectDist = 6.8;
 
       for (let i = 0; i < nodeCount; i++) {
         for (let j = i + 1; j < nodeCount; j++) {
@@ -444,9 +577,8 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
           const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
           if (dist < maxConnectDist) {
-            const alpha = (1.0 - dist / maxConnectDist) * 0.45;
+            const alpha = (1.0 - dist / maxConnectDist) * 0.55;
 
-            // Point A
             linePositions[lineIdx] = nPos[idxI];
             linePositions[lineIdx + 1] = nPos[idxI + 1];
             linePositions[lineIdx + 2] = nPos[idxI + 2];
@@ -454,7 +586,6 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
             lineColors[lineIdx + 1] = cGold.g * alpha;
             lineColors[lineIdx + 2] = cGold.b * alpha;
 
-            // Point B
             linePositions[lineIdx + 3] = nPos[idxJ];
             linePositions[lineIdx + 4] = nPos[idxJ + 1];
             linePositions[lineIdx + 5] = nPos[idxJ + 2];
@@ -470,7 +601,7 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       lineGeo.attributes.position.needsUpdate = true;
       lineGeo.attributes.color.needsUpdate = true;
 
-      // --- 4. Animate Stardust ---
+      // --- Animate Stardust ---
       dustMesh.rotation.y = elapsed * 0.02 + mx * 0.05;
       dustMesh.rotation.x = elapsed * 0.015 - my * 0.05;
 
@@ -489,21 +620,34 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       window.removeEventListener('resize', handleResize);
 
       glowTexture.dispose();
-      waveGeometry.dispose();
-      waveMaterial.dispose();
-      ring1Geo.dispose();
-      ring1Mat.dispose();
-      ring2Geo.dispose();
-      ring2Mat.dispose();
-      ring3Geo.dispose();
-      ring3Mat.dispose();
-      satGeo.dispose();
-      satMatGold.dispose();
-      satMatSapphire.dispose();
+      halo1Geo.dispose();
+      haloMatGold.dispose();
+      halo2Geo.dispose();
+      haloMatSapphire.dispose();
+      halo3Geo.dispose();
+      haloMatChampagne.dispose();
+      icoGeo.dispose();
+      icoWireMat.dispose();
+      innerGemGeo.dispose();
+      innerGemMat.dispose();
+      gRingMatGold.dispose();
+      gRingMatSapphire.dispose();
+      gRing1.geometry.dispose();
+      gRing2.geometry.dispose();
+      gRing3.geometry.dispose();
+      gCore.geometry.dispose();
+      knotGeo.dispose();
+      knotMat.dispose();
+      dodecaMesh.geometry.dispose();
+      dodecaMat.dispose();
+      dodecaWire.geometry.dispose();
+      dodecaWireMat.dispose();
       nodeGeo.dispose();
       nodeMat.dispose();
       lineGeo.dispose();
       lineMat.dispose();
+      waveGeo.dispose();
+      wavePointsMat.dispose();
       dustGeo.dispose();
       dustMat.dispose();
       renderer.dispose();
