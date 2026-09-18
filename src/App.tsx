@@ -14,36 +14,35 @@ import { FooterSection } from './sections/FooterSection';
 export function App() {
   useLenis();
 
-  // Hide the navbar while the animated intro entry is in progress
-  const [introFinished, setIntroFinished] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash;
-      if (hash && hash !== '#intro' && hash !== '#') return true;
-      if (window.scrollY > 40) return true;
-    }
-    return false;
-  });
+  // Track if the animated intro sequence is currently active/playing
+  const [isIntroActive, setIsIntroActive] = useState(true);
+  const [currentScrollY, setCurrentScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 40) {
-        setIntroFinished(true);
-      }
+      setCurrentScrollY(window.scrollY);
     };
+
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // When user is viewing the intro section (< 500px) and intro is still playing, HIDE navbar
+  // If user scrolls down past 500px, navbar becomes visible for navigation
+  const isAtIntro = currentScrollY < 500;
+  const hideNavbar = isIntroActive && isAtIntro;
 
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#002137] overflow-x-hidden selection:bg-[#004B79] selection:text-[#FAF8F5]">
       {/* Cinematic Animated Film Grain Overlay */}
       <GrainOverlay />
 
-      <Navbar hidden={!introFinished} />
+      <Navbar hidden={hideNavbar} />
 
       <main className="relative flex flex-col w-full">
         {/* Page 1: The Human × AI Introduction */}
-        <IntroSection onIntroComplete={() => setIntroFinished(true)} />
+        <IntroSection onIntroComplete={() => setIsIntroActive(false)} />
 
         {/* Luxury editorial marquee separator */}
         <MarqueeStrip />

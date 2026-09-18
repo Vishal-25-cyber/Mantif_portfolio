@@ -73,7 +73,9 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4 sm:py-6 transition-all duration-700 ease-out will-change-transform ${
-          !hidden && isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
+          !hidden && isVisible
+            ? 'translate-y-0 opacity-100 visible'
+            : '-translate-y-full opacity-0 pointer-events-none invisible'
         }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
