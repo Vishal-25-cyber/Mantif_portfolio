@@ -309,7 +309,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
               <span className="w-10 sm:w-20 h-[1px] bg-[#DFB74A]" />
             </div>
 
-            {/* 3D Pop-Up Logo Badge */}
+            {/* Standalone 3D Pop-Up Logo (Without Card Background) */}
             <div
               onMouseMove={handleLogoMouseMove}
               onMouseEnter={() => {
@@ -321,77 +321,47 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 setCursorMode('default');
               }}
               onClick={handleLogoClick}
-              className="relative flex flex-col items-center cursor-pointer group select-none mt-2"
+              className="relative flex items-center justify-center cursor-pointer group select-none mt-4 will-change-transform"
               style={{
                 perspective: '1000px',
               }}
             >
-              {/* Expanding shockwave ring on click */}
+              {/* Expanding shockwave burst on click */}
               {logoBurst && (
                 <div
-                  className="absolute inset-0 rounded-full border-2 border-[#DFB74A] animate-ping pointer-events-none"
+                  className="absolute w-40 h-40 sm:w-52 sm:h-52 rounded-full border-2 border-[#DFB74A] animate-ping pointer-events-none"
                   style={{ animationDuration: '0.8s' }}
                 />
               )}
 
-              {/* Ambient radial glowing aura */}
+              {/* Ambient radial gold backlight */}
               <div
-                className="absolute -inset-6 rounded-full bg-gradient-to-tr from-[#DFB74A]/30 via-[#004B79]/20 to-[#DFB74A]/25 blur-2xl pointer-events-none transition-opacity duration-500"
+                className="absolute w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-gradient-to-tr from-[#DFB74A]/25 via-[#004B79]/15 to-[#DFB74A]/20 blur-2xl pointer-events-none transition-opacity duration-500"
                 style={{
                   animation: showSubtitle ? 'logoAuraPulse 4s ease-in-out infinite' : undefined,
-                  opacity: isLogoHovered ? 0.95 : 0.65,
+                  opacity: isLogoHovered ? 0.95 : 0.6,
                 }}
               />
 
-              {/* Outer decorative spinning orbital ring */}
+              {/* Standalone Logo Image with 3D Pop-Up & Tilt (NO background box) */}
               <div
-                className="absolute -inset-4 sm:-inset-5 rounded-full border border-dashed border-[#DFB74A]/50 pointer-events-none"
-                style={{
-                  animation: 'ringSpinSlow 26s linear infinite',
-                }}
-              />
-              <div
-                className="absolute -inset-2 rounded-full border border-dotted border-[#002137]/30 pointer-events-none"
-                style={{
-                  animation: 'ringSpinReverse 20s linear infinite',
-                }}
-              />
-
-              {/* 3D Pop-Up Medallion Container */}
-              <div
-                className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl sm:rounded-3xl bg-[#FAF8F5]/95 backdrop-blur-md border-2 border-[#DFB74A]/40 shadow-[0_20px_50px_rgba(0,33,55,0.12),0_6px_24px_rgba(223,183,74,0.22)] flex items-center justify-center p-3 sm:p-4.5 transition-transform duration-150 ease-out"
+                className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 flex items-center justify-center transition-transform duration-150 ease-out"
                 style={{
                   animation: showSubtitle ? 'logoPopIn 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' : undefined,
                   transform: isLogoHovered
-                    ? `rotateX(${logoTilt.x}deg) rotateY(${logoTilt.y}deg) scale(1.08) translateZ(24px)`
+                    ? `rotateX(${logoTilt.x}deg) rotateY(${logoTilt.y}deg) scale(1.12) translateZ(30px)`
                     : 'rotateX(0deg) rotateY(0deg) scale(1)',
                   transformStyle: 'preserve-3d',
                 }}
               >
                 <img
                   src="/images/mantif_icon.png"
-                  alt="MANTIF Emblem"
-                  className="w-full h-full object-contain filter drop-shadow-[0_8px_16px_rgba(0,33,55,0.15)] transition-transform duration-300 group-hover:scale-105"
+                  alt="MANTIF Logo"
+                  className="w-full h-full object-contain filter drop-shadow-[0_12px_28px_rgba(0,33,55,0.18)] drop-shadow-[0_4px_12px_rgba(223,183,74,0.3)] transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png';
                   }}
                 />
-
-                {/* Dynamic 3D specular glare on hover */}
-                <div
-                  className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-transparent via-white/50 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{
-                    transform: 'translateZ(12px)',
-                  }}
-                />
-              </div>
-
-              {/* Micro interactive pill badge */}
-              <div
-                className="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FAF8F5] border border-[#002137]/15 shadow-sm text-[9px] sm:text-[10px] font-mono tracking-widest text-[#002137] uppercase transition-all duration-300 group-hover:border-[#DFB74A] group-hover:bg-[#DFB74A]/10 group-hover:text-[#002137]"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] animate-pulse" />
-                <span className="font-semibold">MANTIF EMBLEM</span>
               </div>
             </div>
           </div>
