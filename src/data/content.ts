@@ -91,7 +91,7 @@ export const siteContent = {
     founder: {
       name: 'Karunya S',
       role: 'Founder & Digital Marketing Strategist',
-      portrait: '/images/founder_karunya.jpg',
+      portrait: '/images/founder_karunya_clean.png',
       bio: [
         'Karunya began with a singular premise: that education is not a passive transfer of notes, but an intimate human conversation.',
         'Starting as the lead educator at Tutoring Hub, she personally tutored students through high-stakes board examinations, cultivating a classroom culture grounded in unshakeable trust and playful discipline.',
@@ -105,7 +105,7 @@ export const siteContent = {
         id: 'vishal',
         name: 'Vishal K',
         role: 'Development Team · Software Developer',
-        portrait: '/images/team_vishal.jpg',
+        portrait: '/images/team_vishal_clean.png',
         bio: 'Focused on creating seamless reactive frontend architectures, fluid micro-interactions, and resilient client-side state. Vishal ensures that every interface feels alive, accessible, and extraordinarily fast.',
         specialty: 'Interactive Motion Design & Component Architecture',
       },
@@ -113,7 +113,7 @@ export const siteContent = {
         id: 'solairaj',
         name: 'Solairaj R',
         role: 'Development Team · Software Developer',
-        portrait: '/images/team_solairaj.jpg',
+        portrait: '/images/team_solairaj_clean.png',
         bio: 'Architecting robust server infrastructure, database schemas, and AI pipeline orchestration. Solairaj builds the invisible foundation that enables personalized diagnostics and real-time learning metrics.',
         specialty: 'Backend Infrastructure & Cloud Microservices',
       },
