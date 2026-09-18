@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
 import { setCursorMode } from '../hooks/useCursor';
+import { Intro3DBackground } from '../components/Intro3DBackground';
 
 interface IntroSectionProps {
   onIntroComplete?: () => void;
@@ -126,12 +127,15 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       id="intro"
       className="relative w-full h-screen h-[100dvh] flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
-      {/* Ambient radial gradient spotlight */}
+      {/* Interactive 3D Background with Neural Topography & Sacred Orbital Rings */}
+      <Intro3DBackground stage={stage} />
+
+      {/* Ambient luxury radial vignette spotlight */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-[1]"
         aria-hidden="true"
         style={{
-          background: 'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,75,121,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 75% 65% at 50% 52%, rgba(223,183,74,0.07) 0%, rgba(0,75,121,0.05) 50%, transparent 80%)',
         }}
       />
 
