@@ -20,7 +20,19 @@ export const ServicesSection: React.FC = () => {
   const [viewMode, setViewMode] = useState<'stack' | 'grid'>('stack');
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isHoveredStack, setIsHoveredStack] = useState(false);
+  const [isTouched, setIsTouched] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
+  const touchTimeoutRef = useRef<number | null>(null);
+
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const totalCards = services.cards.length;
   const AUTOPLAY_INTERVAL = 2000; // Fast cadence: 2.0s per card
@@ -40,9 +52,9 @@ export const ServicesSection: React.FC = () => {
     soundManager.playClick();
   };
 
-  // Continuous smooth auto-moving loop
+  // Continuous smooth auto-moving loop (stops immediately when touched or hovered)
   useEffect(() => {
-    if (!isAutoPlay || isHoveredStack || viewMode !== 'stack') {
+    if (!isAutoPlay || isHoveredStack || isTouched || viewMode !== 'stack') {
       return;
     }
 
@@ -51,25 +63,39 @@ export const ServicesSection: React.FC = () => {
     }, AUTOPLAY_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [isAutoPlay, isHoveredStack, viewMode, totalCards]);
+  }, [isAutoPlay, isHoveredStack, isTouched, viewMode, totalCards]);
 
-  // Touch swipe listeners for mobile
+  // Touch handlers for mobile / touch devices — touches stop the auto-shuffle
   const handleTouchStart = (e: React.TouchEvent) => {
+    setIsTouched(true);
+    setIsHoveredStack(true);
     touchStartXRef.current = e.touches[0].clientX;
+    if (touchTimeoutRef.current) {
+      window.clearTimeout(touchTimeoutRef.current);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const diff = touchStartXRef.current - touchEndX;
-    if (Math.abs(diff) > 40) {
-      if (diff > 0) {
-        handleNext();
-      } else {
-        handlePrev();
+    if (touchStartXRef.current !== null) {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartXRef.current - touchEndX;
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
       }
+      touchStartXRef.current = null;
     }
-    touchStartXRef.current = null;
+    // After lifting touch, stay paused for 3.5s so user can read, then resume
+    if (touchTimeoutRef.current) {
+      window.clearTimeout(touchTimeoutRef.current);
+    }
+    touchTimeoutRef.current = window.setTimeout(() => {
+      setIsTouched(false);
+      setIsHoveredStack(false);
+    }, 3500);
   };
 
   return (
@@ -155,14 +181,24 @@ export const ServicesSection: React.FC = () => {
         {/* ========================================================================= */}
         <div className="flex items-center justify-between gap-4 mb-6 pb-3 border-b border-[#002137]/10">
           {/* Subtle Stage Label / Active Initiative */}
-          <div className="flex items-center gap-2 font-mono text-xs text-[#64748B]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] animate-pulse" />
+          <div className="flex items-center gap-2.5 font-mono text-xs text-[#64748B]">
+            <span
+              className={`w-2 h-2 rounded-full transition-colors ${
+                isAutoPlay && !isHoveredStack && !isTouched
+                  ? 'bg-[#DFB74A] animate-pulse'
+                  : 'bg-[#004B79]'
+              }`}
+            />
             <span className="tracking-wider uppercase font-semibold text-[#002137]">
-              {viewMode === 'stack' ? 'Curated Offerings' : 'All Offerings'}
+              {viewMode === 'stack'
+                ? isHoveredStack || isTouched || !isAutoPlay
+                  ? 'Stopped (Card Touched)'
+                  : 'Auto-Shuffling Both Sides'
+                : 'All Offerings'}
             </span>
             <span className="opacity-40">/</span>
             <span className="text-[11px] font-mono text-[#004B79] font-medium">
-              {viewMode === 'stack' ? `Initiative 0${activeIndex + 1} of 0${totalCards}` : '3 Core Initiatives'}
+              {viewMode === 'stack' ? `Card 0${activeIndex + 1} of 0${totalCards}` : '3 Core Initiatives'}
             </span>
           </div>
 
@@ -173,29 +209,33 @@ export const ServicesSection: React.FC = () => {
               <button
                 onClick={() => {
                   setIsAutoPlay(!isAutoPlay);
+                  setIsHoveredStack(false);
+                  setIsTouched(false);
                   soundManager.playClick();
                 }}
                 onMouseEnter={() => setCursorMode('hover')}
                 onMouseLeave={() => setCursorMode('default')}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-mono transition-all ${
-                  isAutoPlay
+                  isAutoPlay && !isHoveredStack && !isTouched
                     ? 'bg-[#DFB74A]/15 border-[#DFB74A] text-[#002137] font-semibold'
-                    : 'bg-white/70 border-[#002137]/15 text-[#64748B] hover:text-[#002137]'
+                    : 'bg-white/80 border-[#002137]/20 text-[#004B79] font-bold shadow-sm'
                 }`}
-                title={isAutoPlay ? 'Auto-slide is active (hover card to pause)' : 'Auto-slide paused (click to resume)'}
+                title={
+                  isAutoPlay && !isHoveredStack && !isTouched
+                    ? 'Auto-shuffle active (touch or hover card to stop)'
+                    : 'Shuffle stopped (click to resume)'
+                }
                 aria-label="Toggle auto play"
               >
-                {isAutoPlay ? (
+                {isAutoPlay && !isHoveredStack && !isTouched ? (
                   <>
                     <Pause className="w-3 h-3 text-[#DFB74A]" />
-                    <span className="text-[10px] hidden md:inline">
-                      {isHoveredStack ? 'PAUSED' : 'AUTO-MOVING'}
-                    </span>
+                    <span className="text-[10px] hidden md:inline">AUTO-SHUFFLE</span>
                   </>
                 ) : (
                   <>
-                    <Play className="w-3 h-3" />
-                    <span className="text-[10px] hidden md:inline">PLAY</span>
+                    <Play className="w-3 h-3 text-[#004B79]" />
+                    <span className="text-[10px] hidden md:inline">STOPPED · RESUME</span>
                   </>
                 )}
               </button>
@@ -239,62 +279,74 @@ export const ServicesSection: React.FC = () => {
         {/* VIEW MODE 1: ATTRACTIVE & UNIQUE "ONE OVER ANOTHER" 3D FAN STACK           */}
         {/* ========================================================================= */}
         {viewMode === 'stack' && (
-          <div className="relative w-full py-4 sm:py-6 flex flex-col items-center">
-            {/* 3D Stack Stage Container — Compact, proportional dimensions */}
+          <div className="relative w-full py-6 sm:py-8 flex flex-col items-center">
+            {/* 3D Stack Stage Container — Symmetrical Both Sides Visibility */}
             <div
               onMouseEnter={() => setIsHoveredStack(true)}
               onMouseLeave={() => setIsHoveredStack(false)}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
-              className="relative w-full max-w-[340px] sm:max-w-[370px] h-[480px] sm:h-[510px] mx-auto flex items-center justify-center"
+              className="relative w-full max-w-[340px] sm:max-w-[370px] h-[490px] sm:h-[520px] mx-auto flex items-center justify-center"
             >
               {/* Decorative Ambient Luxury Orbiting Ring behind the Stack */}
               <div
-                className="absolute -inset-8 sm:-inset-10 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
+                className="absolute -inset-10 sm:-inset-14 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
                 style={{
                   animation: 'spin 60s linear infinite',
                 }}
               />
               <div
-                className="absolute -inset-3 sm:-inset-5 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
+                className="absolute -inset-4 sm:-inset-6 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
                 style={{
                   animation: 'spin 40s linear infinite reverse',
                 }}
               />
 
-              {/* Floating Prev Button (<) */}
+              {/* Floating Prev Button (<) — Framed outside left fanned card */}
               <button
                 onClick={handlePrev}
                 onMouseEnter={() => {
                   setCursorMode('hover');
+                  setIsHoveredStack(true);
                   soundManager.playHoverTick();
                 }}
-                onMouseLeave={() => setCursorMode('default')}
-                className="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
+                onMouseLeave={() => {
+                  setCursorMode('default');
+                  setIsHoveredStack(false);
+                }}
+                className="absolute -left-4 sm:-left-20 lg:-left-24 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
                 aria-label="Previous card in stack"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5" />
               </button>
 
-              {/* Floating Next Button (>) */}
+              {/* Floating Next Button (>) — Framed outside right fanned card */}
               <button
                 onClick={handleNext}
                 onMouseEnter={() => {
                   setCursorMode('hover');
+                  setIsHoveredStack(true);
                   soundManager.playHoverTick();
                 }}
-                onMouseLeave={() => setCursorMode('default')}
-                className="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
+                onMouseLeave={() => {
+                  setCursorMode('default');
+                  setIsHoveredStack(false);
+                }}
+                className="absolute -right-4 sm:-right-20 lg:-right-24 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
                 aria-label="Next card in stack"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-5 h-5" />
               </button>
 
-              {/* The 3 Cards Stacked One Over Another in a 3D Fan */}
+              {/* The 3 Cards Stacked with Both Sides Prominently Visible */}
               {services.cards.map((card, idx) => {
                 const offset = (idx - activeIndex + totalCards) % totalCards;
 
-                // 3D Symmetrical Fanned Stack Geometry
+                // Responsive symmetric fan offsets for BOTH SIDES
+                const xOffset = windowWidth < 640 ? 45 : windowWidth < 1024 ? 85 : 125;
+                const rotateDeg = windowWidth < 640 ? 3 : 4.5;
+                const scaleVal = windowWidth < 640 ? 0.92 : 0.90;
+
                 let zIndex = 30;
                 let transform = 'translateY(0px) translateX(0px) scale(1) rotate(0deg)';
                 let opacity = 1;
@@ -310,24 +362,18 @@ export const ServicesSection: React.FC = () => {
                   filter = 'none';
                   pointerEvents = 'auto';
                 } else if (offset === 1) {
-                  // Next card — Fanned out to the right underneath
+                  // Right Card — Fanned out clearly to the RIGHT side
                   zIndex = 20;
-                  transform =
-                    window.innerWidth < 640
-                      ? 'translateY(14px) translateX(22px) scale(0.94) rotate(2.5deg)'
-                      : 'translateY(14px) translateX(46px) scale(0.94) rotate(3deg)';
+                  transform = `translateY(12px) translateX(${xOffset}px) scale(${scaleVal}) rotate(${rotateDeg}deg)`;
                   opacity = 0.94;
-                  filter = 'brightness(0.98)';
+                  filter = 'brightness(0.97)';
                   pointerEvents = 'auto';
                 } else {
-                  // Previous card — Fanned out to the left underneath
-                  zIndex = 15;
-                  transform =
-                    window.innerWidth < 640
-                      ? 'translateY(24px) translateX(-22px) scale(0.88) rotate(-2.5deg)'
-                      : 'translateY(14px) translateX(-46px) scale(0.94) rotate(-3deg)';
+                  // Left Card — Fanned out clearly to the LEFT side
+                  zIndex = 20;
+                  transform = `translateY(12px) translateX(-${xOffset}px) scale(${scaleVal}) rotate(-${rotateDeg}deg)`;
                   opacity = 0.94;
-                  filter = 'brightness(0.98)';
+                  filter = 'brightness(0.97)';
                   pointerEvents = 'auto';
                 }
 
@@ -337,7 +383,17 @@ export const ServicesSection: React.FC = () => {
                     onClick={() => {
                       if (offset !== 0) {
                         handleSelectCard(idx);
+                      } else {
+                        // Touching / tapping the active center card toggles stop/play
+                        setIsAutoPlay((prev) => !prev);
+                        soundManager.playClick();
                       }
+                    }}
+                    onMouseEnter={() => setIsHoveredStack(true)}
+                    onMouseLeave={() => setIsHoveredStack(false)}
+                    onTouchStart={() => {
+                      setIsTouched(true);
+                      setIsHoveredStack(true);
                     }}
                     className="absolute inset-0 rounded-3xl transition-all duration-400 ease-out will-change-transform"
                     style={{
@@ -346,11 +402,11 @@ export const ServicesSection: React.FC = () => {
                       opacity,
                       filter,
                       pointerEvents,
-                      cursor: offset !== 0 ? 'pointer' : 'default',
+                      cursor: 'pointer',
                       boxShadow:
                         offset === 0
-                          ? `0 20px 48px -12px rgba(0, 33, 55, 0.16), 0 6px 20px -4px ${accentColor}25`
-                          : `0 12px 30px -8px rgba(0, 33, 55, 0.12), 0 4px 14px -4px ${accentColor}25`,
+                          ? `0 24px 55px -12px rgba(0, 33, 55, 0.20), 0 8px 24px -4px ${accentColor}30`
+                          : `0 14px 34px -8px rgba(0, 33, 55, 0.14), 0 4px 16px -4px ${accentColor}25`,
                     }}
                   >
                     <ServiceCard card={card} />
@@ -358,7 +414,7 @@ export const ServicesSection: React.FC = () => {
                     {/* Attractive Clickable Callout Badge for Background Cards */}
                     {offset !== 0 && (
                       <div
-                        className="absolute inset-0 rounded-3xl bg-[#FAF8F5]/30 hover:bg-transparent backdrop-blur-[0.5px] transition-all flex items-start justify-end p-3.5 group/fan"
+                        className="absolute inset-0 rounded-3xl bg-[#FAF8F5]/25 hover:bg-transparent backdrop-blur-[0.5px] transition-all flex items-start justify-end p-3.5 group/fan"
                         title={`Click to bring ${card.title} to front`}
                       >
                         <span
