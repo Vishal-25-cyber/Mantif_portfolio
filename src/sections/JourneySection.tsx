@@ -51,6 +51,18 @@ export const JourneySection: React.FC = () => {
       id="journey"
       className="relative w-full bg-[#001A2C] py-24 sm:py-32 px-4 sm:px-8 overflow-hidden"
     >
+      {/* Ghost big number backdrop */}
+      <div className="absolute top-8 left-4 sm:left-10 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-serif font-bold text-[18vw] text-[#FAF8F5] leading-none"
+          style={{ opacity: 0.03 }}>04</span>
+      </div>
+
+      {/* Decorative top-right cross lines */}
+      <div className="absolute top-8 right-8 sm:right-16 opacity-[0.10] pointer-events-none" aria-hidden="true">
+        <div className="w-16 h-[1px] bg-[#DFB74A]" />
+        <div className="w-[1px] h-16 bg-[#DFB74A] mt-[-1px] ml-auto" />
+      </div>
+
       {/* Ghost backdrop letters */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
         <span className="font-serif font-bold text-[30vw] text-[#FAF8F5] select-none"
@@ -68,20 +80,37 @@ export const JourneySection: React.FC = () => {
       />
 
       <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Section header — white on dark */}
-        <div className="max-w-3xl mb-14">
-          <div className="flex items-center gap-3">
-            <span className="w-8 h-[1px] bg-[#DFB74A]" />
-            <span className="font-mono text-xs font-bold tracking-[0.22em] text-[#DFB74A] uppercase">
-              {journey.eyebrow}
-            </span>
+        {/* Top editorial metadata strip */}
+        <div className="flex items-center justify-between mb-12 pb-4 border-b border-white/10">
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-[10px] text-[#94A3B8] tracking-[0.25em] uppercase">Chapter 04</span>
+            <span className="w-4 h-[1px] bg-white/20" />
+            <span className="font-mono text-[10px] text-[#DFB74A] font-bold tracking-[0.25em] uppercase">The MANTIF Journey</span>
           </div>
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-[#FAF8F5] tracking-tight mt-4">
-            {journey.heading}
-          </h2>
-          <p className="font-sans text-sm sm:text-base text-[#94A3B8] mt-4 leading-relaxed max-w-xl">
-            {journey.subheading}
-          </p>
+          <span className="font-mono text-[10px] text-[#94A3B8] hidden sm:block">mantif.com/journey</span>
+        </div>
+
+        {/* Section Header — editorial split layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-6 mb-16">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="w-8 h-[1px] bg-[#DFB74A]" />
+              <span className="font-mono text-xs font-bold tracking-widest text-[#DFB74A] uppercase">
+                04 / CHRONICLES & MILESTONES
+              </span>
+            </div>
+
+            <h2 className="font-serif font-bold text-[#FAF8F5] tracking-tight"
+              style={{ fontSize: 'clamp(2.5rem, 6vw, 5.5rem)' }}>
+              {journey.heading}
+            </h2>
+          </div>
+
+          {/* Callout box */}
+          <div className="border border-[#004B79]/40 rounded-xl p-5 max-w-xs bg-[#002137]/60 backdrop-blur-sm">
+            <div className="font-mono text-[9px] tracking-[0.2em] text-[#DFB74A] uppercase mb-2">Puppet Theatre Stage</div>
+            <p className="font-sans text-sm text-[#94A3B8] leading-snug">{journey.subheading}</p>
+          </div>
         </div>
 
         {/* Stage Controls Bar */}

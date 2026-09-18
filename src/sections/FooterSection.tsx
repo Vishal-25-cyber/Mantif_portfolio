@@ -64,23 +64,45 @@ export const FooterSection: React.FC = () => {
         </div>
 
         {/* ── Official MANTIF Contact Channels (Card-Free Open Editorial Layout) ── */}
-        <div className="w-full max-w-6xl mx-auto mb-20">
-          {/* Top Divider with Section Title */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 mb-12 border-b border-[#004B79]/30">
+        <div className="relative w-full max-w-6xl mx-auto mb-20">
+          {/* Ghost big number backdrop */}
+          <div className="absolute -top-10 left-0 pointer-events-none select-none" aria-hidden="true">
+            <span className="font-serif font-bold text-[16vw] text-[#FAF8F5] leading-none"
+              style={{ opacity: 0.02 }}>06</span>
+          </div>
+
+          {/* Top editorial metadata strip */}
+          <div className="flex items-center justify-between mb-10 pb-4 border-b border-white/10">
+            <div className="flex items-center gap-4">
+              <span className="font-mono text-[10px] text-[#94A3B8] tracking-[0.25em] uppercase">Chapter 06</span>
+              <span className="w-4 h-[1px] bg-white/20" />
+              <span className="font-mono text-[10px] text-[#DFB74A] font-bold tracking-[0.25em] uppercase">Connect & Inquiries</span>
+            </div>
+            <span className="font-mono text-[10px] text-[#94A3B8] hidden sm:block">mantif.com/contact</span>
+          </div>
+
+          {/* Section Header — editorial split layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-6 mb-14">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A]" />
-                <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-[#DFB74A] uppercase">
-                  Contact & Inquiries
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-8 h-[1px] bg-[#DFB74A]" />
+                <span className="font-mono text-xs font-bold tracking-widest text-[#DFB74A] uppercase">
+                  06 / REACH OUR TEAM
                 </span>
               </div>
-              <h3 className="font-serif font-bold text-3xl sm:text-4xl text-[#FAF8F5] tracking-tight">
+
+              <h2 className="font-serif font-bold text-[#FAF8F5] tracking-tight"
+                style={{ fontSize: 'clamp(2.2rem, 5vw, 4.5rem)' }}>
                 Connect with MANTIF.
-              </h3>
+              </h2>
             </div>
-            <p className="font-mono text-xs text-[#94A3B8] max-w-sm">
-              Live tutoring, AI pedagogical tools, and academic partnerships for Classes 6–10.
-            </p>
+
+            <div className="border border-[#004B79]/40 rounded-xl p-5 max-w-xs bg-[#002137]/60 backdrop-blur-sm">
+              <div className="font-mono text-[9px] tracking-[0.2em] text-[#DFB74A] uppercase mb-2">Verified Channels</div>
+              <p className="font-sans text-sm text-[#94A3B8] leading-snug">
+                Live tutoring, AI pedagogical tools, and academic partnerships for Classes 6–10.
+              </p>
+            </div>
           </div>
 
           {/* Open 3-Column Editorial Grid (No Cards, Pure Architecture) */}

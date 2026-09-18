@@ -89,6 +89,18 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       id="intro"
       className="relative w-full min-h-screen flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
+      {/* Ghost big number backdrop */}
+      <div className="absolute top-8 left-4 sm:left-10 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-serif font-bold text-[18vw] text-[#002137] leading-none"
+          style={{ opacity: 0.03 }}>01</span>
+      </div>
+
+      {/* Decorative top-right cross lines */}
+      <div className="absolute top-8 right-8 sm:right-16 opacity-[0.07] pointer-events-none" aria-hidden="true">
+        <div className="w-16 h-[1px] bg-[#002137]" />
+        <div className="w-[1px] h-16 bg-[#002137] mt-[-1px] ml-auto" />
+      </div>
+
       {/* Large ghost editorial MANTIF watermark backdrop */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden" aria-hidden="true">
         <span
@@ -260,11 +272,13 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
         {/* ============ SCENE 4: MANTIF CINEMATIC TITLE ============ */}
         <div className={`w-full flex flex-col items-center justify-center text-center transition-all duration-1000 ${isTitleActive ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
 
-          {/* Issue number — editorial magazine detail */}
+          {/* Chapter metadata strip detail */}
           <div className="flex items-center gap-4 mb-8">
-            <span className="h-[1px] w-8 sm:w-16 bg-[#002137]/20" />
-            <span className="font-mono text-[10px] tracking-[0.3em] text-[#64748B] uppercase">Est. 2024 · MANTIF Education</span>
-            <span className="h-[1px] w-8 sm:w-16 bg-[#002137]/20" />
+            <span className="font-mono text-[10px] text-[#64748B] tracking-[0.25em] uppercase">Chapter 01</span>
+            <span className="w-4 h-[1px] bg-[#002137]/20" />
+            <span className="font-mono text-[10px] text-[#DFB74A] font-bold tracking-[0.25em] uppercase">Genesis & Convergence</span>
+            <span className="w-4 h-[1px] bg-[#002137]/20" />
+            <span className="font-mono text-[10px] text-[#64748B] tracking-[0.25em] uppercase hidden sm:inline">Est. 2024</span>
           </div>
 
           {/* Giant 3D-depth letters */}

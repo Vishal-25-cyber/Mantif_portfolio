@@ -30,6 +30,18 @@ export const PhilosophySection: React.FC = () => {
       onMouseMove={handleMouseMove}
       className="relative w-full min-h-screen bg-[#0D1B24] py-28 sm:py-36 px-4 sm:px-8 overflow-hidden select-none"
     >
+      {/* Ghost big number backdrop */}
+      <div className="absolute top-8 left-4 sm:left-10 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-serif font-bold text-[18vw] text-[#FAF8F5] leading-none"
+          style={{ opacity: 0.03 }}>05</span>
+      </div>
+
+      {/* Decorative top-right cross lines */}
+      <div className="absolute top-8 right-8 sm:right-16 opacity-[0.10] pointer-events-none" aria-hidden="true">
+        <div className="w-16 h-[1px] bg-[#DFB74A]" />
+        <div className="w-[1px] h-16 bg-[#DFB74A] mt-[-1px] ml-auto" />
+      </div>
+
       {/* Cursor-tracked spotlight */}
       <div
         className="absolute inset-0 pointer-events-none transition-all duration-300"
@@ -57,22 +69,38 @@ export const PhilosophySection: React.FC = () => {
       />
 
       <div className="relative z-10 max-w-5xl mx-auto">
-        {/* Section header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 pb-6 border-b border-[#DFB74A]/15">
+        {/* Top editorial metadata strip */}
+        <div className="flex items-center justify-between mb-12 pb-4 border-b border-white/10">
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-[10px] text-[#94A3B8] tracking-[0.25em] uppercase">Chapter 05</span>
+            <span className="w-4 h-[1px] bg-white/20" />
+            <span className="font-mono text-[10px] text-[#DFB74A] font-bold tracking-[0.25em] uppercase">Core Philosophy</span>
+          </div>
+          <span className="font-mono text-[10px] text-[#94A3B8] hidden sm:block">mantif.com/philosophy</span>
+        </div>
+
+        {/* Section Header — editorial split layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-6 mb-16">
           <div>
             <div className="flex items-center gap-3 mb-4">
               <span className="w-8 h-[1px] bg-[#DFB74A]" />
-              <span className="font-mono text-xs font-bold tracking-[0.22em] text-[#DFB74A] uppercase">
-                {philosophy.eyebrow}
+              <span className="font-mono text-xs font-bold tracking-widest text-[#DFB74A] uppercase">
+                05 / WHY WE BUILD
               </span>
             </div>
-            <h2 className="font-serif text-5xl sm:text-7xl font-bold text-[#FAF8F5] tracking-tight">
+
+            <h2 className="font-serif font-bold text-[#FAF8F5] tracking-tight"
+              style={{ fontSize: 'clamp(2.5rem, 6vw, 5.5rem)' }}>
               {philosophy.heading}
             </h2>
           </div>
-          <div className="mt-4 sm:mt-0 flex items-center gap-2 text-xs font-mono text-[#475569]">
-            <div className="w-2 h-2 rounded-full bg-[#DFB74A] animate-pulse" />
-            <span>Interactive manifesto · Click to illuminate</span>
+
+          {/* Callout box */}
+          <div className="border border-[#004B79]/40 rounded-xl p-5 max-w-xs bg-[#002137]/60 backdrop-blur-sm">
+            <div className="font-mono text-[9px] tracking-[0.2em] text-[#DFB74A] uppercase mb-2">Manifesto Spotlight</div>
+            <p className="font-sans text-sm text-[#94A3B8] leading-snug">
+              Interactive manifesto. Click or hover any statement to illuminate foundational beliefs.
+            </p>
           </div>
         </div>
 

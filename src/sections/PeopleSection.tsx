@@ -137,26 +137,61 @@ const FlipCard: React.FC<FlipCardProps> = ({ member }) => {
 
 /* ─── Main Section ─── */
 export const PeopleSection: React.FC = () => (
-  <section id="people" className="relative w-full overflow-hidden">
+  <section id="people" className="relative w-full bg-[#FAF8F5] pt-24 sm:pt-32 overflow-hidden">
+    {/* Ghost big number backdrop */}
+    <div className="absolute top-8 left-4 sm:left-10 pointer-events-none select-none" aria-hidden="true">
+      <span className="font-serif font-bold text-[18vw] text-[#002137] leading-none"
+        style={{ opacity: 0.03 }}>03</span>
+    </div>
+
+    {/* Decorative top-right cross lines */}
+    <div className="absolute top-8 right-8 sm:right-16 opacity-[0.07] pointer-events-none" aria-hidden="true">
+      <div className="w-16 h-[1px] bg-[#002137]" />
+      <div className="w-[1px] h-16 bg-[#002137] mt-[-1px] ml-auto" />
+    </div>
+
+    <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 mb-12">
+      {/* Top editorial metadata strip */}
+      <div className="flex items-center justify-between mb-12 pb-4 border-b border-[#002137]/10">
+        <div className="flex items-center gap-4">
+          <span className="font-mono text-[10px] text-[#64748B] tracking-[0.25em] uppercase">Chapter 03</span>
+          <span className="w-4 h-[1px] bg-[#002137]/20" />
+          <span className="font-mono text-[10px] text-[#DFB74A] font-bold tracking-[0.25em] uppercase">People & Leadership</span>
+        </div>
+        <span className="font-mono text-[10px] text-[#64748B] hidden sm:block">mantif.com/people</span>
+      </div>
+
+      {/* Section Header — editorial split layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-6 mb-16">
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="w-8 h-[1px] bg-[#DFB74A]" />
+            <span className="font-mono text-xs font-bold tracking-widest text-[#004B79] uppercase">
+              03 / BUILT BY PEOPLE
+            </span>
+          </div>
+
+          <h2 className="font-serif font-bold text-[#002137] tracking-tight"
+            style={{ fontSize: 'clamp(2.5rem, 6vw, 5.5rem)' }}>
+            The Minds Shaping MANTIF.
+          </h2>
+        </div>
+
+        {/* Callout box */}
+        <div className="border border-[#002137]/12 rounded-xl p-5 max-w-xs bg-white/50">
+          <div className="font-mono text-[9px] tracking-[0.2em] text-[#64748B] uppercase mb-2">Leadership & Pedagogy</div>
+          <p className="font-sans text-sm text-[#002137] leading-snug">
+            From classroom mentors with advanced degrees to engineers crafting modern learning systems.
+          </p>
+        </div>
+      </div>
+    </div>
 
     {/* ══════════════════════════════════════════════
         FOUNDER — Luxury Light Editorial Gallery Card
         ══════════════════════════════════════════════ */}
-    <div className="relative w-full bg-[#FAF8F5] py-12 sm:py-16 px-4 sm:px-8">
+    <div className="relative w-full pb-16 px-4 sm:px-8">
       <div className="relative z-10 max-w-4xl mx-auto">
-
-        {/* Section Header */}
-        <div className="flex items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-3">
-            <span className="w-8 h-[2px] bg-[#DFB74A]" />
-            <span className="font-mono text-xs font-bold tracking-[0.25em] text-[#004B79] uppercase">
-              03 / Leadership & Vision
-            </span>
-          </div>
-          <span className="font-mono text-[10px] tracking-[0.22em] text-[#002137]/45 uppercase">
-            MANTIF Founder
-          </span>
-        </div>
 
         {/* The Card: Luxury Light Porcelain & Gold Frame */}
         <div
