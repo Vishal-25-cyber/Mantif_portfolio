@@ -155,6 +155,14 @@ class SoundEngine {
     if (this.isMuted) return;
     this.playChime(780, 'sine', 0.08, 0.02);
   }
+
+  /**
+   * Crisp UI click / navigation transition
+   */
+  public playClick() {
+    if (this.isMuted) return;
+    this.playChime(640, 'triangle', 0.12, 0.05);
+  }
 }
 
 export const soundManager = new SoundEngine();
