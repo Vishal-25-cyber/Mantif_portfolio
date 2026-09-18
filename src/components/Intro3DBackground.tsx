@@ -1,296 +1,253 @@
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Intro3DBackgroundProps {
   stage?: string; // 'walking' | 'handshake' | 'fadeCharacters' | 'titleReveal' | 'completed'
 }
 
 export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'walking' }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const [rotation, setRotation] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const rafRef = useRef<number>(0);
+  const startRef = useRef<number>(0);
 
   // Strictly ONLY show once the intro animation is completed
   const isIntroComplete = stage === 'completed';
 
+  // Smooth continuous celestial rotation
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // --- Scene Setup ---
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0xFAF8F5, 0.002);
-
-    const width = container.clientWidth || window.innerWidth;
-    const height = container.clientHeight || window.innerHeight;
-
-    const camera = new THREE.PerspectiveCamera(46, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 38);
-
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance',
-    });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
-    container.appendChild(renderer.domElement);
-
-    // --- Studio Luxury Lighting ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
-    scene.add(ambientLight);
-
-    // Golden specular key light
-    const goldKeyLight = new THREE.PointLight(0xDFB74A, 3.8, 80);
-    goldKeyLight.position.set(15, 14, 16);
-    scene.add(goldKeyLight);
-
-    // Sapphire rim fill light
-    const sapphireFillLight = new THREE.DirectionalLight(0x004B79, 1.6);
-    sapphireFillLight.position.set(-20, -15, 18);
-    scene.add(sapphireFillLight);
-
-    // Warm soft backlight
-    const backGlow = new THREE.PointLight(0xF5E6C8, 2.2, 90);
-    backGlow.position.set(0, -5, -12);
-    scene.add(backGlow);
-
-    // Master container for smooth mouse parallax
-    const worldGroup = new THREE.Group();
-    scene.add(worldGroup);
-
-    // ─────────────────────────────────────────────────────────────
-    // 1. PINTEREST LUXURY: FROSTED GLASS 3D KINETIC RIBBON
-    // Translucent frosted glassmorphic torus ribbon with caustics
-    // ─────────────────────────────────────────────────────────────
-    const glassTorusGeo = new THREE.TorusGeometry(13.8, 0.38, 32, 140);
-    const frostedGlassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      transmission: 0.88, // High-end frosted glass transmission
-      opacity: 0.95,
-      transparent: true,
-      roughness: 0.22, // Soft frosted diffusion that softens background without blocking text
-      ior: 1.48, // Optical glass index of refraction
-      thickness: 1.6,
-      specularIntensity: 1.0,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1,
-      attenuationColor: new THREE.Color(0xDFB74A),
-      attenuationDistance: 14,
-    });
-    const glassRibbon = new THREE.Mesh(glassTorusGeo, frostedGlassMat);
-    glassRibbon.rotation.x = Math.PI / 3.2;
-    glassRibbon.rotation.y = Math.PI / 6;
-    worldGroup.add(glassRibbon);
-
-    // ─────────────────────────────────────────────────────────────
-    // 2. POLISHED BRUSHED GOLD CELESTIAL ARMATURE
-    // Slender, high-precision luxury gold rings
-    // ─────────────────────────────────────────────────────────────
-    const goldArmatureGroup = new THREE.Group();
-    worldGroup.add(goldArmatureGroup);
-
-    const goldMat = new THREE.MeshStandardMaterial({
-      color: 0xDFB74A,
-      metalness: 0.94,
-      roughness: 0.16,
-      emissive: 0x8C6615,
-      emissiveIntensity: 0.14,
-    });
-
-    // Outer Primary Armature Ring
-    const outerArmatureGeo = new THREE.TorusGeometry(18.5, 0.05, 24, 180);
-    const outerArmature = new THREE.Mesh(outerArmatureGeo, goldMat);
-    outerArmature.rotation.x = -Math.PI / 2.7;
-    outerArmature.rotation.y = Math.PI / 8;
-    goldArmatureGroup.add(outerArmature);
-
-    // Secondary Sapphire Hairline Orbit
-    const sapphireMat = new THREE.MeshStandardMaterial({
-      color: 0x004B79,
-      metalness: 0.8,
-      roughness: 0.25,
-      transparent: true,
-      opacity: 0.35,
-    });
-    const sapphireOrbitGeo = new THREE.TorusGeometry(23.0, 0.03, 16, 180);
-    const sapphireOrbit = new THREE.Mesh(sapphireOrbitGeo, sapphireMat);
-    sapphireOrbit.rotation.x = Math.PI / 4;
-    sapphireOrbit.rotation.z = Math.PI / 5;
-    goldArmatureGroup.add(sapphireOrbit);
-
-    // ─────────────────────────────────────────────────────────────
-    // 3. FLOATING 3D GOLD & LIQUID PEARLS (Subtle Peripheral Spheres)
-    // Floating mirror spheres that drift in 3D perspective
-    // ─────────────────────────────────────────────────────────────
-    const pearlsGroup = new THREE.Group();
-    worldGroup.add(pearlsGroup);
-
-    const pearlData = [
-      { radius: 0.85, basePos: new THREE.Vector3(22, 11, -4), mat: goldMat, speed: 0.7, phase: 0 },
-      { radius: 0.65, basePos: new THREE.Vector3(-24, 12, -8), mat: frostedGlassMat, speed: 0.55, phase: 1.8 },
-      { radius: 0.95, basePos: new THREE.Vector3(-22, -11, -6), mat: goldMat, speed: 0.65, phase: 3.2 },
-      { radius: 0.55, basePos: new THREE.Vector3(24, -12, -5), mat: sapphireMat, speed: 0.8, phase: 4.5 },
-      { radius: 0.42, basePos: new THREE.Vector3(16, -15, -2), mat: goldMat, speed: 0.5, phase: 2.3 },
-      { radius: 0.45, basePos: new THREE.Vector3(-17, 14, -3), mat: goldMat, speed: 0.6, phase: 5.1 },
-    ];
-
-    const pearls: { mesh: THREE.Mesh; base: THREE.Vector3; speed: number; phase: number }[] = [];
-
-    pearlData.forEach((p) => {
-      const geo = new THREE.SphereGeometry(p.radius, 32, 32);
-      const mesh = new THREE.Mesh(geo, p.mat);
-      mesh.position.copy(p.basePos);
-      pearlsGroup.add(mesh);
-      pearls.push({ mesh, base: p.basePos, speed: p.speed, phase: p.phase });
-    });
-
-    // Orbiting Golden Photon Bead on Primary Armature
-    const beadGeo = new THREE.SphereGeometry(0.32, 24, 24);
-    const beadMat = new THREE.MeshStandardMaterial({
-      color: 0xDFB74A,
-      emissive: 0xDFB74A,
-      emissiveIntensity: 0.9,
-      roughness: 0.1,
-      metalness: 1.0,
-    });
-    const satelliteBead = new THREE.Mesh(beadGeo, beadMat);
-    goldArmatureGroup.add(satelliteBead);
-
-    // ─────────────────────────────────────────────────────────────
-    // 4. CELESTIAL STARDUST SPECKS (Floating in full volume)
-    // 85 golden micro-photons drifting peacefully in depth
-    // ─────────────────────────────────────────────────────────────
-    const stardustCount = 85;
-    const stardustGeo = new THREE.BufferGeometry();
-    const stardustPositions = new Float32Array(stardustCount * 3);
-
-    for (let i = 0; i < stardustCount; i++) {
-      const idx = i * 3;
-      stardustPositions[idx] = (Math.random() - 0.5) * 85;
-      stardustPositions[idx + 1] = (Math.random() - 0.5) * 48;
-      stardustPositions[idx + 2] = (Math.random() - 0.5) * 40;
-    }
-
-    stardustGeo.setAttribute('position', new THREE.BufferAttribute(stardustPositions, 3));
-    const stardustMat = new THREE.PointsMaterial({
-      color: 0xDFB74A,
-      size: 0.28,
-      transparent: true,
-      opacity: 0.5,
-    });
-    const stardustSystem = new THREE.Points(stardustGeo, stardustMat);
-    worldGroup.add(stardustSystem);
-
-    // --- Mouse Parallax Handler ---
-    const handleMouseMove = (e: MouseEvent) => {
-      const { innerWidth, innerHeight } = window;
-      mouseRef.current.targetX = (e.clientX / innerWidth - 0.5) * 2;
-      mouseRef.current.targetY = -(e.clientY / innerHeight - 0.5) * 2;
-    };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-
-    // --- Resize Handler ---
-    const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth || window.innerWidth;
-      const h = container.clientHeight || window.innerHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    };
-    window.addEventListener('resize', handleResize);
-
-    // --- Animation Loop ---
-    let animId: number;
-    const clock = new THREE.Clock();
-
-    const animate = () => {
-      animId = requestAnimationFrame(animate);
-      const elapsed = clock.getElapsedTime();
+    const tick = (ts: number) => {
+      if (!startRef.current) startRef.current = ts;
+      const elapsed = ts - startRef.current;
+      setRotation((elapsed * 0.018) % 360);
 
       // Smooth mouse interpolation (LERP)
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.035;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.035;
+      setMousePos((prev) => ({
+        x: prev.x + (prev.targetX - prev.x) * 0.04,
+        y: prev.y + (prev.targetY - prev.y) * 0.04,
+        targetX: prev.targetX,
+        targetY: prev.targetY,
+      }));
 
-      // Soft, tranquil camera rotation with mouse
-      worldGroup.rotation.y = mouseRef.current.x * 0.14;
-      worldGroup.rotation.x = -mouseRef.current.y * 0.09;
-
-      // 1. Frosted Glass Ribbon: Slow, hypnotic 3D tumble
-      glassRibbon.rotation.z = elapsed * 0.07;
-      glassRibbon.rotation.y = Math.PI / 6 + elapsed * 0.05;
-
-      // 2. Gold Armature counter-rotation
-      outerArmature.rotation.z = -elapsed * 0.055;
-      sapphireOrbit.rotation.z = elapsed * 0.04;
-
-      // Orbiting satellite bead
-      const beadAngle = elapsed * 0.45;
-      satelliteBead.position.set(
-        Math.cos(beadAngle) * 18.5,
-        Math.sin(beadAngle) * 8.5,
-        Math.sin(beadAngle) * 9.5
-      );
-
-      // 3. Floating 3D Pearls in harmonic motion
-      pearls.forEach(({ mesh, base, speed, phase }) => {
-        mesh.position.x = base.x + Math.sin(elapsed * speed + phase) * 1.5;
-        mesh.position.y = base.y + Math.cos(elapsed * (speed * 0.8) + phase) * 1.3;
-        mesh.position.z = base.z + Math.sin(elapsed * (speed * 0.6) + phase) * 1.1;
-      });
-
-      // 4. Stardust slow drift
-      stardustSystem.rotation.y = elapsed * 0.01;
-
-      // 5. Breathing scale modulation
-      const breathe = 1 + Math.sin(elapsed * 0.75) * 0.018;
-      glassRibbon.scale.set(breathe, breathe, breathe);
-
-      renderer.render(scene, camera);
+      rafRef.current = requestAnimationFrame(tick);
     };
 
-    animate();
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
-    // --- Cleanup ---
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
-
-      glassTorusGeo.dispose();
-      frostedGlassMat.dispose();
-      outerArmatureGeo.dispose();
-      sapphireOrbitGeo.dispose();
-      goldMat.dispose();
-      sapphireMat.dispose();
-      beadGeo.dispose();
-      beadMat.dispose();
-      pearls.forEach(({ mesh }) => {
-        mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
-      });
-      stardustGeo.dispose();
-      stardustMat.dispose();
-      renderer.dispose();
-
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
+  // Mouse move listener for interactive 3D perspective tilt
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { innerWidth, innerHeight } = window;
+      const x = (e.clientX / innerWidth - 0.5) * 2;
+      const y = (e.clientY / innerHeight - 0.5) * 2;
+      setMousePos((prev) => ({ ...prev, targetX: x, targetY: y }));
     };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   return (
     <div
-      ref={containerRef}
-      className={`absolute inset-0 pointer-events-none z-0 overflow-hidden transition-all duration-1200 ease-out ${
+      className={`absolute inset-0 pointer-events-none z-0 overflow-hidden select-none transition-all duration-1200 ease-out ${
         isIntroComplete
           ? 'opacity-100 scale-100 visible'
           : 'opacity-0 scale-98 pointer-events-none invisible'
       }`}
       aria-hidden="true"
-    />
+    >
+      {/* ── 1. AMBIENT CELESTIAL AURORA (Subtle warm gold & sapphire bloom) ── */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-transform duration-700 ease-out"
+        style={{
+          transform: `translate(${mousePos.x * 12}px, ${mousePos.y * 12}px)`,
+          background: `
+            radial-gradient(ellipse 65% 55% at 50% 50%, rgba(223, 183, 74, 0.12) 0%, rgba(0, 75, 121, 0.04) 45%, transparent 75%),
+            radial-gradient(circle at 25% 75%, rgba(223, 183, 74, 0.06) 0%, transparent 40%),
+            radial-gradient(circle at 75% 25%, rgba(0, 75, 121, 0.05) 0%, transparent 40%)
+          `,
+        }}
+      />
+
+      {/* ── 2. EDITORIAL WATERMARK TYPOGRAPHY (Deep in background) ── */}
+      <div className="absolute inset-0 flex items-center justify-between px-8 sm:px-16 pointer-events-none opacity-35 overflow-hidden">
+        <span
+          className="font-serif italic font-light text-[#002137]/[0.032] select-none tracking-tight leading-none"
+          style={{
+            fontSize: 'clamp(5rem, 18vw, 16rem)',
+            transform: `translate(${mousePos.x * -8}px, ${mousePos.y * -8}px)`,
+          }}
+        >
+          HUMAN
+        </span>
+        <span
+          className="font-serif italic font-light text-[#002137]/[0.032] select-none tracking-tight leading-none"
+          style={{
+            fontSize: 'clamp(5rem, 18vw, 16rem)',
+            transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 8}px)`,
+          }}
+        >
+          REASON
+        </span>
+      </div>
+
+      {/* ── 3. SACRED GEOMETRIC CELESTIAL ASTROLABE (3D Perspective Tilt) ── */}
+      <div
+        className="absolute left-1/2 top-1/2 pointer-events-none will-change-transform"
+        style={{
+          width: 'min(92vw, 760px)',
+          height: 'min(92vw, 760px)',
+          transform: `
+            translate(-50%, -50%)
+            perspective(1100px)
+            rotateX(${-mousePos.y * 14}deg)
+            rotateY(${mousePos.x * 16}deg)
+            translateZ(${Math.abs(mousePos.x) * 15}px)
+          `,
+          transformStyle: 'preserve-3d',
+          transition: 'transform 0.15s ease-out',
+        }}
+      >
+        <svg viewBox="0 0 700 700" className="w-full h-full overflow-visible">
+          {/* Outer Hairline Compass Perimeter */}
+          <circle
+            cx="350"
+            cy="350"
+            r="330"
+            fill="none"
+            stroke="#002137"
+            strokeWidth="1"
+            strokeOpacity="0.08"
+          />
+
+          {/* Golden Celestial Degree Track */}
+          <circle
+            cx="350"
+            cy="350"
+            r="305"
+            fill="none"
+            stroke="#DFB74A"
+            strokeWidth="1"
+            strokeOpacity="0.2"
+            strokeDasharray="2 10"
+          />
+
+          {/* 1. Primary Golden Celestial Ring (Rotating Clockwise) */}
+          <g transform={`rotate(${rotation}, 350, 350)`}>
+            <circle
+              cx="350"
+              cy="350"
+              r="265"
+              fill="none"
+              stroke="#DFB74A"
+              strokeWidth="1.5"
+              strokeOpacity="0.38"
+              strokeDasharray="6 14"
+            />
+            {/* Primary Golden Photon Bead with Specular Flare */}
+            <circle
+              cx="615"
+              cy="350"
+              r="5.5"
+              fill="#DFB74A"
+              style={{ filter: 'drop-shadow(0 0 10px rgba(223,183,74,0.85))' }}
+            />
+            {/* Secondary Golden Photon Node */}
+            <circle
+              cx="85"
+              cy="350"
+              r="3.5"
+              fill="#DFB74A"
+              fillOpacity="0.6"
+            />
+          </g>
+
+          {/* 2. Counter-Rotating Sapphire Harmony Ring */}
+          <g transform={`rotate(${-rotation * 0.75}, 350, 350)`}>
+            <circle
+              cx="350"
+              cy="350"
+              r="195"
+              fill="none"
+              stroke="#004B79"
+              strokeWidth="1.2"
+              strokeOpacity="0.28"
+              strokeDasharray="14 10"
+            />
+            {/* Sapphire Orbiting Photon */}
+            <circle
+              cx="350"
+              cy="155"
+              r="4.5"
+              fill="#004B79"
+              style={{ filter: 'drop-shadow(0 0 8px rgba(0,75,121,0.6))' }}
+            />
+            {/* Opposing Golden Spark */}
+            <circle
+              cx="350"
+              cy="545"
+              r="3"
+              fill="#DFB74A"
+              fillOpacity="0.7"
+            />
+          </g>
+
+          {/* 3. Inner Precision Golden Tick Track (Around Medallion) */}
+          <g transform={`rotate(${rotation * 0.4}, 350, 350)`}>
+            <circle
+              cx="350"
+              cy="350"
+              r="135"
+              fill="none"
+              stroke="#DFB74A"
+              strokeWidth="1"
+              strokeOpacity="0.25"
+              strokeDasharray="3 8"
+            />
+          </g>
+
+          {/* Precision Cardinal Crosshairs */}
+          <line x1="350" y1="30" x2="350" y2="70" stroke="#DFB74A" strokeWidth="1.5" strokeOpacity="0.5" />
+          <line x1="350" y1="630" x2="350" y2="670" stroke="#DFB74A" strokeWidth="1.5" strokeOpacity="0.5" />
+          <line x1="30" y1="350" x2="70" y2="350" stroke="#DFB74A" strokeWidth="1.5" strokeOpacity="0.5" />
+          <line x1="630" y1="350" x2="670" y2="350" stroke="#DFB74A" strokeWidth="1.5" strokeOpacity="0.5" />
+
+          {/* Cardinal Typography Labels */}
+          <text x="350" y="24" textAnchor="middle" fill="#002137" fillOpacity="0.32" fontSize="8" fontFamily="monospace" letterSpacing="0.25em" fontWeight="bold">
+            COGNITION · 01
+          </text>
+          <text x="350" y="692" textAnchor="middle" fill="#002137" fillOpacity="0.32" fontSize="8" fontFamily="monospace" letterSpacing="0.25em" fontWeight="bold">
+            SYNTHESIS · 02
+          </text>
+          <text x="24" y="353" textAnchor="middle" fill="#002137" fillOpacity="0.32" fontSize="8" fontFamily="monospace" letterSpacing="0.25em" fontWeight="bold">
+            HUMAN
+          </text>
+          <text x="676" y="353" textAnchor="middle" fill="#002137" fillOpacity="0.32" fontSize="8" fontFamily="monospace" letterSpacing="0.25em" fontWeight="bold">
+            AI
+          </text>
+        </svg>
+      </div>
+
+      {/* ── 4. CORNER EDITORIAL REGISTRATION MARKS (Luxury Blueprint Accents) ── */}
+      <div className="absolute top-8 left-8 sm:top-12 sm:left-12 font-mono text-[9px] text-[#002137]/35 tracking-[0.25em] uppercase pointer-events-none hidden sm:flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A]" />
+        <span>MANTIF · SYNERGY CANVAS</span>
+      </div>
+
+      <div className="absolute top-8 right-8 sm:top-12 sm:right-12 font-mono text-[9px] text-[#002137]/35 tracking-[0.25em] uppercase pointer-events-none hidden sm:flex items-center gap-2">
+        <span>EST. 2024</span>
+        <span className="text-[#002137]/20">/</span>
+        <span className="text-[#DFB74A]">EDTECH</span>
+      </div>
+
+      <div className="absolute bottom-8 left-8 sm:bottom-12 sm:left-12 font-mono text-[9px] text-[#002137]/30 tracking-[0.25em] uppercase pointer-events-none hidden sm:block">
+        [ SYSTEM · 3D PERSPECTIVE ]
+      </div>
+
+      <div className="absolute bottom-8 right-8 sm:bottom-12 sm:right-12 font-mono text-[9px] text-[#002137]/30 tracking-[0.25em] uppercase pointer-events-none hidden sm:block">
+        INTUITION × REASON
+      </div>
+    </div>
   );
 };
