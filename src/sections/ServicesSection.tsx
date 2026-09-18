@@ -164,54 +164,23 @@ export const ServicesSection: React.FC = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* CAROUSEL CONTROLS BAR: CATEGORY TABS, AUTOPLAY & VIEW SWITCHER            */}
+        {/* CAROUSEL CONTROLS BAR: AUTOPLAY STATUS & VIEW SWITCHER                    */}
         {/* ========================================================================= */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-3 border-b border-[#002137]/10">
-          {/* Quick Selection Category Tabs with Integrated Auto-Moving Progress Line */}
-          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
-            {services.cards.map((card, idx) => {
-              const isActive = activeIndex === idx;
-              const accent = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#002137';
-              return (
-                <button
-                  key={card.id}
-                  onClick={() => handleSelectCard(idx)}
-                  onMouseEnter={() => {
-                    setCursorMode('hover');
-                    soundManager.playHoverTick();
-                  }}
-                  onMouseLeave={() => setCursorMode('default')}
-                  className={`group relative flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-full font-mono text-xs tracking-wider transition-all duration-300 shrink-0 border overflow-hidden ${
-                    isActive
-                      ? 'bg-[#002137] text-white border-[#002137] shadow-md scale-105'
-                      : 'bg-white/80 text-[#475569] border-[#002137]/12 hover:border-[#DFB74A] hover:bg-white'
-                  }`}
-                >
-                  {/* Subtle moving countdown line inside active tab */}
-                  {isActive && viewMode === 'stack' && isAutoPlay && (
-                    <div
-                      className="absolute bottom-0 left-0 h-[2.5px] bg-[#DFB74A] transition-all duration-75"
-                      style={{ width: `${progress}%` }}
-                    />
-                  )}
-
-                  <span
-                    className="w-2 h-2 rounded-full transition-transform duration-300"
-                    style={{
-                      backgroundColor: accent,
-                      transform: isActive ? 'scale(1.2)' : 'scale(1)',
-                    }}
-                  />
-                  <span className="font-bold">{card.id}</span>
-                  <span className="opacity-40">/</span>
-                  <span className="font-semibold">{card.title}</span>
-                </button>
-              );
-            })}
+        <div className="flex items-center justify-between gap-4 mb-6 pb-3 border-b border-[#002137]/10">
+          {/* Subtle Stage Label / Active Initiative */}
+          <div className="flex items-center gap-2 font-mono text-xs text-[#64748B]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] animate-pulse" />
+            <span className="tracking-wider uppercase font-semibold text-[#002137]">
+              {viewMode === 'stack' ? 'Curated Offerings' : 'All Offerings'}
+            </span>
+            <span className="opacity-40">/</span>
+            <span className="text-[11px] font-mono text-[#004B79] font-medium">
+              {viewMode === 'stack' ? `Initiative 0${activeIndex + 1} of 0${totalCards}` : '3 Core Initiatives'}
+            </span>
           </div>
 
           {/* Right Controls: Autoplay Button, Counter, & Grid Toggle */}
-          <div className="flex items-center justify-end gap-3 shrink-0 self-end sm:self-auto">
+          <div className="flex items-center justify-end gap-3 shrink-0">
             {/* Auto-play toggle with status */}
             {viewMode === 'stack' && (
               <button
