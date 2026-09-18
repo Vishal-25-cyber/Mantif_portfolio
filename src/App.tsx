@@ -16,11 +16,19 @@ export function App() {
 
   // Track if the animated intro sequence is currently active/playing
   const [isIntroActive, setIsIntroActive] = useState(true);
-  const [currentScrollY, setCurrentScrollY] = useState(0);
+  const [isPastThreshold, setIsPastThreshold] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setCurrentScrollY(window.scrollY);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const past = window.scrollY >= 500;
+          setIsPastThreshold((prev) => (prev !== past ? past : prev));
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     handleScroll();
@@ -30,8 +38,7 @@ export function App() {
 
   // When user is viewing the intro section (< 500px) and intro is still playing, HIDE navbar
   // If user scrolls down past 500px, navbar becomes visible for navigation
-  const isAtIntro = currentScrollY < 500;
-  const hideNavbar = isIntroActive && isAtIntro;
+  const hideNavbar = isIntroActive && !isPastThreshold;
 
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#002137] overflow-x-hidden selection:bg-[#004B79] selection:text-[#FAF8F5]">

@@ -23,6 +23,7 @@ interface ServiceCardProps {
 
 export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [cursorPos, setCursorPos] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
@@ -30,17 +31,25 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    setTilt({
-      x: ((y - cy) / cy) * -7,
-      y: ((x - cx) / cx) * 7,
-    });
-    setCursorPos({
-      x: (x / rect.width) * 100,
-      y: (y / rect.height) * 100,
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    if (rafRef.current) return;
+
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      setTilt({
+        x: ((y - cy) / cy) * -7,
+        y: ((x - cx) / cx) * 7,
+      });
+      setCursorPos({
+        x: (x / rect.width) * 100,
+        y: (y / rect.height) * 100,
+      });
     });
   };
 
@@ -51,6 +60,10 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
   };
 
   const handleMouseLeave = () => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     setIsHovered(false);
     setTilt({ x: 0, y: 0 });
     setCursorPos({ x: 50, y: 50 });

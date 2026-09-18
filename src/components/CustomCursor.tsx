@@ -40,9 +40,9 @@ export const CustomCursor: React.FC = () => {
 
     let raf: number;
     const tick = () => {
-      // Smooth lag for trail (lerp factor 0.10 = very soft)
-      trail.current.x += (mouse.current.x - trail.current.x) * 0.10;
-      trail.current.y += (mouse.current.y - trail.current.y) * 0.10;
+      // Snappy, ultra-fluid tracking (lerp factor 0.28: eliminates lag while preserving silky motion)
+      trail.current.x += (mouse.current.x - trail.current.x) * 0.28;
+      trail.current.y += (mouse.current.y - trail.current.y) * 0.28;
 
       if (dotRef.current) {
         dotRef.current.style.transform =

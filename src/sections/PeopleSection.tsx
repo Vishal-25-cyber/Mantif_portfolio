@@ -115,7 +115,6 @@ export const PeopleSection: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
   const [hasEnteredView, setHasEnteredView] = useState(false);
-  const [progress, setProgress] = useState(0);
 
   const sectionRef = useRef<HTMLElement>(null);
   const touchTimeoutRef = useRef<number | null>(null);
@@ -152,7 +151,7 @@ export const PeopleSection: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // 2-Second Hold Loop State Machine
+  // 2-Second Hold Loop State Machine (Zero re-renders during hold, GPU handles countdown)
   useEffect(() => {
     if (!isAutoPlay || isHovered || isTouched || !hasEnteredView) {
       return;
@@ -161,26 +160,13 @@ export const PeopleSection: React.FC = () => {
     let timer: number;
 
     if (phase === 'entering') {
-      setProgress(0);
       timer = window.setTimeout(() => {
         setPhase('showing');
       }, ENTER_DURATION);
     } else if (phase === 'showing') {
-      const stepInterval = 40;
-      const stepPercent = (stepInterval / HOLD_DURATION) * 100;
-      const progressTimer = setInterval(() => {
-        setProgress((prev) => Math.min(100, prev + stepPercent));
-      }, stepInterval);
-
       timer = window.setTimeout(() => {
-        clearInterval(progressTimer);
         setPhase('exiting');
       }, HOLD_DURATION);
-
-      return () => {
-        window.clearTimeout(timer);
-        clearInterval(progressTimer);
-      };
     } else if (phase === 'exiting') {
       timer = window.setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % PEOPLE_DATA.length);
@@ -195,21 +181,18 @@ export const PeopleSection: React.FC = () => {
     if (index === currentIndex && phase === 'showing') return;
     setCurrentIndex(index);
     setPhase('entering');
-    setProgress(0);
     soundManager.playClick();
   };
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % PEOPLE_DATA.length);
     setPhase('entering');
-    setProgress(0);
     soundManager.playClick();
   };
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + PEOPLE_DATA.length) % PEOPLE_DATA.length);
     setPhase('entering');
-    setProgress(0);
     soundManager.playClick();
   };
 
@@ -235,18 +218,25 @@ export const PeopleSection: React.FC = () => {
       id="people"
       className="relative w-full bg-[#FAF8F5] pt-20 sm:pt-28 pb-16 sm:pb-24 overflow-hidden select-none"
     >
-      {/* Dynamic Keyframes for Alternating Sides */}
+      {/* Dynamic Keyframes for Alternating Sides & GPU-Accelerated Progress Line */}
       <style>{`
+        @keyframes progressLineAnim {
+          0% {
+            transform: scaleX(0);
+          }
+          100% {
+            transform: scaleX(1);
+          }
+        }
+
         @keyframes slideInRight {
           0% {
             opacity: 0;
-            transform: translate3d(90px, 0, 0) scale(0.97);
-            filter: blur(3px);
+            transform: translate3d(70px, 0, 0) scale(0.98);
           }
           100% {
             opacity: 1;
             transform: translate3d(0, 0, 0) scale(1);
-            filter: blur(0px);
           }
         }
 
@@ -257,21 +247,18 @@ export const PeopleSection: React.FC = () => {
           }
           100% {
             opacity: 0;
-            transform: translate3d(90px, 0, 0) scale(0.97);
-            filter: blur(3px);
+            transform: translate3d(70px, 0, 0) scale(0.98);
           }
         }
 
         @keyframes slideInLeft {
           0% {
             opacity: 0;
-            transform: translate3d(-90px, 0, 0) scale(0.97);
-            filter: blur(3px);
+            transform: translate3d(-70px, 0, 0) scale(0.98);
           }
           100% {
             opacity: 1;
             transform: translate3d(0, 0, 0) scale(1);
-            filter: blur(0px);
           }
         }
 
@@ -282,23 +269,26 @@ export const PeopleSection: React.FC = () => {
           }
           100% {
             opacity: 0;
-            transform: translate3d(-90px, 0, 0) scale(0.97);
-            filter: blur(3px);
+            transform: translate3d(-70px, 0, 0) scale(0.98);
           }
         }
 
         .anim-enter-right {
           animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          will-change: transform, opacity;
         }
         .anim-exit-right {
           animation: slideOutRight 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+          will-change: transform, opacity;
         }
 
         .anim-enter-left {
           animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          will-change: transform, opacity;
         }
         .anim-exit-left {
           animation: slideOutLeft 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+          will-change: transform, opacity;
         }
       `}</style>
 
@@ -451,13 +441,19 @@ export const PeopleSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 2-Second Hold Countdown Progress Line */}
+        {/* 2-Second Hold Countdown Progress Line (100% GPU Composited, Zero React Re-renders) */}
         <div className="w-full h-[2px] bg-[#002137]/6 rounded-full mb-8 overflow-hidden">
           <div
-            className="h-full transition-all duration-75 ease-linear"
+            key={`progress-${currentIndex}-${phase}-${isAutoPlay && !isHovered && !isTouched}`}
+            className="h-full origin-left will-change-transform"
             style={{
-              width: `${progress}%`,
               backgroundColor: currentPerson.accent,
+              transform: phase === 'exiting' ? 'scaleX(1)' : phase === 'entering' ? 'scaleX(0)' : undefined,
+              animation:
+                phase === 'showing' && isAutoPlay && !isHovered && !isTouched
+                  ? `progressLineAnim ${HOLD_DURATION}ms linear forwards`
+                  : 'none',
+              width: '100%',
             }}
           />
         </div>

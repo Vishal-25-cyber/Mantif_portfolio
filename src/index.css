@@ -183,10 +183,12 @@ body {
 
 .animate-marquee {
   animation: marqueeAnim 20s linear infinite;
+  will-change: transform;
 }
 
 .animate-marqueeReverse {
   animation: marqueeReverseAnim 22s linear infinite;
+  will-change: transform;
 }
 
 /* ── Line-clamp utility ── */
