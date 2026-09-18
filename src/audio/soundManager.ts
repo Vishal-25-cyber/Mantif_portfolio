@@ -84,7 +84,7 @@ class SoundEngine {
       this.bgmAudio.src = trackSrc;
       this.bgmAudio.load();
       if (wasPlaying) {
-        this.bgmAudio.play().catch(() => {});
+        this.bgmAudio.play().catch(() => { });
       }
     }
   }

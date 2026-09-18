@@ -66,7 +66,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="group relative rounded-3xl p-[1.5px] will-change-transform cursor-pointer"
+      className="group relative rounded-3xl p-[1.5px] will-change-transform cursor-pointer h-full flex flex-col"
       style={{
         transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateY(${isHovered ? '-10px' : '0'})`,
         transition: isHovered ? 'transform 0.08s linear' : 'transform 0.6s cubic-bezier(0.16,1,0.3,1)',
