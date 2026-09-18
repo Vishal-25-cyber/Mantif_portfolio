@@ -6,9 +6,9 @@ interface Intro3DBackgroundProps {
 }
 
 /**
- * Creates a luminous particle sprite texture for the spark between fingertips
+ * Creates an ultra-crisp circular glow texture for stardust particles
  */
-function createSparkTexture(): THREE.CanvasTexture {
+function createCrispGlowTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 64;
@@ -16,7 +16,7 @@ function createSparkTexture(): THREE.CanvasTexture {
   if (ctx) {
     const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.2, 'rgba(255, 230, 150, 0.95)');
+    gradient.addColorStop(0.25, 'rgba(255, 230, 160, 0.95)');
     gradient.addColorStop(0.55, 'rgba(223, 183, 74, 0.7)');
     gradient.addColorStop(0.85, 'rgba(0, 75, 121, 0.25)');
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
@@ -51,7 +51,7 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     const height = container.clientHeight || window.innerHeight;
 
     const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 34);
+    camera.position.set(0, 0, 36);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -61,373 +61,178 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.2;
     container.appendChild(renderer.domElement);
 
-    const sparkTexture = createSparkTexture();
+    const glowTexture = createCrispGlowTexture();
 
     // ─────────────────────────────────────────────────────────────
-    // 1. LIGHTING SETUP (High Specular Reflections)
+    // 1. LIGHTING
     // ─────────────────────────────────────────────────────────────
-    const ambientLight = new THREE.AmbientLight(0xFFFDF5, 1.9);
+    const ambientLight = new THREE.AmbientLight(0xFFFDF5, 1.8);
     scene.add(ambientLight);
 
-    const goldKeyLight = new THREE.DirectionalLight(0xDFB74A, 3.6);
-    goldKeyLight.position.set(18, 22, 18);
+    const goldKeyLight = new THREE.DirectionalLight(0xDFB74A, 3.2);
+    goldKeyLight.position.set(20, 25, 20);
     scene.add(goldKeyLight);
 
-    const sapphireRimLight = new THREE.DirectionalLight(0x004B79, 3.2);
-    sapphireRimLight.position.set(-18, -14, 14);
+    const sapphireRimLight = new THREE.DirectionalLight(0x004B79, 2.5);
+    sapphireRimLight.position.set(-20, -15, 12);
     scene.add(sapphireRimLight);
 
-    const frontLight = new THREE.DirectionalLight(0xFFFFFF, 1.4);
-    frontLight.position.set(0, 10, 20);
-    scene.add(frontLight);
-
-    // Dynamic light tracking cursor
-    const cursorLight = new THREE.PointLight(0xFFE58F, 4.0, 35);
+    // Interactive cursor light
+    const cursorLight = new THREE.PointLight(0xFFE58F, 3.5, 40);
     cursorLight.position.set(0, 0, 14);
     scene.add(cursorLight);
 
     // ─────────────────────────────────────────────────────────────
-    // 2. LEFT: 3D HUMAN HAND (Organic Sculptural Ivory & Gold)
+    // 2. CELESTIAL HOROLOGICAL HALO RINGS (Minimal, Elegant, Framing)
     // ─────────────────────────────────────────────────────────────
-    const humanHand = new THREE.Group();
-    humanHand.position.set(-15.5, -0.5, -4);
-    scene.add(humanHand);
+    const ringsGroup = new THREE.Group();
+    ringsGroup.position.set(0, 0, -6);
+    scene.add(ringsGroup);
 
-    const humanSkinMat = new THREE.MeshStandardMaterial({
-      color: 0xF3ECE2,
-      roughness: 0.28,
-      metalness: 0.35,
-    });
-
-    const humanGoldMat = new THREE.MeshStandardMaterial({
+    // Outer Thin Gold Orbit
+    const ring1Geo = new THREE.TorusGeometry(21.0, 0.08, 16, 120);
+    const ring1Mat = new THREE.MeshStandardMaterial({
       color: 0xDFB74A,
-      roughness: 0.16,
       metalness: 0.95,
-    });
-
-    const humanWireMat = new THREE.MeshBasicMaterial({
-      color: 0xDFB74A,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.35,
-    });
-
-    // Human Forearm
-    const humanForearm = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.5, 2.1, 11, 24),
-      humanSkinMat
-    );
-    humanForearm.rotation.z = Math.PI / 2.25;
-    humanForearm.position.set(-8.5, -1.8, 0);
-    humanHand.add(humanForearm);
-
-    // Golden Bracelet / Interface at wrist
-    const humanBracelet = new THREE.Mesh(
-      new THREE.TorusGeometry(1.6, 0.18, 16, 32),
-      humanGoldMat
-    );
-    humanBracelet.rotation.y = Math.PI / 2;
-    humanBracelet.position.set(-4.8, -0.7, 0);
-    humanHand.add(humanBracelet);
-
-    // Human Palm
-    const humanPalm = new THREE.Mesh(
-      new THREE.BoxGeometry(4.0, 3.0, 1.3),
-      humanSkinMat
-    );
-    humanPalm.position.set(-3.0, -0.3, 0);
-    humanPalm.rotation.z = 0.12;
-    humanHand.add(humanPalm);
-
-    // Subtle golden wireframe overlay on palm
-    const humanPalmWire = new THREE.Mesh(
-      new THREE.BoxGeometry(4.08, 3.08, 1.38),
-      humanWireMat
-    );
-    humanPalmWire.position.copy(humanPalm.position);
-    humanPalmWire.rotation.copy(humanPalm.rotation);
-    humanHand.add(humanPalmWire);
-
-    // Helper to generate a human finger
-    const buildHumanFinger = (
-      baseX: number,
-      baseY: number,
-      baseZ: number,
-      lengths: number[],
-      angles: number[],
-      rotY: number = 0
-    ) => {
-      const fingerGroup = new THREE.Group();
-      fingerGroup.position.set(baseX, baseY, baseZ);
-      fingerGroup.rotation.y = rotY;
-
-      let currentParent = fingerGroup;
-      lengths.forEach((len, idx) => {
-        const phalanx = new THREE.Group();
-        const rTop = 0.36 - idx * 0.05;
-        const rBot = 0.40 - idx * 0.05;
-        const boneMesh = new THREE.Mesh(
-          new THREE.CylinderGeometry(rTop, rBot, len, 16),
-          humanSkinMat
-        );
-        boneMesh.position.y = len / 2;
-        phalanx.add(boneMesh);
-
-        // Golden knuckle bead
-        const jointMesh = new THREE.Mesh(
-          new THREE.SphereGeometry(rBot, 12, 12),
-          humanGoldMat
-        );
-        phalanx.add(jointMesh);
-
-        phalanx.rotation.z = angles[idx];
-        currentParent.add(phalanx);
-
-        const nextAnchor = new THREE.Group();
-        nextAnchor.position.y = len;
-        phalanx.add(nextAnchor);
-        currentParent = nextAnchor;
-      });
-
-      humanHand.add(fingerGroup);
-      return fingerGroup;
-    };
-
-    // Fingers in Michelangelo's "Creation of Adam" pose: Index points forward, others relaxed
-    // Index finger extending towards center
-    buildHumanFinger(-1.0, 0.45, 0.15, [2.3, 1.8, 1.4], [Math.PI / 2.05, 0.04, 0.04]);
-    // Middle finger (curled slightly back)
-    buildHumanFinger(-1.0, 0.1, -0.2, [2.3, 1.7, 1.3], [Math.PI / 2.35, 0.28, 0.35]);
-    // Ring finger (curled back)
-    buildHumanFinger(-1.1, -0.3, -0.55, [2.0, 1.5, 1.1], [Math.PI / 2.55, 0.38, 0.45]);
-    // Pinky finger (curled back)
-    buildHumanFinger(-1.2, -0.65, -0.85, [1.6, 1.2, 0.9], [Math.PI / 2.75, 0.45, 0.55]);
-    // Thumb (reaching upward and outward)
-    buildHumanFinger(-3.6, 0.7, 0.65, [1.7, 1.3], [Math.PI / 3.3, -0.15], 0.35);
-
-    // ─────────────────────────────────────────────────────────────
-    // 3. RIGHT: 3D CYBERNETIC ROBOT HAND (Sapphire, Navy & Gold)
-    // ─────────────────────────────────────────────────────────────
-    const robotHand = new THREE.Group();
-    robotHand.position.set(15.5, -0.5, -4);
-    scene.add(robotHand);
-
-    const robotSapphireMat = new THREE.MeshStandardMaterial({
-      color: 0x004B79,
       roughness: 0.15,
-      metalness: 0.94,
-    });
-
-    const robotNavyMat = new THREE.MeshStandardMaterial({
-      color: 0x002137,
-      roughness: 0.2,
-      metalness: 0.92,
-    });
-
-    const robotGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xDFB74A,
-      roughness: 0.12,
-      metalness: 0.96,
-    });
-
-    const robotCoreMat = new THREE.MeshStandardMaterial({
-      color: 0xDFB74A,
-      emissive: 0xDFB74A,
-      emissiveIntensity: 0.85,
-      roughness: 0.1,
-      metalness: 0.95,
-    });
-
-    // Robotic Forearm (Octagonal Arm Sleeve)
-    const robotForearm = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.6, 2.2, 11, 8),
-      robotNavyMat
-    );
-    robotForearm.rotation.z = -Math.PI / 2.25;
-    robotForearm.position.set(8.5, -1.8, 0);
-    robotHand.add(robotForearm);
-
-    // Hydraulic Gold Pistons along forearm
-    const piston1 = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.18, 0.18, 9, 12),
-      robotGoldMat
-    );
-    piston1.rotation.z = -Math.PI / 2.25;
-    piston1.position.set(8.5, -1.1, 0.9);
-    robotHand.add(piston1);
-
-    const piston2 = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.18, 0.18, 9, 12),
-      robotGoldMat
-    );
-    piston2.rotation.z = -Math.PI / 2.25;
-    piston2.position.set(8.5, -2.5, -0.9);
-    robotHand.add(piston2);
-
-    // Wrist Gimbal Joint
-    const robotWrist = new THREE.Mesh(
-      new THREE.TorusGeometry(1.7, 0.22, 16, 32),
-      robotGoldMat
-    );
-    robotWrist.rotation.y = Math.PI / 2;
-    robotWrist.position.set(4.8, -0.7, 0);
-    robotHand.add(robotWrist);
-
-    // Robotic Palm (Segmented Sapphire Chassis)
-    const robotPalm = new THREE.Mesh(
-      new THREE.BoxGeometry(4.0, 3.0, 1.3),
-      robotSapphireMat
-    );
-    robotPalm.position.set(3.0, -0.3, 0);
-    robotPalm.rotation.z = -0.12;
-    robotHand.add(robotPalm);
-
-    // Glowing core reactor in center of robotic palm
-    const palmReactor = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.65, 0.65, 1.4, 16),
-      robotCoreMat
-    );
-    palmReactor.rotation.x = Math.PI / 2;
-    palmReactor.position.set(3.0, -0.3, 0);
-    robotHand.add(palmReactor);
-
-    // Helper to generate an articulated robotic finger
-    const buildRobotFinger = (
-      baseX: number,
-      baseY: number,
-      baseZ: number,
-      lengths: number[],
-      angles: number[],
-      rotY: number = 0
-    ) => {
-      const fingerGroup = new THREE.Group();
-      fingerGroup.position.set(baseX, baseY, baseZ);
-      fingerGroup.rotation.y = rotY;
-
-      let currentParent = fingerGroup;
-      lengths.forEach((len, idx) => {
-        const phalanx = new THREE.Group();
-        const w = 0.72 - idx * 0.08;
-        const d = 0.62 - idx * 0.06;
-
-        // Mechanical Armor Segment
-        const plateMesh = new THREE.Mesh(
-          new THREE.BoxGeometry(w, len, d),
-          idx % 2 === 0 ? robotSapphireMat : robotNavyMat
-        );
-        plateMesh.position.y = len / 2;
-        phalanx.add(plateMesh);
-
-        // Cylindrical Knuckle Bolt (Gold)
-        const boltMesh = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.38 - idx * 0.04, 0.38 - idx * 0.04, w + 0.15, 12),
-          robotGoldMat
-        );
-        boltMesh.rotation.z = Math.PI / 2;
-        phalanx.add(boltMesh);
-
-        // Glowing fingertip sensor
-        if (idx === lengths.length - 1) {
-          const tipSensor = new THREE.Mesh(
-            new THREE.SphereGeometry(0.22, 12, 12),
-            robotCoreMat
-          );
-          tipSensor.position.y = len;
-          phalanx.add(tipSensor);
-        }
-
-        phalanx.rotation.z = angles[idx];
-        currentParent.add(phalanx);
-
-        const nextAnchor = new THREE.Group();
-        nextAnchor.position.y = len;
-        phalanx.add(nextAnchor);
-        currentParent = nextAnchor;
-      });
-
-      robotHand.add(fingerGroup);
-      return fingerGroup;
-    };
-
-    // Robot Fingers extending left towards human hand
-    // Index (Extended forward towards center)
-    buildRobotFinger(1.0, 0.45, 0.15, [2.3, 1.8, 1.4], [-Math.PI / 2.05, -0.04, -0.04]);
-    // Middle
-    buildRobotFinger(1.0, 0.1, -0.2, [2.3, 1.7, 1.3], [-Math.PI / 2.35, -0.28, -0.35]);
-    // Ring
-    buildRobotFinger(1.1, -0.3, -0.55, [2.0, 1.5, 1.1], [-Math.PI / 2.55, -0.38, -0.45]);
-    // Pinky
-    buildRobotFinger(1.2, -0.65, -0.85, [1.6, 1.2, 0.9], [-Math.PI / 2.75, -0.45, -0.55]);
-    // Thumb
-    buildRobotFinger(3.6, 0.7, 0.65, [1.7, 1.3], [-Math.PI / 3.3, 0.15], -0.35);
-
-    // ─────────────────────────────────────────────────────────────
-    // 4. CENTRAL TOUCH ENERGY SPARK (Between Fingertips)
-    // ─────────────────────────────────────────────────────────────
-    const sparkGroup = new THREE.Group();
-    sparkGroup.position.set(0, 0.5, -4);
-    scene.add(sparkGroup);
-
-    // Glowing core sphere
-    const coreSpark = new THREE.Mesh(
-      new THREE.SphereGeometry(0.45, 16, 16),
-      new THREE.MeshStandardMaterial({
-        color: 0xDFB74A,
-        emissive: 0xDFB74A,
-        emissiveIntensity: 1.2,
-        roughness: 0.1,
-      })
-    );
-    sparkGroup.add(coreSpark);
-
-    // Ambient floating spark particles around the nexus
-    const sparkParticleCount = 28;
-    const sparkGeo = new THREE.BufferGeometry();
-    const sparkPositions = new Float32Array(sparkParticleCount * 3);
-    for (let i = 0; i < sparkParticleCount; i++) {
-      const idx = i * 3;
-      const r = 0.6 + Math.random() * 2.8;
-      const theta = Math.random() * Math.PI * 2;
-      sparkPositions[idx] = Math.cos(theta) * r;
-      sparkPositions[idx + 1] = Math.sin(theta) * r * 0.7;
-      sparkPositions[idx + 2] = (Math.random() - 0.5) * 2.0;
-    }
-    sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3));
-
-    const sparkPointsMat = new THREE.PointsMaterial({
-      size: 0.55,
-      map: sparkTexture,
-      color: 0xDFB74A,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.65,
+    });
+    const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
+    ring1.rotation.x = 1.15;
+    ring1.rotation.y = 0.35;
+    ringsGroup.add(ring1);
+
+    // Mid Thin Sapphire Orbit
+    const ring2Geo = new THREE.TorusGeometry(16.5, 0.065, 16, 100);
+    const ring2Mat = new THREE.MeshStandardMaterial({
+      color: 0x004B79,
+      metalness: 0.92,
+      roughness: 0.18,
+      transparent: true,
+      opacity: 0.55,
+    });
+    const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+    ring2.rotation.x = -0.75;
+    ring2.rotation.y = 0.85;
+    ringsGroup.add(ring2);
+
+    // 4 Tiny Gliding Satellites
+    const satellites: { mesh: THREE.Mesh; radius: number; speed: number; angle: number; parent: THREE.Mesh }[] = [];
+    for (let i = 0; i < 4; i++) {
+      const parent = i % 2 === 0 ? ring1 : ring2;
+      const radius = i % 2 === 0 ? 21.0 : 16.5;
+      const satMat = new THREE.MeshStandardMaterial({
+        color: i % 2 === 0 ? 0xDFB74A : 0x0088CC,
+        emissive: i % 2 === 0 ? 0xDFB74A : 0x004B79,
+        emissiveIntensity: 0.9,
+        metalness: 0.95,
+        roughness: 0.1,
+      });
+      const satMesh = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), satMat);
+      parent.add(satMesh);
+      satellites.push({
+        mesh: satMesh,
+        radius,
+        speed: (0.35 + i * 0.15) * (i % 2 === 0 ? 1 : -1),
+        angle: (i / 4) * Math.PI * 2,
+        parent,
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. ELEGANT 3D NEURAL CONSTELLATION NODES & SYNAPSES
+    // ─────────────────────────────────────────────────────────────
+    const nodeCount = 50;
+    const nodeGeo = new THREE.BufferGeometry();
+    const nodePositions = new Float32Array(nodeCount * 3);
+    const nodeColors = new Float32Array(nodeCount * 3);
+    const nodeVelocities: { x: number; y: number; z: number }[] = [];
+
+    const cGold = new THREE.Color('#DFB74A');
+    const cSapphire = new THREE.Color('#004B79');
+    const cNavy = new THREE.Color('#002137');
+
+    for (let i = 0; i < nodeCount; i++) {
+      const idx = i * 3;
+      // Periphery distribution: leaving the center open for title & logo
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 8.5 + Math.random() * 20.0;
+      nodePositions[idx] = Math.cos(angle) * dist;
+      nodePositions[idx + 1] = Math.sin(angle) * dist * 0.72;
+      nodePositions[idx + 2] = (Math.random() - 0.5) * 14.0;
+
+      const col = new THREE.Color();
+      if (i % 3 === 0) col.copy(cGold);
+      else if (i % 3 === 1) col.copy(cSapphire);
+      else col.copy(cNavy);
+
+      nodeColors[idx] = col.r;
+      nodeColors[idx + 1] = col.g;
+      nodeColors[idx + 2] = col.b;
+
+      nodeVelocities.push({
+        x: (Math.random() - 0.5) * 0.012,
+        y: (Math.random() - 0.5) * 0.012,
+        z: (Math.random() - 0.5) * 0.008,
+      });
+    }
+
+    nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodePositions, 3));
+    nodeGeo.setAttribute('color', new THREE.BufferAttribute(nodeColors, 3));
+
+    const nodeMat = new THREE.PointsMaterial({
+      size: 0.65,
+      map: glowTexture,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.9,
       blending: THREE.NormalBlending,
       depthWrite: false,
     });
-    const sparkParticles = new THREE.Points(sparkGeo, sparkPointsMat);
-    sparkGroup.add(sparkParticles);
+    const nodePoints = new THREE.Points(nodeGeo, nodeMat);
+    scene.add(nodePoints);
+
+    // Dynamic Connecting Lines
+    const maxLines = (nodeCount * (nodeCount - 1)) / 2;
+    const linePositions = new Float32Array(maxLines * 6);
+    const lineColors = new Float32Array(maxLines * 6);
+    const lineGeo = new THREE.BufferGeometry();
+    lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage));
+    lineGeo.setAttribute('color', new THREE.BufferAttribute(lineColors, 3).setUsage(THREE.DynamicDrawUsage));
+
+    const lineMat = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+    });
+    const lineMesh = new THREE.LineSegments(lineGeo, lineMat);
+    scene.add(lineMesh);
 
     // ─────────────────────────────────────────────────────────────
-    // 5. FLOATING GOLDEN AMBIENT STARDUST
+    // 4. FLOATING GOLDEN AMBIENT STARDUST
     // ─────────────────────────────────────────────────────────────
-    const dustCount = 40;
+    const dustCount = 45;
     const dustGeo = new THREE.BufferGeometry();
     const dustPos = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount; i++) {
       const idx = i * 3;
-      dustPos[idx] = (Math.random() - 0.5) * 44;
-      dustPos[idx + 1] = (Math.random() - 0.5) * 28;
+      dustPos[idx] = (Math.random() - 0.5) * 48;
+      dustPos[idx + 1] = (Math.random() - 0.5) * 32;
       dustPos[idx + 2] = (Math.random() - 0.5) * 16;
     }
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
     const dustMat = new THREE.PointsMaterial({
-      size: 0.45,
-      map: sparkTexture,
+      size: 0.4,
+      map: glowTexture,
       color: 0xDFB74A,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.6,
       blending: THREE.NormalBlending,
       depthWrite: false,
     });
@@ -463,7 +268,7 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
     window.addEventListener('resize', handleResize);
 
     // ─────────────────────────────────────────────────────────────
-    // ANIMATION & KINEMATICS LOOP
+    // ANIMATION LOOP
     // ─────────────────────────────────────────────────────────────
     let animId: number;
     const clock = new THREE.Clock();
@@ -472,12 +277,12 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       animId = requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      // Smooth mouse interpolation
+      // Mouse damping
       mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.045;
       mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.045;
 
       if (mouseRef.current.clickPulse > 0.01) {
-        mouseRef.current.clickPulse *= 0.92;
+        mouseRef.current.clickPulse *= 0.94;
       }
 
       const mx = mouseRef.current.x;
@@ -491,27 +296,77 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
 
       // Point light follows cursor
       cursorLight.position.set(mx * 16, my * 12, 10);
-      cursorLight.intensity = 4.0 + pulse * 6.0;
+      cursorLight.intensity = 3.5 + pulse * 4.0;
 
-      // --- Subtle Hand Gestures & Breathing ---
-      // Human Hand (organic breathing)
-      humanHand.position.y = -0.5 + Math.sin(elapsed * 1.2) * 0.25 + my * 0.8;
-      humanHand.rotation.z = Math.sin(elapsed * 0.9) * 0.03 + mx * 0.06;
-      humanHand.rotation.x = Math.cos(elapsed * 1.0) * 0.03 - my * 0.06;
+      // Rotate celestial rings
+      ring1.rotation.z = elapsed * 0.07 + mx * 0.12;
+      ring1.rotation.x = 1.15 + my * 0.10;
+      ring2.rotation.z = -elapsed * 0.09 - mx * 0.14;
+      ring2.rotation.y = 0.85 + my * 0.12;
 
-      // Robot Hand (robotic micro-articulation)
-      robotHand.position.y = -0.5 + Math.sin(elapsed * 1.2 + 0.8) * 0.25 + my * 0.8;
-      robotHand.rotation.z = -Math.sin(elapsed * 0.9 + 0.5) * 0.03 + mx * 0.06;
-      robotHand.rotation.x = -Math.cos(elapsed * 1.0 + 0.5) * 0.03 - my * 0.06;
+      // Animate satellites
+      satellites.forEach((sat) => {
+        sat.angle += sat.speed * 0.016;
+        sat.mesh.position.x = Math.cos(sat.angle) * sat.radius;
+        sat.mesh.position.y = Math.sin(sat.angle) * sat.radius;
+      });
 
-      // Spark nexus breathing & pulse
-      const sparkScale = 1.0 + Math.sin(elapsed * 3.0) * 0.15 + pulse * 1.8;
-      coreSpark.scale.set(sparkScale, sparkScale, sparkScale);
-      sparkParticles.rotation.z = elapsed * 0.4;
+      // Animate Constellation Nodes
+      const nPos = nodeGeo.attributes.position.array as Float32Array;
+      for (let i = 0; i < nodeCount; i++) {
+        const idx = i * 3;
+        nPos[idx] += nodeVelocities[i].x;
+        nPos[idx + 1] += nodeVelocities[i].y;
+        nPos[idx + 2] += nodeVelocities[i].z;
 
-      // Floating stardust drift
-      dustMesh.rotation.y = elapsed * 0.018 + mx * 0.04;
-      dustMesh.rotation.x = elapsed * 0.012 - my * 0.04;
+        if (Math.abs(nPos[idx]) > 24) nodeVelocities[i].x *= -1;
+        if (Math.abs(nPos[idx + 1]) > 16) nodeVelocities[i].y *= -1;
+        if (Math.abs(nPos[idx + 2]) > 10) nodeVelocities[i].z *= -1;
+      }
+      nodeGeo.attributes.position.needsUpdate = true;
+
+      // Update connecting synaptic lines
+      let lineIdx = 0;
+      const maxConnectDist = 6.5;
+
+      for (let i = 0; i < nodeCount; i++) {
+        for (let j = i + 1; j < nodeCount; j++) {
+          const idxI = i * 3;
+          const idxJ = j * 3;
+
+          const dx = nPos[idxI] - nPos[idxJ];
+          const dy = nPos[idxI + 1] - nPos[idxJ + 1];
+          const dz = nPos[idxI + 2] - nPos[idxJ + 2];
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+          if (dist < maxConnectDist) {
+            const alpha = (1.0 - dist / maxConnectDist) * 0.55;
+
+            linePositions[lineIdx] = nPos[idxI];
+            linePositions[lineIdx + 1] = nPos[idxI + 1];
+            linePositions[lineIdx + 2] = nPos[idxI + 2];
+            lineColors[lineIdx] = cGold.r * alpha;
+            lineColors[lineIdx + 1] = cGold.g * alpha;
+            lineColors[lineIdx + 2] = cGold.b * alpha;
+
+            linePositions[lineIdx + 3] = nPos[idxJ];
+            linePositions[lineIdx + 4] = nPos[idxJ + 1];
+            linePositions[lineIdx + 5] = nPos[idxJ + 2];
+            lineColors[lineIdx + 3] = cSapphire.r * alpha;
+            lineColors[lineIdx + 4] = cSapphire.g * alpha;
+            lineColors[lineIdx + 5] = cSapphire.b * alpha;
+
+            lineIdx += 6;
+          }
+        }
+      }
+      lineGeo.setDrawRange(0, lineIdx / 3);
+      lineGeo.attributes.position.needsUpdate = true;
+      lineGeo.attributes.color.needsUpdate = true;
+
+      // Floating dust drift
+      dustMesh.rotation.y = elapsed * 0.015 + mx * 0.03;
+      dustMesh.rotation.x = elapsed * 0.01 - my * 0.03;
 
       renderer.render(scene, camera);
     };
@@ -527,11 +382,18 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
       window.removeEventListener('click', handleClick);
       window.removeEventListener('resize', handleResize);
 
-      sparkTexture.dispose();
+      glowTexture.dispose();
+      ring1Geo.dispose();
+      ring1Mat.dispose();
+      ring2Geo.dispose();
+      ring2Mat.dispose();
+      satellites.forEach((sat) => sat.mesh.geometry.dispose());
+      nodeGeo.dispose();
+      nodeMat.dispose();
+      lineGeo.dispose();
+      lineMat.dispose();
       dustGeo.dispose();
       dustMat.dispose();
-      sparkGeo.dispose();
-      sparkPointsMat.dispose();
       renderer.dispose();
 
       if (container.contains(renderer.domElement)) {
