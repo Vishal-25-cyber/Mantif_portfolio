@@ -15,12 +15,6 @@ export const FooterSection: React.FC = () => {
         style={{ background: 'linear-gradient(to bottom, #001A2C, transparent)' }}
       />
 
-      {/* Ghost MANTIF watermark */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <span className="font-serif font-bold text-[22vw] text-[#FAF8F5] select-none"
-          style={{ opacity: 0.02, lineHeight: 1 }}>MANTIF</span>
-      </div>
-
       {/* Dot grid art */}
       <div className="absolute inset-0 opacity-[0.05] pointer-events-none"
         style={{
@@ -30,38 +24,7 @@ export const FooterSection: React.FC = () => {
       />
 
       {/* Main footer body */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pt-28 pb-10">
-
-        {/* ── Top: Huge MANTIF wordmark ── */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <span className="flex-1 max-w-xs h-[1px] bg-[#DFB74A]/25" />
-            <span className="font-mono text-[10px] tracking-[0.35em] text-[#475569] uppercase">Est. 2024 · Tamil Nadu, India</span>
-            <span className="flex-1 max-w-xs h-[1px] bg-[#DFB74A]/25" />
-          </div>
-
-          <h2 className="font-serif font-bold text-[#FAF8F5] tracking-tight leading-none"
-            style={{ fontSize: 'clamp(4rem, 14vw, 12rem)' }}>
-            M<span className="text-[#DFB74A]">Λ</span>NTIF
-          </h2>
-
-          {/* Shimmer line */}
-          <div className="w-full max-w-2xl mx-auto h-[2px] my-8 rounded-full overflow-hidden bg-[#004B79]/20">
-            <div className="h-full rounded-full animate-shimmer"
-              style={{
-                background: 'linear-gradient(90deg, transparent, #DFB74A, #004B79, transparent)',
-                backgroundSize: '200% 100%',
-              }}
-            />
-          </div>
-
-          <p className="font-mono text-sm sm:text-base font-bold tracking-[0.28em] text-[#475569] uppercase">
-            Human × Artificial Intelligence
-          </p>
-          <p className="font-serif italic text-2xl sm:text-3xl text-[#94A3B8] mt-4 font-light">
-            "Learning. Building. Evolving."
-          </p>
-        </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pt-20 sm:pt-28 pb-10">
 
         {/* ── Official MANTIF Contact Channels (Card-Free Open Editorial Layout) ── */}
         <div className="relative w-full max-w-6xl mx-auto mb-20">
@@ -248,16 +211,6 @@ export const FooterSection: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes shimmerAnim {
-          0%   { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        .animate-shimmer {
-          animation: shimmerAnim 3s linear infinite;
-        }
-      `}</style>
     </footer>
   );
 };
