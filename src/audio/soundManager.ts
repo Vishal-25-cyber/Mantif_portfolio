@@ -8,9 +8,8 @@ class SoundEngine {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = true;
   private masterGain: GainNode | null = null;
-  private ambientGain: GainNode | null = null;
-  private ambientOsc1: OscillatorNode | null = null;
-  private ambientOsc2: OscillatorNode | null = null;
+  private bgmAudio: HTMLAudioElement | null = null;
+  private currentTrack: 'leo' | 'master' = 'leo';
 
   private init() {
     if (this.ctx) return;
@@ -25,24 +24,44 @@ class SoundEngine {
     }
   }
 
+  private initBgm() {
+    if (typeof window === 'undefined') return;
+    if (!this.bgmAudio) {
+      const trackSrc = this.currentTrack === 'leo' ? '/audio/tamil_mass_bgm.mp3' : '/audio/master_mass_bgm.mp3';
+      this.bgmAudio = new Audio(trackSrc);
+      this.bgmAudio.loop = true;
+      this.bgmAudio.volume = 0.55;
+    }
+  }
+
   public toggleMute(): boolean {
     this.init();
-    if (!this.ctx || !this.masterGain) return true;
-
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+    this.initBgm();
 
     this.isMuted = !this.isMuted;
-    const targetGain = this.isMuted ? 0 : 0.35;
-    this.masterGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.05);
 
-    if (!this.isMuted && !this.ambientOsc1) {
-      this.startWarmDrone();
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+      if (this.masterGain) {
+        const targetGain = this.isMuted ? 0 : 0.35;
+        this.masterGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.05);
+      }
     }
 
     if (!this.isMuted) {
-      this.playChime(528, 'sine', 0.8, 0.15);
+      if (this.bgmAudio) {
+        this.bgmAudio.volume = 0.55;
+        this.bgmAudio.play().catch(() => {
+          // Autoplay policy or interaction required
+        });
+      }
+      this.playChime(528, 'sine', 0.5, 0.15);
+    } else {
+      if (this.bgmAudio) {
+        this.bgmAudio.pause();
+      }
     }
 
     return this.isMuted;
@@ -52,31 +71,21 @@ class SoundEngine {
     return this.isMuted;
   }
 
-  /**
-   * Warm ambient harmonic drone
-   */
-  private startWarmDrone() {
-    if (!this.ctx || !this.masterGain) return;
-    try {
-      this.ambientGain = this.ctx.createGain();
-      this.ambientGain.gain.setValueAtTime(0.04, this.ctx.currentTime);
-      this.ambientGain.connect(this.masterGain);
+  public getCurrentTrackTitle(): string {
+    return this.currentTrack === 'leo' ? 'Leo Mass BGM' : 'Master Mass BGM';
+  }
 
-      // Warm Root ~ 108Hz (A2 harmonic)
-      this.ambientOsc1 = this.ctx.createOscillator();
-      this.ambientOsc1.type = 'sine';
-      this.ambientOsc1.frequency.setValueAtTime(108, this.ctx.currentTime);
-      this.ambientOsc1.connect(this.ambientGain);
-      this.ambientOsc1.start();
-
-      // Fifth above ~ 162Hz with soft detune
-      this.ambientOsc2 = this.ctx.createOscillator();
-      this.ambientOsc2.type = 'sine';
-      this.ambientOsc2.frequency.setValueAtTime(162.5, this.ctx.currentTime);
-      this.ambientOsc2.connect(this.ambientGain);
-      this.ambientOsc2.start();
-    } catch {
-      // Ignore audio synthesis errors
+  public switchTrack(track: 'leo' | 'master') {
+    this.currentTrack = track;
+    const trackSrc = track === 'leo' ? '/audio/tamil_mass_bgm.mp3' : '/audio/master_mass_bgm.mp3';
+    if (this.bgmAudio) {
+      const wasPlaying = !this.isMuted;
+      this.bgmAudio.pause();
+      this.bgmAudio.src = trackSrc;
+      this.bgmAudio.load();
+      if (wasPlaying) {
+        this.bgmAudio.play().catch(() => {});
+      }
     }
   }
 

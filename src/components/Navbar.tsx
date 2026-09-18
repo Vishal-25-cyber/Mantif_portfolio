@@ -139,16 +139,16 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
               onMouseLeave={() => setCursorMode('default')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono transition-all backdrop-blur-sm ${
                 !isMuted
-                  ? 'bg-[#004B79] text-[#FAF8F5] border-[#004B79] shadow-sm'
+                  ? 'bg-[#004B79] text-[#FAF8F5] border-[#004B79] shadow-md shadow-[#004B79]/30'
                   : 'bg-[#FAF8F5]/80 text-[#002137]/70 border-[#002137]/15 hover:border-[#002137]/40 hover:text-[#002137]'
               }`}
-              title={isMuted ? 'Enable ambient soundscape' : 'Mute soundscape'}
+              title={!isMuted ? 'Playing: Leo Thalapathy Vijay Mass BGM (Click to mute)' : 'Click to play Tamil Mass BGM'}
               aria-label="Toggle Sound"
             >
               {!isMuted ? (
                 <>
                   <Volume2 className="w-3.5 h-3.5 animate-pulse text-[#DFB74A]" />
-                  <span className="text-[10px] hidden sm:inline">AUDIO ON</span>
+                  <span className="text-[10px] hidden sm:inline font-bold tracking-wider">AUDIO ON · TAMIL MASS</span>
                 </>
               ) : (
                 <>
