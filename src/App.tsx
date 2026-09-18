@@ -31,34 +31,9 @@ export function App() {
     }
   }, [isIntroActive]);
 
-  // Track if user has scrolled past the intro into content sections
-  const [isPastIntro, setIsPastIntro] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.scrollY > 400;
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const past = window.scrollY > 400;
-          setIsPastIntro(past);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // While in intro (animation playing OR viewing intro section), navbar must NEVER show
-  const hideNavbar = isIntroActive || !isPastIntro;
+  // While the intro animation is playing, navbar is strictly hidden.
+  // The moment intro completes (or is skipped), the navbar emerges smoothly.
+  const hideNavbar = isIntroActive;
 
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#002137] overflow-x-hidden selection:bg-[#004B79] selection:text-[#FAF8F5]">
