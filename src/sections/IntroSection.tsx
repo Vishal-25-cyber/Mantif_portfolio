@@ -89,28 +89,6 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       id="intro"
       className="relative w-full min-h-screen flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
-      {/* Ghost big number backdrop */}
-      <div className="absolute top-8 left-4 sm:left-10 pointer-events-none select-none" aria-hidden="true">
-        <span className="font-serif font-bold text-[18vw] text-[#002137] leading-none"
-          style={{ opacity: 0.03 }}>01</span>
-      </div>
-
-      {/* Decorative top-right cross lines */}
-      <div className="absolute top-8 right-8 sm:right-16 opacity-[0.07] pointer-events-none" aria-hidden="true">
-        <div className="w-16 h-[1px] bg-[#002137]" />
-        <div className="w-[1px] h-16 bg-[#002137] mt-[-1px] ml-auto" />
-      </div>
-
-      {/* Large ghost editorial MANTIF watermark backdrop */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden" aria-hidden="true">
-        <span
-          className="font-serif font-bold text-[20vw] sm:text-[22vw] tracking-widest text-[#002137] select-none"
-          style={{ opacity: 0.025, lineHeight: 1 }}
-        >
-          MANTIF
-        </span>
-      </div>
-
       {/* Ambient radial gradient spotlight */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
         style={{
