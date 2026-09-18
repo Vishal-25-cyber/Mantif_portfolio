@@ -99,24 +99,24 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
         <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
 
         {/* Content */}
-        <div className="relative z-10 p-7 sm:p-8 flex flex-col flex-1">
+        <div className="relative z-10 p-5 sm:p-6 flex flex-col flex-1">
 
           {/* Top row: id + badge */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between mb-3.5">
+            <div className="flex items-center gap-2">
               <span
-                className="font-mono text-2xl font-bold leading-none"
+                className="font-mono text-xl font-bold leading-none"
                 style={{ color: accent }}
               >
                 {card.id}
               </span>
               <div className="flex flex-col">
-                <span className="font-mono text-[9px] font-bold tracking-[0.22em] uppercase text-[#64748B]">
+                <span className="font-mono text-[9px] font-bold tracking-[0.2em] uppercase text-[#64748B]">
                   {card.category}
                 </span>
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-full font-mono text-[9px] font-bold tracking-wider uppercase border"
+            <span className="px-2 py-0.5 rounded-full font-mono text-[8px] font-bold tracking-wider uppercase border"
               style={{
                 color: accent,
                 borderColor: accent + '40',
@@ -128,29 +128,29 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
 
           {/* Heading */}
           <h3
-            className="font-serif text-2xl sm:text-3xl font-bold text-[#002137] transition-all duration-400 leading-snug"
-            style={{ transform: isHovered ? 'translateX(3px)' : 'translateX(0)' }}
+            className="font-serif text-xl sm:text-2xl font-bold text-[#002137] transition-all duration-300 leading-snug"
+            style={{ transform: isHovered ? 'translateX(2px)' : 'translateX(0)' }}
           >
             {card.title}
           </h3>
 
           {/* Thin accent underline on hover */}
           <div
-            className="mt-2 h-[2px] rounded-full transition-all duration-500"
+            className="mt-1.5 h-[2px] rounded-full transition-all duration-500"
             style={{
-              width: isHovered ? '60%' : '24px',
+              width: isHovered ? '50%' : '20px',
               background: `linear-gradient(to right, ${accent}, transparent)`,
             }}
           />
 
-          <p className="font-sans text-xs sm:text-sm text-[#475569] mt-4 leading-relaxed">
+          <p className="font-sans text-xs text-[#475569] mt-2.5 leading-relaxed">
             {card.description}
           </p>
 
           {/* Optional italic quote */}
           {card.quote && (
             <div
-              className="mt-4 px-4 py-3 rounded-xl border-l-2 text-xs sm:text-sm font-serif italic text-[#002137] leading-relaxed"
+              className="mt-2.5 px-3 py-2 rounded-xl border-l-2 text-xs font-serif italic text-[#002137] leading-relaxed"
               style={{
                 borderColor: accent,
                 background: accent + '0A',
@@ -161,9 +161,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
           )}
 
           {/* Feature list */}
-          <ul className="mt-5 space-y-2 flex-1">
+          <ul className="mt-3 space-y-1.5 flex-1">
             {card.features.map((feature, idx) => (
-              <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#334155]">
+              <li key={idx} className="flex items-start gap-2 text-xs text-[#334155]">
                 <div
                   className="w-1.5 h-1.5 rounded-full mt-[5px] shrink-0"
                   style={{ background: accent }}
@@ -175,8 +175,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
 
           {/* Card 01 — origin photo */}
           {card.id === '01' && (
-            <div className="mt-5 pt-4 border-t border-[#002137]/8 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-[#002137]/10">
+            <div className="mt-3 pt-2.5 border-t border-[#002137]/8 flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-[#002137]/10">
                 <img
                   src="/images/gallery_1.jpg"
                   alt="Tutoring Hub Origin"
@@ -188,7 +188,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
                   style={{ color: accent }}>
                   ORIGIN MILESTONE
                 </span>
-                <p className="font-sans text-[11px] text-[#64748B] mt-0.5">
+                <p className="font-sans text-[10px] text-[#64748B] mt-0.5 leading-tight">
                   From physical classrooms in 2024 to digital today.
                 </p>
               </div>
@@ -196,14 +196,14 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
           )}
 
           {/* Footer CTA */}
-          <div className="mt-6 pt-4 border-t border-[#002137]/8 flex items-center justify-between">
+          <div className="mt-3.5 pt-2.5 border-t border-[#002137]/8 flex items-center justify-between">
             <a
               href="https://mantif.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[11px] font-mono font-semibold text-[#64748B] hover:text-[#004B79] transition-colors"
+              className="flex items-center gap-1.5 text-[10px] font-mono font-semibold text-[#64748B] hover:text-[#004B79] transition-colors"
             >
-              <Globe className="w-3.5 h-3.5" style={{ color: accent }} />
+              <Globe className="w-3 h-3" style={{ color: accent }} />
               <span>mantif.com</span>
             </a>
 
@@ -211,16 +211,16 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
               href="https://mantif.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full flex items-center justify-center border transition-all duration-300"
+              className="w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300"
               style={{
                 borderColor: isHovered ? accent : '#002137' + '20',
                 background: isHovered ? accent : 'transparent',
                 color: isHovered ? '#FAF8F5' : '#002137',
-                transform: isHovered ? 'rotate(45deg) scale(1.1)' : 'none',
+                transform: isHovered ? 'rotate(45deg) scale(1.08)' : 'none',
               }}
               aria-label="Visit mantif.com"
             >
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-3 h-3" />
             </a>
           </div>
         </div>

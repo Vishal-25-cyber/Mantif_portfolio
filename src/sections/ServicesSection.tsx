@@ -25,8 +25,8 @@ export const ServicesSection: React.FC = () => {
   const touchStartXRef = useRef<number | null>(null);
 
   const totalCards = services.cards.length;
-  const AUTOPLAY_INTERVAL = 4500; // 4.5 seconds per card
-  const STEP_TIME = 40; // 40ms update interval
+  const AUTOPLAY_INTERVAL = 2000; // Fast cadence: 2.0s per card
+  const STEP_TIME = 20; // 20ms update interval for butter-smooth progress bar
 
   const handleNext = () => {
     setActiveIndex((prev) => (prev + 1) % totalCards);
@@ -57,7 +57,6 @@ export const ServicesSection: React.FC = () => {
         const next = prev + (STEP_TIME / AUTOPLAY_INTERVAL) * 100;
         if (next >= 100) {
           setActiveIndex((curr) => (curr + 1) % totalCards);
-          soundManager.playHoverTick();
           return 0;
         }
         return next;
@@ -284,24 +283,24 @@ export const ServicesSection: React.FC = () => {
         {/* VIEW MODE 1: ATTRACTIVE & UNIQUE "ONE OVER ANOTHER" 3D FAN STACK           */}
         {/* ========================================================================= */}
         {viewMode === 'stack' && (
-          <div className="relative w-full py-6 sm:py-8 flex flex-col items-center">
-            {/* 3D Stack Stage Container */}
+          <div className="relative w-full py-4 sm:py-6 flex flex-col items-center">
+            {/* 3D Stack Stage Container — Compact, proportional dimensions */}
             <div
               onMouseEnter={() => setIsHoveredStack(true)}
               onMouseLeave={() => setIsHoveredStack(false)}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
-              className="relative w-full max-w-[420px] sm:max-w-[460px] h-[640px] sm:h-[680px] mx-auto flex items-center justify-center"
+              className="relative w-full max-w-[340px] sm:max-w-[370px] h-[480px] sm:h-[510px] mx-auto flex items-center justify-center"
             >
               {/* Decorative Ambient Luxury Orbiting Ring behind the Stack */}
               <div
-                className="absolute -inset-10 sm:-inset-14 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
+                className="absolute -inset-8 sm:-inset-10 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
                 style={{
                   animation: 'spin 60s linear infinite',
                 }}
               />
               <div
-                className="absolute -inset-4 sm:-inset-6 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
+                className="absolute -inset-3 sm:-inset-5 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
                 style={{
                   animation: 'spin 40s linear infinite reverse',
                 }}
@@ -315,10 +314,10 @@ export const ServicesSection: React.FC = () => {
                   soundManager.playHoverTick();
                 }}
                 onMouseLeave={() => setCursorMode('default')}
-                className="absolute -left-4 sm:-left-16 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-white/95 border border-[#002137]/15 shadow-lg flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
+                className="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
                 aria-label="Previous card in stack"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
 
               {/* Floating Next Button (>) */}
@@ -329,10 +328,10 @@ export const ServicesSection: React.FC = () => {
                   soundManager.playHoverTick();
                 }}
                 onMouseLeave={() => setCursorMode('default')}
-                className="absolute -right-4 sm:-right-16 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-white/95 border border-[#002137]/15 shadow-lg flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
+                className="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
                 aria-label="Next card in stack"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4" />
               </button>
 
               {/* The 3 Cards Stacked One Over Another in a 3D Fan */}
@@ -359,8 +358,8 @@ export const ServicesSection: React.FC = () => {
                   zIndex = 20;
                   transform =
                     window.innerWidth < 640
-                      ? 'translateY(20px) translateX(28px) scale(0.94) rotate(3deg)'
-                      : 'translateY(20px) translateX(65px) scale(0.94) rotate(4deg)';
+                      ? 'translateY(14px) translateX(22px) scale(0.94) rotate(2.5deg)'
+                      : 'translateY(14px) translateX(46px) scale(0.94) rotate(3deg)';
                   opacity = 0.94;
                   filter = 'brightness(0.98)';
                   pointerEvents = 'auto';
@@ -369,8 +368,8 @@ export const ServicesSection: React.FC = () => {
                   zIndex = 15;
                   transform =
                     window.innerWidth < 640
-                      ? 'translateY(36px) translateX(-28px) scale(0.88) rotate(-3deg)'
-                      : 'translateY(20px) translateX(-65px) scale(0.94) rotate(-4deg)';
+                      ? 'translateY(24px) translateX(-22px) scale(0.88) rotate(-2.5deg)'
+                      : 'translateY(14px) translateX(-46px) scale(0.94) rotate(-3deg)';
                   opacity = 0.94;
                   filter = 'brightness(0.98)';
                   pointerEvents = 'auto';
@@ -384,7 +383,7 @@ export const ServicesSection: React.FC = () => {
                         handleSelectCard(idx);
                       }
                     }}
-                    className="absolute inset-0 rounded-3xl transition-all duration-700 ease-out will-change-transform"
+                    className="absolute inset-0 rounded-3xl transition-all duration-400 ease-out will-change-transform"
                     style={{
                       zIndex,
                       transform,
@@ -394,8 +393,8 @@ export const ServicesSection: React.FC = () => {
                       cursor: offset !== 0 ? 'pointer' : 'default',
                       boxShadow:
                         offset === 0
-                          ? `0 25px 60px -15px rgba(0, 33, 55, 0.18), 0 8px 24px -5px ${accentColor}25`
-                          : `0 16px 36px -10px rgba(0, 33, 55, 0.14), 0 4px 16px -4px ${accentColor}30`,
+                          ? `0 20px 48px -12px rgba(0, 33, 55, 0.16), 0 6px 20px -4px ${accentColor}25`
+                          : `0 12px 30px -8px rgba(0, 33, 55, 0.12), 0 4px 14px -4px ${accentColor}25`,
                     }}
                   >
                     <ServiceCard card={card} />
@@ -403,11 +402,11 @@ export const ServicesSection: React.FC = () => {
                     {/* Attractive Clickable Callout Badge for Background Cards */}
                     {offset !== 0 && (
                       <div
-                        className="absolute inset-0 rounded-3xl bg-[#FAF8F5]/30 hover:bg-transparent backdrop-blur-[0.5px] transition-all flex items-start justify-end p-4 group/fan"
+                        className="absolute inset-0 rounded-3xl bg-[#FAF8F5]/30 hover:bg-transparent backdrop-blur-[0.5px] transition-all flex items-start justify-end p-3.5 group/fan"
                         title={`Click to bring ${card.title} to front`}
                       >
                         <span
-                          className="px-3 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider shadow-sm transition-transform group-hover/fan:scale-105"
+                          className="px-2.5 py-0.5 rounded-full font-mono text-[8px] font-bold uppercase tracking-wider shadow-sm transition-transform group-hover/fan:scale-105"
                           style={{
                             backgroundColor: accentColor,
                             color: '#FAF8F5',
@@ -423,7 +422,7 @@ export const ServicesSection: React.FC = () => {
             </div>
 
             {/* Bottom Stack Indicators, Progress Bar, & Quick Shuffle Action */}
-            <div className="flex flex-col items-center gap-3.5 mt-12 z-20">
+            <div className="flex flex-col items-center gap-3 mt-8 sm:mt-10 z-20">
               {/* Dynamic Auto-Moving Linear Progress Bar */}
               {isAutoPlay && (
                 <div className="w-48 sm:w-64 h-1.5 rounded-full bg-[#002137]/10 overflow-hidden relative">
@@ -486,7 +485,7 @@ export const ServicesSection: React.FC = () => {
         {viewMode === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {services.cards.map((card) => (
-              <div key={card.id} className="h-[620px]">
+              <div key={card.id} className="h-[480px] sm:h-[510px]">
                 <ServiceCard card={card} />
               </div>
             ))}
