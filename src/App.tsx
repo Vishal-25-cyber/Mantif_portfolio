@@ -24,29 +24,15 @@ export function App() {
   // Freeze smooth scroll & wheel while intro is active to prevent bottom layer from peeking
   useLenis(isIntroActive);
 
-  const [isPastThreshold, setIsPastThreshold] = useState(false);
-
   useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const past = window.scrollY >= 500;
-          setIsPastThreshold((prev) => (prev !== past ? past : prev));
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
+    // When intro is active on mount, ensure page stays pinned at the very top
+    if (isIntroActive && typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+  }, [isIntroActive]);
 
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // When user is viewing the intro section (< 500px) and intro is still playing, HIDE navbar
-  // If user scrolls down past 500px, navbar becomes visible for navigation
-  const hideNavbar = isIntroActive && !isPastThreshold;
+  // While intro is active/playing, navbar must NOT show under any circumstances
+  const hideNavbar = isIntroActive;
 
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#002137] overflow-x-hidden selection:bg-[#004B79] selection:text-[#FAF8F5]">

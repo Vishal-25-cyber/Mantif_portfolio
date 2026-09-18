@@ -100,6 +100,16 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
     return clearTimers;
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (stage !== 'completed' && (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter')) {
+        skipIntro();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [stage]);
+
   const scrollToNext = () => {
     skipIntro();
     document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
@@ -121,36 +131,6 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
           background: 'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,75,121,0.06) 0%, transparent 70%)',
         }}
       />
-
-      {/* Top Controls Bar during Intro */}
-      <div className="w-full max-w-7xl pt-4 sm:pt-6 flex items-center justify-between z-20">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full border border-[#002137]/15 flex items-center justify-center bg-[#FAF8F5]/80 backdrop-blur-sm">
-            <img
-              src="/images/mantif_icon.png"
-              alt="MANTIF"
-              className="w-4 h-4 object-contain"
-              onError={(e) => { (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png'; }}
-            />
-          </div>
-          <span className="font-serif tracking-widest text-sm font-bold text-[#002137]">
-            M<span className="text-[#DFB74A]">Λ</span>NTIF
-          </span>
-        </div>
-
-        {stage !== 'completed' && (
-          <button
-            onClick={skipIntro}
-            onMouseEnter={() => setCursorMode('hover')}
-            onMouseLeave={() => setCursorMode('default')}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#002137]/15 bg-[#FAF8F5]/80 backdrop-blur-sm hover:border-[#004B79] hover:text-[#004B79] text-[#002137] text-xs font-mono font-medium transition-all shadow-2xs"
-            aria-label="Skip Intro"
-          >
-            <span>Skip Intro</span>
-            <ArrowDown className="w-3 h-3 -rotate-90" />
-          </button>
-        )}
-      </div>
 
       {/* ── Center Stage ── */}
       <div className="relative w-full max-w-5xl flex flex-col items-center justify-center flex-1 z-10">
