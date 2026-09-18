@@ -6,7 +6,6 @@ import {
   Sparkles,
   LayoutGrid,
   Layers,
-  RotateCw,
   Play,
   Pause,
 } from 'lucide-react';
@@ -21,47 +20,35 @@ export const ServicesSection: React.FC = () => {
   const [viewMode, setViewMode] = useState<'stack' | 'grid'>('stack');
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isHoveredStack, setIsHoveredStack] = useState(false);
-  const [progress, setProgress] = useState(0);
   const touchStartXRef = useRef<number | null>(null);
 
   const totalCards = services.cards.length;
   const AUTOPLAY_INTERVAL = 2000; // Fast cadence: 2.0s per card
-  const STEP_TIME = 20; // 20ms update interval for butter-smooth progress bar
 
   const handleNext = () => {
     setActiveIndex((prev) => (prev + 1) % totalCards);
-    setProgress(0);
     soundManager.playClick();
   };
 
   const handlePrev = () => {
     setActiveIndex((prev) => (prev - 1 + totalCards) % totalCards);
-    setProgress(0);
     soundManager.playClick();
   };
 
   const handleSelectCard = (index: number) => {
     setActiveIndex(index);
-    setProgress(0);
     soundManager.playClick();
   };
 
-  // Continuous smooth auto-moving progress loop
+  // Continuous smooth auto-moving loop
   useEffect(() => {
     if (!isAutoPlay || isHoveredStack || viewMode !== 'stack') {
       return;
     }
 
     const timer = setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + (STEP_TIME / AUTOPLAY_INTERVAL) * 100;
-        if (next >= 100) {
-          setActiveIndex((curr) => (curr + 1) % totalCards);
-          return 0;
-        }
-        return next;
-      });
-    }, STEP_TIME);
+      setActiveIndex((curr) => (curr + 1) % totalCards);
+    }, AUTOPLAY_INTERVAL);
 
     return () => clearInterval(timer);
   }, [isAutoPlay, isHoveredStack, viewMode, totalCards]);
@@ -388,62 +375,6 @@ export const ServicesSection: React.FC = () => {
                   </div>
                 );
               })}
-            </div>
-
-            {/* Bottom Stack Indicators, Progress Bar, & Quick Shuffle Action */}
-            <div className="flex flex-col items-center gap-3 mt-8 sm:mt-10 z-20">
-              {/* Dynamic Auto-Moving Linear Progress Bar */}
-              {isAutoPlay && (
-                <div className="w-48 sm:w-64 h-1.5 rounded-full bg-[#002137]/10 overflow-hidden relative">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#004B79] to-[#DFB74A] rounded-full transition-all duration-75"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              )}
-
-              {/* Pagination Dots */}
-              <div className="flex items-center gap-2">
-                {services.cards.map((card, idx) => {
-                  const isActive = activeIndex === idx;
-                  const accent = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#002137';
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleSelectCard(idx)}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        isActive ? 'w-8' : 'w-2 bg-[#002137]/20 hover:bg-[#002137]/40'
-                      }`}
-                      style={{
-                        backgroundColor: isActive ? accent : undefined,
-                      }}
-                      aria-label={`Go to card ${idx + 1}`}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Status and Hint */}
-              <div className="flex items-center gap-2 font-mono text-[11px] text-[#64748B] tracking-wider uppercase">
-                <span className="font-bold text-[#002137]">0{activeIndex + 1}</span>
-                <span className="opacity-40">/</span>
-                <span>0{totalCards}</span>
-                <span className="mx-1 opacity-30">·</span>
-                <span className="text-[10px] text-[#004B79] font-semibold">
-                  {isHoveredStack ? 'PAUSED (HOVERING)' : 'AUTO-CYCLING STACK'}
-                </span>
-              </div>
-
-              {/* Quick Shuffle Action Button */}
-              <button
-                onClick={handleNext}
-                onMouseEnter={() => setCursorMode('hover')}
-                onMouseLeave={() => setCursorMode('default')}
-                className="mt-1 inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-[#002137]/15 shadow-sm font-mono text-xs font-semibold text-[#002137] hover:border-[#DFB74A] hover:bg-[#FAF8F5] transition-all active:scale-95"
-              >
-                <RotateCw className="w-3.5 h-3.5 text-[#DFB74A]" />
-                <span>Shuffle Next Card</span>
-              </button>
             </div>
           </div>
         )}
