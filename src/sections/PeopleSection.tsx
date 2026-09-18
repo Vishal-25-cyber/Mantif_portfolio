@@ -4,8 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Globe,
-  Play,
-  Pause,
 } from 'lucide-react';
 import { setCursorMode } from '../hooks/useCursor';
 import { soundManager } from '../audio/soundManager';
@@ -388,31 +386,8 @@ export const PeopleSection: React.FC = () => {
             })}
           </div>
 
-          {/* Autoplay status & next/prev buttons */}
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => {
-                setIsAutoPlay((prev) => !prev);
-                soundManager.playClick();
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[9px] text-[#64748B] hover:text-[#002137] transition-colors"
-              title={isAutoPlay ? 'Pause 2s loop' : 'Resume 2s loop'}
-            >
-              {isAutoPlay && !isHovered ? (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <Pause className="w-2.5 h-2.5" />
-                  <span>2s Loop</span>
-                </>
-              ) : (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  <Play className="w-2.5 h-2.5" />
-                  <span>Paused</span>
-                </>
-              )}
-            </button>
-
+          {/* Next/prev navigation buttons */}
+          <div className="flex items-center gap-2">
             <button
               onClick={handlePrev}
               onMouseEnter={() => {
