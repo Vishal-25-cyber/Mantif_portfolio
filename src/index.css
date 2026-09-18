@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background-color: #FAF8F5;
+    color: #002137;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Lenis recommended css */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+  .lenis.lenis-scrolling iframe {
+    pointer-events: none;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F3EFE6;
+}
+::-webkit-scrollbar-thumb {
+  background: #B89047;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #004B79;
+}
+
+/* Subtle Film Grain Texture overlay */
+.bg-grain {
+  background-image: radial-gradient(rgba(0, 33, 55, 0.04) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.bg-grain-dense {
+  background-image: radial-gradient(rgba(0, 75, 121, 0.06) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+/* Traveling Light Border for Illuminated Cards */
+@keyframes borderLight {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.traveling-border-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 280deg,
+    #004B79 320deg,
+    #DFB74A 340deg,
+    #002137 360deg
+  );
+  animation: borderLight 5s linear infinite;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.group:hover .traveling-border-glow {
+  opacity: 1;
+}
+
+
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =============================================
+   UTILITY ANIMATIONS
+   ============================================= */
+
+@keyframes fadeInAnim {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeInAnim 0.55s cubic-bezier(0.2, 0.8, 0.4, 1) both;
+}
+
+@keyframes scaleUpAnim {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-scaleUp {
+  animation: scaleUpAnim 0.65s cubic-bezier(0.2, 0.8, 0.4, 1) both;
+}
+
+/* Section headings reveal fade */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-revealUp {
+  animation: revealUp 0.7s cubic-bezier(0.2, 0.8, 0.4, 1) both;
+}
+
+/* Soft glow ring ping for handshake */
+@keyframes handshakePing {
+  0%   { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Perspective utility for 3D containers */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+/* Shadow utilities */
+.shadow-2xs {
+  box-shadow: 0 1px 2px rgba(0, 33, 55, 0.06);
+}
+.shadow-xs {
+  box-shadow: 0 2px 4px rgba(0, 33, 55, 0.08);
+}
+
+/* Prevent images from breaking layout */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* No horizontal scroll on the whole page */
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Radial gradient bg shorthand */
+.bg-radial {
+  background-image: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* ── Marquee Animations ── */
+@keyframes marqueeAnim {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.33%); }
+}
+
+@keyframes marqueeReverseAnim {
+  0%   { transform: translateX(-33.33%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee {
+  animation: marqueeAnim 20s linear infinite;
+}
+
+.animate-marqueeReverse {
+  animation: marqueeReverseAnim 22s linear infinite;
+}
+
+/* ── Line-clamp utility ── */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
