@@ -10,54 +10,51 @@ import {
 import { setCursorMode } from '../hooks/useCursor';
 import { soundManager } from '../audio/soundManager';
 
-/* ─── 3 Core Leaders Data (Founder + Core Developers) ─── */
-interface CoreLeader {
+/* ─── Real Authentic Content from MANTIF (No AI generated stats) ─── */
+interface PersonData {
   id: string;
   order: string;
   name: string;
   role: string;
-  subtitle: string;
-  category: string;
+  eyebrow: string;
   badge: string;
   accent: string;
-  secondaryAccent: string;
   cutoutImage: string;
   fallbackImage: string;
-  quote: string;
-  subquote?: string;
-  bio: string;
-  highlights: [string, string][];
+  quote?: string;
+  bioPrimary: string;
+  bioSecondary?: string;
+  milestone?: string;
+  specialtyTitle: string;
   tags: string[];
   link: string;
 }
 
-const CORE_LEADERS: CoreLeader[] = [
+const PEOPLE_DATA: PersonData[] = [
   {
     id: 'karunya',
     order: '01',
     name: 'Karunya S',
     role: 'Founder · Digital Marketing Strategist',
-    subtitle: 'Architect of MANTIF · Est. 2024',
-    category: 'FOUNDER & VISIONARY',
-    badge: 'FOUNDER & ARCHITECT',
+    eyebrow: 'FOUNDER & ARCHITECT',
+    badge: 'FOUNDER',
     accent: '#DFB74A',
-    secondaryAccent: '#004B79',
     cutoutImage: '/images/founder_karunya_clean.png',
     fallbackImage: '/images/founder_karunya.jpg',
-    quote:
-      'Education is not a passive transfer of notes, but an intimate human conversation — scaled with artificial intelligence.',
-    subquote: 'The machine illuminates patterns. The human ignites the soul.',
-    bio: 'Karunya founded MANTIF to pioneer a new pedagogical standard where educators and AI coexist seamlessly — empowering students with hyper-personalized learning without losing the vital warmth of human mentorship.',
-    highlights: [
-      ['200+', 'Students Mentored'],
-      ['5+', 'AI Workshops'],
-      ['MSME', 'Registered Startup'],
-    ],
+    quote: 'The machine illuminates patterns. The human ignites the soul.',
+    bioPrimary:
+      'Karunya began with a singular premise: that education is not a passive transfer of notes, but an intimate human conversation.',
+    bioSecondary:
+      'Starting as the lead educator at Tutoring Hub, she personally tutored students through high-stakes board examinations. As founder of MANTIF, she fuses deep pedagogy with digital marketing strategies and AI intelligence, steering the company from local classrooms to regional scale.',
+    milestone:
+      'Alumna of Kongu National Matriculation Hr Sec School — returned as Founder to empower her own former teachers with modern AI tools.',
+    specialtyTitle: 'Core Focus & Leadership',
     tags: [
-      'Venture Leadership',
-      'Pedagogical Architecture',
-      'Growth Strategy',
-      'EdTech AI',
+      'Founder',
+      'Tutoring Hub Lead',
+      'Pedagogical Systems',
+      'Digital Marketing',
+      'MSME Registered',
     ],
     link: 'https://mantif.com',
   },
@@ -66,26 +63,22 @@ const CORE_LEADERS: CoreLeader[] = [
     order: '02',
     name: 'Vishal K',
     role: 'Software Developer',
-    subtitle: 'UI Motion & Interactive Systems Architecture',
-    category: 'CORE DEVELOPMENT TEAM',
+    eyebrow: 'DEVELOPMENT TEAM · FRONTEND',
     badge: 'SOFTWARE DEVELOPER',
-    accent: '#DFB74A',
-    secondaryAccent: '#002137',
+    accent: '#004B79',
     cutoutImage: '/images/team_vishal_clean.png',
     fallbackImage: '/images/team_vishal.jpg',
-    quote: 'Every interface is a stage. Make it worth watching.',
-    subquote: 'Fluidity in design reflects precision in engineering.',
-    bio: 'Leads UI motion design, component architecture, and frontend performance engineering for the MANTIF platform. Turns complex pedagogical workflows into fluid, intuitive, and responsive human experiences.',
-    highlights: [
-      ['100%', 'Bespoke Motion Engine'],
-      ['React & GSAP', 'Interactive Systems'],
-      ['Zero-Lag', 'High-FPS Performance'],
-    ],
+    bioPrimary:
+      'Focused on creating seamless reactive frontend architectures, fluid micro-interactions, and resilient client-side state.',
+    bioSecondary:
+      'Vishal leads UI motion engineering and component architecture for the MANTIF platform, ensuring that every interface feels responsive, accessible, and extraordinarily fast.',
+    specialtyTitle: 'Engineering Specialty',
     tags: [
       'Frontend Architecture',
-      'UI Motion Systems',
-      'Interaction Design',
-      'React & Vite',
+      'Interactive Motion Systems',
+      'React & TypeScript',
+      'Tailwind CSS',
+      'Component Design',
     ],
     link: 'https://mantif.com',
   },
@@ -94,32 +87,27 @@ const CORE_LEADERS: CoreLeader[] = [
     order: '03',
     name: 'Solairaj R',
     role: 'Software Developer',
-    subtitle: 'Cloud Infrastructure & AI Systems Architecture',
-    category: 'CORE DEVELOPMENT TEAM',
+    eyebrow: 'DEVELOPMENT TEAM · BACKEND',
     badge: 'SOFTWARE DEVELOPER',
     accent: '#004B79',
-    secondaryAccent: '#DFB74A',
     cutoutImage: '/images/team_solairaj_clean.png',
     fallbackImage: '/images/team_solairaj.jpg',
-    quote: 'Reliability is the highest form of engineering elegance.',
-    subquote: 'Invisible architecture creates visible confidence.',
-    bio: 'Architects cloud microservices, database schemas, and AI inference pipelines that power MANTIF at scale. Specializes in zero-cold-start inference, robust security, and distributed backend stability.',
-    highlights: [
-      ['0-Cold-Start', 'AI Inference Speed'],
-      ['Cloud APIs', 'Microservices Architecture'],
-      ['Scalable', 'Distributed Stability'],
-    ],
+    bioPrimary:
+      'Architecting robust server infrastructure, database schemas, and AI pipeline orchestration.',
+    bioSecondary:
+      'Solairaj builds the invisible backend foundation that enables personalized student diagnostics, real-time learning metrics, and high-throughput microservices across MANTIF.',
+    specialtyTitle: 'Engineering Specialty',
     tags: [
-      'Cloud Infrastructure',
+      'Backend Infrastructure',
+      'Cloud Microservices',
+      'Database Architecture',
       'AI Pipeline Integration',
-      'Database Schemas',
-      'Distributed Systems',
+      'API Engineering',
     ],
     link: 'https://mantif.com',
   },
 ];
 
-/* ─── MAIN PEOPLE SECTION ─── */
 export const PeopleSection: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<'entering' | 'showing' | 'exiting'>('entering');
@@ -132,12 +120,19 @@ export const PeopleSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const touchTimeoutRef = useRef<number | null>(null);
 
-  const activeLeader = CORE_LEADERS[currentIndex];
-  const ENTER_DURATION = 550; // Entrance glide time
-  const HOLD_DURATION = 2000;  // User requested: "wait for 2 sec"
-  const EXIT_DURATION = 450;  // Exit glide time
+  const currentPerson = PEOPLE_DATA[currentIndex];
 
-  // Trigger when section scrolls into viewport
+  // Alternating side logic:
+  // Step 0 (Karunya): Image on RIGHT, Text on LEFT
+  // Step 1 (Vishal): Image on LEFT, Text on RIGHT
+  // Step 2 (Solairaj): Image on RIGHT, Text on LEFT
+  const isImageOnRight = currentIndex % 2 === 0;
+
+  const ENTER_DURATION = 500;
+  const HOLD_DURATION = 2000; // Exact 2-second hold requested by user
+  const EXIT_DURATION = 450;
+
+  // Viewport trigger
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -157,8 +152,7 @@ export const PeopleSection: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Main animation loop state machine:
-  // entering (550ms) -> showing (wait for 2 sec) -> exiting (450ms) -> next person -> loop!
+  // 2-Second Hold Loop State Machine
   useEffect(() => {
     if (!isAutoPlay || isHovered || isTouched || !hasEnteredView) {
       return;
@@ -189,7 +183,7 @@ export const PeopleSection: React.FC = () => {
       };
     } else if (phase === 'exiting') {
       timer = window.setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % CORE_LEADERS.length);
+        setCurrentIndex((prev) => (prev + 1) % PEOPLE_DATA.length);
         setPhase('entering');
       }, EXIT_DURATION);
     }
@@ -197,7 +191,7 @@ export const PeopleSection: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [phase, isAutoPlay, isHovered, isTouched, hasEnteredView]);
 
-  const handleSelectLeader = (index: number) => {
+  const handleSelectPerson = (index: number) => {
     if (index === currentIndex && phase === 'showing') return;
     setCurrentIndex(index);
     setPhase('entering');
@@ -206,20 +200,19 @@ export const PeopleSection: React.FC = () => {
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % CORE_LEADERS.length);
+    setCurrentIndex((prev) => (prev + 1) % PEOPLE_DATA.length);
     setPhase('entering');
     setProgress(0);
     soundManager.playClick();
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + CORE_LEADERS.length) % CORE_LEADERS.length);
+    setCurrentIndex((prev) => (prev - 1 + PEOPLE_DATA.length) % PEOPLE_DATA.length);
     setPhase('entering');
     setProgress(0);
     soundManager.playClick();
   };
 
-  // Touch handlers for mobile
   const handleTouchStart = () => {
     setIsTouched(true);
     if (touchTimeoutRef.current) {
@@ -242,68 +235,70 @@ export const PeopleSection: React.FC = () => {
       id="people"
       className="relative w-full bg-[#FAF8F5] pt-20 sm:pt-28 pb-16 sm:pb-24 overflow-hidden select-none"
     >
-      {/* Dynamic Keyframes: Image and words come from the RIGHT, hold 2s, exit, and loop */}
+      {/* Dynamic Keyframes for Alternating Sides */}
       <style>{`
-        @keyframes personComeFromRight {
+        @keyframes slideInRight {
           0% {
             opacity: 0;
-            transform: translate3d(140px, 0, 0) scale(0.96);
-            filter: blur(4px) drop-shadow(0 10px 20px rgba(0, 33, 55, 0.05));
+            transform: translate3d(90px, 0, 0) scale(0.97);
+            filter: blur(3px);
           }
           100% {
             opacity: 1;
             transform: translate3d(0, 0, 0) scale(1);
-            filter: blur(0px) drop-shadow(0 25px 35px rgba(0, 33, 55, 0.20));
+            filter: blur(0px);
           }
         }
 
-        @keyframes personGoExit {
+        @keyframes slideOutRight {
           0% {
             opacity: 1;
             transform: translate3d(0, 0, 0) scale(1);
-            filter: blur(0px) drop-shadow(0 25px 35px rgba(0, 33, 55, 0.20));
           }
           100% {
             opacity: 0;
-            transform: translate3d(-120px, 0, 0) scale(0.95);
-            filter: blur(4px) drop-shadow(0 10px 20px rgba(0, 33, 55, 0.05));
+            transform: translate3d(90px, 0, 0) scale(0.97);
+            filter: blur(3px);
           }
         }
 
-        @keyframes wordsComeFromRight {
+        @keyframes slideInLeft {
           0% {
             opacity: 0;
-            transform: translate3d(80px, 0, 0);
+            transform: translate3d(-90px, 0, 0) scale(0.97);
+            filter: blur(3px);
           }
           100% {
             opacity: 1;
-            transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0) scale(1);
+            filter: blur(0px);
           }
         }
 
-        @keyframes wordsGoExit {
+        @keyframes slideOutLeft {
           0% {
             opacity: 1;
-            transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0) scale(1);
           }
           100% {
             opacity: 0;
-            transform: translate3d(-80px, 0, 0);
+            transform: translate3d(-90px, 0, 0) scale(0.97);
+            filter: blur(3px);
           }
         }
 
-        .anim-person-enter {
-          animation: personComeFromRight 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .anim-enter-right {
+          animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .anim-person-exit {
-          animation: personGoExit 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        .anim-exit-right {
+          animation: slideOutRight 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
         }
 
-        .anim-words-enter {
-          animation: wordsComeFromRight 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.04s forwards;
+        .anim-enter-left {
+          animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .anim-words-exit {
-          animation: wordsGoExit 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        .anim-exit-left {
+          animation: slideOutLeft 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
         }
       `}</style>
 
@@ -320,18 +315,9 @@ export const PeopleSection: React.FC = () => {
         </span>
       </div>
 
-      {/* Decorative top-right architectural cross lines */}
-      <div
-        className="absolute top-8 right-8 sm:right-16 opacity-[0.07] pointer-events-none"
-        aria-hidden="true"
-      >
-        <div className="w-16 h-[1px] bg-[#002137]" />
-        <div className="w-[1px] h-16 bg-[#002137] mt-[-1px] ml-auto" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8">
         {/* Top editorial metadata strip */}
-        <div className="flex items-center justify-between mb-10 pb-4 border-b border-[#002137]/10">
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#002137]/10">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] text-[#64748B] tracking-[0.25em] uppercase">
               Chapter 03
@@ -349,56 +335,50 @@ export const PeopleSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Section Header — editorial split layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-6 mb-8">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-2">
               <span className="w-8 h-[1px] bg-[#DFB74A]" />
               <span className="font-mono text-xs font-bold tracking-widest text-[#004B79] uppercase">
                 03 / BUILT BY PEOPLE
               </span>
             </div>
-
             <h2
               className="font-serif font-bold text-[#002137] tracking-tight"
-              style={{ fontSize: 'clamp(2.5rem, 5.5vw, 5rem)' }}
+              style={{ fontSize: 'clamp(2.2rem, 5vw, 4.2rem)' }}
             >
               The Minds Shaping MANTIF.
             </h2>
           </div>
 
-          {/* Minimalist Subtitle */}
-          <div className="max-w-sm">
-            <div className="font-mono text-[10px] font-bold tracking-[0.2em] text-[#C49326] uppercase mb-1">
-              Founder & Engineering
-            </div>
-            <p className="font-sans text-xs text-[#475569] leading-relaxed">
-              From the founder pioneering empathetic learning to software developers engineering
-              resilient interactive systems.
-            </p>
+          <div className="text-right hidden sm:block">
+            <span className="font-mono text-[10px] text-[#64748B] tracking-wider uppercase font-bold">
+              Founder & Engineering Core
+            </span>
           </div>
         </div>
 
         {/* ═════════════════════════════════════════════════════════════════════════ */}
-        {/* CARD-FREE ARCHITECTURAL CONTROL BAR (HAIRLINE MINIMALIST DESIGN)          */}
+        {/* CARD-FREE MINIMALIST NAV BAR (TIGHT & BALANCED)                          */}
         {/* ═════════════════════════════════════════════════════════════════════════ */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 mb-6 border-b border-[#002137]/10">
-          {/* Segmented Leader Selector Tabs (Floating, Card-Free) */}
-          <div className="flex items-center gap-2">
-            {CORE_LEADERS.map((leader, idx) => {
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-3 mb-4 border-b border-[#002137]/10">
+          {/* Minimalist Tabs */}
+          <div className="flex items-center gap-1.5">
+            {PEOPLE_DATA.map((person, idx) => {
               const isActive = currentIndex === idx;
               return (
                 <button
-                  key={leader.id}
-                  onClick={() => handleSelectLeader(idx)}
+                  key={person.id}
+                  onClick={() => handleSelectPerson(idx)}
                   onMouseEnter={() => {
                     setCursorMode('hover');
                     soundManager.playHoverTick();
                   }}
                   onMouseLeave={() => setCursorMode('default')}
-                  className={`relative px-4 py-1.5 rounded-full font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-300 flex items-center gap-2 ${
+                  className={`px-3.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 ${
                     isActive
-                      ? 'bg-[#002137] text-white shadow-sm'
+                      ? 'bg-[#002137] text-white shadow-xs'
                       : 'text-[#64748B] hover:text-[#002137] hover:bg-[#002137]/5'
                   }`}
                 >
@@ -406,11 +386,11 @@ export const PeopleSection: React.FC = () => {
                     <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] shadow-[0_0_6px_#DFB74A]" />
                   )}
                   <span>
-                    {leader.order} · {leader.name}
+                    {person.order} · {person.name}
                   </span>
                   {idx === 0 && (
-                    <span className="hidden md:inline px-1.5 py-0.2 rounded-sm bg-[#DFB74A]/25 text-[#DFB74A] text-[8px]">
-                      FOUNDER
+                    <span className="hidden md:inline text-[#DFB74A] text-[8px] font-normal">
+                      (FOUNDER)
                     </span>
                   )}
                 </button>
@@ -418,16 +398,15 @@ export const PeopleSection: React.FC = () => {
             })}
           </div>
 
-          {/* Autoplay & Navigation Controls */}
-          <div className="flex items-center gap-3">
-            {/* Play/Pause Button */}
+          {/* Autoplay status & next/prev buttons */}
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => {
                 setIsAutoPlay((prev) => !prev);
                 soundManager.playClick();
               }}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full font-mono text-[9px] text-[#64748B] hover:text-[#002137] transition-colors"
-              title={isAutoPlay ? 'Pause auto progression' : 'Resume auto progression'}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[9px] text-[#64748B] hover:text-[#002137] transition-colors"
+              title={isAutoPlay ? 'Pause 2s loop' : 'Resume 2s loop'}
             >
               {isAutoPlay && !isHovered ? (
                 <>
@@ -444,7 +423,6 @@ export const PeopleSection: React.FC = () => {
               )}
             </button>
 
-            {/* Prev Button */}
             <button
               onClick={handlePrev}
               onMouseEnter={() => {
@@ -452,13 +430,12 @@ export const PeopleSection: React.FC = () => {
                 soundManager.playHoverTick();
               }}
               onMouseLeave={() => setCursorMode('default')}
-              className="w-8 h-8 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
-              aria-label="Previous leader"
+              className="w-7 h-7 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
+              aria-label="Previous person"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
 
-            {/* Next Button */}
             <button
               onClick={handleNext}
               onMouseEnter={() => {
@@ -466,210 +443,225 @@ export const PeopleSection: React.FC = () => {
                 soundManager.playHoverTick();
               }}
               onMouseLeave={() => setCursorMode('default')}
-              className="w-8 h-8 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
-              aria-label="Next leader"
+              className="w-7 h-7 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
+              aria-label="Next person"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
-        {/* 2-Second Hold Progress Line */}
-        <div className="w-full h-[2px] bg-[#002137]/6 rounded-full mb-10 overflow-hidden">
+        {/* 2-Second Hold Countdown Progress Line */}
+        <div className="w-full h-[2px] bg-[#002137]/6 rounded-full mb-8 overflow-hidden">
           <div
             className="h-full transition-all duration-75 ease-linear"
             style={{
               width: `${progress}%`,
-              background: `linear-gradient(to right, ${activeLeader.accent}, ${activeLeader.secondaryAccent})`,
+              backgroundColor: currentPerson.accent,
             }}
           />
         </div>
 
         {/* ═════════════════════════════════════════════════════════════════════════ */}
-        {/* OPEN ARCHITECTURAL STAGE (WITHOUT CARD) — COMES FROM RIGHT & 2 SEC LOOP  */}
+        {/* CARD-FREE OPEN STAGE — TIGHT ALIGNMENT, SNUG GAP & ALTERNATING SIDES      */}
         {/* ═════════════════════════════════════════════════════════════════════════ */}
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="relative w-full py-4 lg:py-8 min-h-[520px] lg:min-h-[580px] grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] items-center gap-10 lg:gap-16"
+          className="relative w-full max-w-5xl mx-auto py-2 min-h-[480px] sm:min-h-[520px] flex items-center justify-center"
         >
-          {/* Subtle Ambient Radial Glow on the background canvas */}
+          {/* Subtle Ambient Radial Glow */}
           <div
-            className="absolute top-1/2 right-12 -translate-y-1/2 w-[480px] h-[480px] rounded-full pointer-events-none transition-all duration-700 blur-3xl"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full pointer-events-none transition-all duration-700 blur-3xl"
             style={{
-              background: `radial-gradient(circle, ${activeLeader.accent}18 0%, ${activeLeader.secondaryAccent}08 55%, transparent 75%)`,
+              background: `radial-gradient(circle, ${currentPerson.accent}15 0%, transparent 70%)`,
             }}
           />
 
-          {/* ───────────────────────────────────────────────────────────── */}
-          {/* LEFT: The Words (Arrive with photo, hold 2s, then go)         */}
-          {/* ───────────────────────────────────────────────────────────── */}
+          {/* Symmetrical, tight-gap flex layout with alternating sides */}
           <div
-            key={activeLeader.id + '-words'}
-            className={`relative z-10 flex flex-col justify-center ${
-              phase === 'entering'
-                ? 'anim-words-enter'
-                : phase === 'exiting'
-                ? 'anim-words-exit'
-                : 'opacity-100'
-            }`}
+            className={`relative z-10 w-full flex flex-col ${
+              isImageOnRight ? 'lg:flex-row' : 'lg:flex-row-reverse'
+            } items-center justify-center gap-8 lg:gap-12`}
           >
-            {/* Eyebrow & Category */}
-            <div className="flex items-center gap-2.5 mb-2">
-              <span
-                className="font-mono text-[10px] font-bold tracking-[0.25em] uppercase"
-                style={{ color: activeLeader.accent }}
-              >
-                {activeLeader.category}
-              </span>
-              <span className="text-[#002137]/25">✦</span>
-              <span className="font-mono text-[10px] tracking-wider text-[#004B79]">
-                {activeLeader.subtitle}
-              </span>
-            </div>
-
-            {/* Name */}
-            <h3 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl text-[#002137] tracking-tight mb-1.5">
-              {activeLeader.name}
-            </h3>
-
-            {/* Role Title */}
-            <p className="font-mono text-xs sm:text-sm font-semibold text-[#004B79] tracking-wide mb-6">
-              {activeLeader.role}
-            </p>
-
-            {/* Open Editorial Quote (Card-Free) */}
+            {/* ── WORDS CONTAINER (Snug, authentic MANTIF content) ── */}
             <div
-              className="relative pl-5 py-2 border-l-2 mb-6"
-              style={{ borderColor: activeLeader.accent }}
-            >
-              <p className="font-serif italic text-base sm:text-lg text-[#002137]/90 leading-relaxed">
-                "{activeLeader.quote}"
-              </p>
-              {activeLeader.subquote && (
-                <p
-                  className="font-sans text-xs font-semibold mt-2"
-                  style={{ color: activeLeader.secondaryAccent }}
-                >
-                  — {activeLeader.subquote}
-                </p>
-              )}
-            </div>
-
-            {/* Biography Narrative */}
-            <p className="font-sans text-xs sm:text-sm text-[#475569] leading-relaxed mb-6 max-w-xl">
-              {activeLeader.bio}
-            </p>
-
-            {/* Capability & Domain Tags */}
-            <div className="flex flex-wrap gap-2 mb-8">
-              {activeLeader.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 rounded-md bg-[#002137]/5 border border-[#002137]/10 font-mono text-[9px] font-semibold text-[#334155]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            {/* Key Milestones & Platform Link */}
-            <div className="pt-6 border-t border-[#002137]/10 flex flex-wrap items-center justify-between gap-6 max-w-xl">
-              <div className="flex items-center gap-8 sm:gap-10">
-                {activeLeader.highlights.map(([val, label]) => (
-                  <div key={label}>
-                    <div className="font-serif font-bold text-[#002137] text-xl sm:text-2xl leading-none">
-                      <span style={{ color: activeLeader.accent }}>{val}</span>
-                    </div>
-                    <div className="font-mono text-[9px] text-[#64748B] mt-1 uppercase tracking-wider">
-                      {label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <a
-                href={activeLeader.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#002137] text-white hover:bg-[#004B79] font-mono text-[10px] font-semibold tracking-wider transition-all uppercase shadow-sm"
-              >
-                <Globe className="w-3 h-3" style={{ color: activeLeader.accent }} />
-                <span>mantif.com</span>
-                <ArrowUpRight className="w-3 h-3" />
-              </a>
-            </div>
-          </div>
-
-          {/* ───────────────────────────────────────────────────────────── */}
-          {/* RIGHT: Cutout Image WITHOUT BACKGROUND — Comes from RIGHT     */}
-          {/* ───────────────────────────────────────────────────────────── */}
-          <div className="relative w-full flex flex-col items-center lg:items-end justify-end h-[440px] sm:h-[500px] lg:h-[560px]">
-            {/* Subtle Architectural Orbit behind the figure */}
-            <div
-              className="absolute top-1/2 left-1/2 lg:left-auto lg:right-16 -translate-x-1/2 lg:translate-x-0 -translate-y-1/2 w-[320px] sm:w-[400px] h-[320px] sm:h-[400px] rounded-full border border-dashed border-[#002137]/10 pointer-events-none"
-              style={{ animation: 'spin 50s linear infinite' }}
-            />
-
-            {/* Soft Ambient Pedestal Floor Shadow */}
-            <div
-              className="absolute bottom-2 left-1/2 lg:left-auto lg:right-16 -translate-x-1/2 lg:translate-x-0 w-[260px] sm:w-[320px] h-[28px] rounded-full pointer-events-none"
-              style={{
-                background: `radial-gradient(ellipse at center, rgba(0, 33, 55, 0.22) 0%, rgba(223, 183, 74, 0.15) 45%, transparent 75%)`,
-                filter: 'blur(6px)',
-              }}
-            />
-
-            {/* Standing Cutout Figure (Comes from RIGHT side, waits 2 sec, then goes) */}
-            <div
-              key={activeLeader.id + '-cutout'}
-              className={`relative z-10 w-full h-full flex items-end justify-center lg:justify-end ${
+              key={currentPerson.id + '-words'}
+              className={`flex-1 max-w-xl flex flex-col justify-center ${
                 phase === 'entering'
-                  ? 'anim-person-enter'
+                  ? isImageOnRight
+                    ? 'anim-enter-left'
+                    : 'anim-enter-right'
                   : phase === 'exiting'
-                  ? 'anim-person-exit'
+                  ? isImageOnRight
+                    ? 'anim-exit-left'
+                    : 'anim-exit-right'
                   : 'opacity-100'
               }`}
             >
-              <img
-                src={activeLeader.cutoutImage}
-                alt={`${activeLeader.name} — ${activeLeader.role}`}
-                className="h-full w-auto max-h-[440px] sm:max-h-[500px] lg:max-h-[560px] object-contain object-bottom pointer-events-none select-none transition-transform duration-500 ease-out hover:scale-[1.02]"
+              {/* Category eyebrow */}
+              <div className="flex items-center gap-2 mb-1.5">
+                <span
+                  className="font-mono text-[10px] font-bold tracking-[0.25em] uppercase"
+                  style={{ color: currentPerson.accent }}
+                >
+                  {currentPerson.eyebrow}
+                </span>
+                <span className="text-[#002137]/25">✦</span>
+                <span className="font-mono text-[10px] tracking-wider text-[#64748B]">
+                  0{currentIndex + 1} of 03
+                </span>
+              </div>
+
+              {/* Name */}
+              <h3 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-[#002137] tracking-tight mb-1">
+                {currentPerson.name}
+              </h3>
+
+              {/* Role */}
+              <p className="font-mono text-xs sm:text-sm font-semibold text-[#004B79] tracking-wide mb-4">
+                {currentPerson.role}
+              </p>
+
+              {/* Authentic Quote if Karunya */}
+              {currentPerson.quote && (
+                <div
+                  className="relative pl-4 py-1.5 border-l-2 mb-4"
+                  style={{ borderColor: currentPerson.accent }}
+                >
+                  <p className="font-serif italic text-sm sm:text-base text-[#002137]/90 leading-relaxed">
+                    "{currentPerson.quote}"
+                  </p>
+                </div>
+              )}
+
+              {/* Primary Narrative */}
+              <p className="font-sans text-xs sm:text-sm text-[#334155] leading-relaxed mb-3">
+                {currentPerson.bioPrimary}
+              </p>
+
+              {/* Secondary Narrative */}
+              {currentPerson.bioSecondary && (
+                <p className="font-sans text-xs sm:text-sm text-[#475569] leading-relaxed mb-4">
+                  {currentPerson.bioSecondary}
+                </p>
+              )}
+
+              {/* Real Milestone (Kongu Alma Mater) */}
+              {currentPerson.milestone && (
+                <div className="p-3 rounded-xl bg-[#002137]/5 border border-[#002137]/8 mb-4">
+                  <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#C49326] block mb-0.5">
+                    Classroom Heritage
+                  </span>
+                  <p className="font-sans text-xs text-[#334155] leading-snug">
+                    {currentPerson.milestone}
+                  </p>
+                </div>
+              )}
+
+              {/* Real Skills & Core Focus Tags */}
+              <div className="mb-6">
+                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#64748B] block mb-2">
+                  {currentPerson.specialtyTitle}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {currentPerson.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2.5 py-0.5 rounded-md bg-[#002137]/5 border border-[#002137]/10 font-mono text-[9px] font-semibold text-[#334155]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Platform Link */}
+              <div className="pt-3 border-t border-[#002137]/10 flex items-center justify-between">
+                <span className="font-mono text-[10px] text-[#64748B]">
+                  Verified MANTIF Leadership
+                </span>
+                <a
+                  href={currentPerson.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#002137] text-white hover:bg-[#004B79] font-mono text-[10px] font-semibold tracking-wider transition-all uppercase shadow-xs"
+                >
+                  <Globe className="w-3 h-3" style={{ color: currentPerson.accent }} />
+                  <span>mantif.com</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* ── STANDING CUTOUT IMAGE (WITHOUT BACKGROUND, ALTERNATING SIDE ENTRANCE) ── */}
+            <div
+              className={`w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[340px] shrink-0 flex flex-col items-center justify-end h-[420px] sm:h-[480px] lg:h-[520px] relative`}
+            >
+              {/* Soft Ambient Pedestal Floor Shadow */}
+              <div
+                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[240px] sm:w-[280px] h-[24px] rounded-full pointer-events-none"
                 style={{
-                  filter: 'drop-shadow(0 25px 35px rgba(0, 33, 55, 0.20))',
-                }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = activeLeader.fallbackImage;
+                  background: `radial-gradient(ellipse at center, rgba(0, 33, 55, 0.22) 0%, rgba(223, 183, 74, 0.15) 45%, transparent 75%)`,
+                  filter: 'blur(6px)',
                 }}
               />
 
-              {/* Floating Role Badge pill */}
-              <div className="absolute -bottom-3 left-1/2 lg:left-auto lg:right-28 -translate-x-1/2 lg:translate-x-0 z-20 whitespace-nowrap">
-                <span
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-white font-mono text-[9px] font-bold tracking-[0.2em] uppercase shadow-lg border"
+              {/* Cutout Figure with Directional Entrance */}
+              <div
+                key={currentPerson.id + '-cutout'}
+                className={`relative z-10 w-full h-full flex items-end justify-center ${
+                  phase === 'entering'
+                    ? isImageOnRight
+                      ? 'anim-enter-right'
+                      : 'anim-enter-left'
+                    : phase === 'exiting'
+                    ? isImageOnRight
+                      ? 'anim-exit-right'
+                      : 'anim-exit-left'
+                    : 'opacity-100'
+                }`}
+              >
+                <img
+                  src={currentPerson.cutoutImage}
+                  alt={`${currentPerson.name} — ${currentPerson.role}`}
+                  className="h-full w-auto max-h-[420px] sm:max-h-[480px] lg:max-h-[520px] object-contain object-bottom pointer-events-none select-none transition-transform duration-500 ease-out hover:scale-[1.02]"
                   style={{
-                    background: '#002137',
-                    borderColor: `${activeLeader.accent}60`,
+                    filter: 'drop-shadow(0 20px 30px rgba(0, 33, 55, 0.20))',
                   }}
-                >
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = currentPerson.fallbackImage;
+                  }}
+                />
+
+                {/* Floating Role Badge */}
+                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap">
                   <span
-                    className="w-1.5 h-1.5 rounded-full"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white font-mono text-[9px] font-bold tracking-[0.2em] uppercase shadow-md border"
                     style={{
-                      backgroundColor: activeLeader.accent,
-                      boxShadow: `0 0 6px ${activeLeader.accent}`,
+                      background: '#002137',
+                      borderColor: `${currentPerson.accent}60`,
                     }}
-                  />
-                  {activeLeader.badge}
-                </span>
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{
+                        backgroundColor: currentPerson.accent,
+                        boxShadow: `0 0 6px ${currentPerson.accent}`,
+                      }}
+                    />
+                    {currentPerson.badge}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom credentials strip */}
-        <div className="mt-14 pt-6 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-mono text-[#64748B]">
+        {/* Bottom credentials bar */}
+        <div className="mt-12 pt-6 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-mono text-[#64748B]">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#DFB74A]" />
             <span>MANTIF is an MSME-registered EdTech startup — Tamil Nadu, India.</span>
