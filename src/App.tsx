@@ -31,8 +31,34 @@ export function App() {
     }
   }, [isIntroActive]);
 
-  // While intro is active/playing, navbar must NOT show under any circumstances
-  const hideNavbar = isIntroActive;
+  // Track if user has scrolled past the intro into content sections
+  const [isPastIntro, setIsPastIntro] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.scrollY > 400;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const past = window.scrollY > 400;
+          setIsPastIntro(past);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // While in intro (animation playing OR viewing intro section), navbar must NEVER show
+  const hideNavbar = isIntroActive || !isPastIntro;
 
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#002137] overflow-x-hidden selection:bg-[#004B79] selection:text-[#FAF8F5]">

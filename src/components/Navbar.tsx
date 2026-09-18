@@ -8,7 +8,12 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.scrollY > 350;
+    }
+    return false;
+  });
   const [isMuted, setIsMuted] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -18,15 +23,18 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // Auto-hide when scrolling down, show when scrolling up
-      if (currentScrollY > 150) {
+      // While on the intro section (top of page), navbar must NOT show
+      if (currentScrollY < 350) {
+        setIsVisible(false);
+      } else if (currentScrollY > 150) {
+        // Auto-hide when scrolling down, show when scrolling up
         if (currentScrollY > lastScrollY && !mobileMenuOpen) {
           setIsVisible(false);
         } else {
           setIsVisible(true);
         }
       } else {
-        setIsVisible(true);
+        setIsVisible(false);
       }
       setLastScrollY(currentScrollY);
 
