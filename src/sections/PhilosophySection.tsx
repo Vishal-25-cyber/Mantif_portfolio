@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Volume2,
   VolumeX,
-  Sparkles,
 } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
 import { setCursorMode } from '../hooks/useCursor';
@@ -28,24 +27,36 @@ const MOVIE_ENTRY_WORDS = [
   { text: 'do?', isMantif: false },
 ];
 
-let globalCharCounter = 0;
-const PROCESSED_ENTRY_WORDS = MOVIE_ENTRY_WORDS.map((wordObj) => {
-  const letters = wordObj.text.split('').map((char) => {
-    const idx = globalCharCounter++;
-    return { char, idx };
+const PROCESSED_ENTRY_WORDS: {
+  word: string;
+  isMantif: boolean;
+  letters: { char: string; idx: number }[];
+}[] = [];
+
+let runningCharIdx = 0;
+MOVIE_ENTRY_WORDS.forEach((item, wIndex) => {
+  const letters = item.text.split('').map((char) => ({
+    char,
+    idx: runningCharIdx++,
+  }));
+  PROCESSED_ENTRY_WORDS.push({
+    word: item.text,
+    isMantif: item.isMantif,
+    letters,
   });
-  // Inter-word space step
-  globalCharCounter++;
-  return { ...wordObj, letters };
+  if (wIndex < MOVIE_ENTRY_WORDS.length - 1) {
+    runningCharIdx++;
+  }
 });
-const TOTAL_ENTRY_STEPS = globalCharCounter;
+
+const TOTAL_ENTRY_STEPS = runningCharIdx;
 
 export const PhilosophySection: React.FC = () => {
   const [phase, setPhase] = useState<CinematicPhase>('typewriter');
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [isMuted, setIsMuted] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
-  // ── ACT 1: LETTER-BY-LETTER MOVIE ENTRY STATE ──
+  // ── ACT 1: TYPEWRITER FLY-IN LETTERS STATE ──
   const [typedCharsCount, setTypedCharsCount] = useState<number>(0);
   const [typewriterFading, setTypewriterFading] = useState<boolean>(false);
 
@@ -53,7 +64,6 @@ export const PhilosophySection: React.FC = () => {
 
   // ── ACT 3: TRANSFORMATION STATE ──
   const [morphProgress, setMorphProgress] = useState<number>(0); // 0 (Ancient) to 1 (Modern AI)
-  const [transformTextStep, setTransformTextStep] = useState<number>(0);
 
   // ── ACT 4: TOTALLY CLOSE STATE ──
   const [curtainClosed, setCurtainClosed] = useState<boolean>(false);
@@ -138,18 +148,17 @@ export const PhilosophySection: React.FC = () => {
   }, [phase, isPlaying]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ACT 3: SMOOTH RAPID TRANSFORMATION (GURU & STUDENTS → AI & LAPTOP LEARNERS)
+  // ACT 3: SMOOTH TRANSFORMATION AT NORMAL NATURAL SPEED
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (phase !== 'transformation') return;
 
     setMorphProgress(0);
-    setTransformTextStep(0);
     soundManager.playDigitalMorphSweep();
 
-    // Fast, smooth continuous morph from 0.0 to 1.0 over 2.4s
+    // Normal, natural continuous morph from 0.0 to 1.0 over 3.5s
     const startTime = Date.now();
-    const duration = 2400;
+    const duration = 3500;
 
     const morphInterval = window.setInterval(() => {
       if (!isPlaying) return;
@@ -162,22 +171,15 @@ export const PhilosophySection: React.FC = () => {
       }
     }, 25);
 
-    const t1 = window.setTimeout(() => setTransformTextStep(1), 350);
-    const t2 = window.setTimeout(() => setTransformTextStep(2), 1000);
-    const t3 = window.setTimeout(() => setTransformTextStep(3), 1700);
-
-    // After transformation finishes and holds briefly, trigger the screen closing
+    // After transformation reaches 100% and holds modern classroom, close the screen
     const closeTrigger = window.setTimeout(() => {
       if (isPlaying) {
         setPhase('closing');
       }
-    }, 3200);
+    }, 4400);
 
     return () => {
       window.clearInterval(morphInterval);
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-      window.clearTimeout(t3);
       window.clearTimeout(closeTrigger);
     };
   }, [phase, isPlaying]);
@@ -575,42 +577,6 @@ export const PhilosophySection: React.FC = () => {
 
 
 
-            {/* ── TRANSFORMATION TEXT REVEAL (ACT 3) ── */}
-            {phase === 'transformation' && (
-              <div className="absolute inset-x-0 bottom-6 sm:bottom-10 z-20 px-6 max-w-2xl mx-auto text-center">
-                <div className="p-5 sm:p-6 rounded-2xl bg-black/80 border border-white/15 backdrop-blur-md shadow-2xl flex flex-col items-center gap-2">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#DFB74A]" />
-                    <span className="font-mono text-[9px] tracking-[0.25em] text-[#38BDF8] uppercase font-bold">
-                      {morphProgress < 0.5 ? 'ANCIENT GURU → AI MENTOR' : 'STUDENTS → DIGITAL LEARNING'}
-                    </span>
-                  </div>
-
-                  <p
-                    className={`font-serif text-xl sm:text-2xl text-[#FAF8F5] transition-all duration-700 ${
-                      transformTextStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-                    }`}
-                  >
-                    "Education didn't disappear."
-                  </p>
-
-                  <p
-                    className={`font-serif font-bold text-2xl sm:text-4xl text-[#DFB74A] transition-all duration-700 ${
-                      transformTextStep >= 2 ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-                    }`}
-                  >
-                    "It evolved."
-                  </p>
-
-                  {transformTextStep >= 3 && (
-                    <span className="font-mono text-[9px] tracking-[0.2em] text-[#38BDF8] uppercase animate-fadeIn">
-                      Interactive Intelligence · Personalized Pacing · Boundless Classrooms
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* ── CINEMATIC SHUTTERS / CURTAINS: TOTALLY CLOSE THAT (ACT 4) ── */}
             {phase === 'closing' && (
               <div className="absolute inset-0 z-40 pointer-events-none overflow-hidden flex">
@@ -630,17 +596,6 @@ export const PhilosophySection: React.FC = () => {
                     transform: curtainClosed ? 'translateX(0%)' : 'translateX(100%)',
                   }}
                 />
-
-                {/* Center Golden Meeting Seal */}
-                <div
-                  className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 transition-opacity duration-500 ${
-                    curtainClosed ? 'opacity-100' : 'opacity-0'
-                  }`}
-                >
-                  <span className="px-3.5 py-1.5 rounded-full bg-black/90 border border-[#DFB74A] text-[#DFB74A] font-mono text-[9px] font-bold tracking-[0.25em] uppercase shadow-2xl">
-                    ✦ TRANSFORMATION COMPLETE ✦
-                  </span>
-                </div>
               </div>
             )}
           </div>
