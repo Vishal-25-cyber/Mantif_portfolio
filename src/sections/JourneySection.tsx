@@ -20,7 +20,7 @@ type SceneMode = 'opening' | 'title' | 'chapter_content';
 
 export const JourneySection: React.FC = () => {
   const { journey } = siteContent;
-  const [sceneMode, setSceneMode] = useState<SceneMode>('chapter_content');
+  const [sceneMode, setSceneMode] = useState<SceneMode>('opening');
   const [activeChapterIdx, setActiveChapterIdx] = useState<number>(0);
   // Auto-play is ENABLED by default so the theatre movie starts and moves automatically!
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
@@ -126,22 +126,62 @@ export const JourneySection: React.FC = () => {
     soundManager.playRopePluck(240 + idx * 45);
   }, []);
 
-  // When user clicks to view Journey from Navbar, restart from the first chapter
+  const resetJourneyToFirst = useCallback(() => {
+    if (closingTimeoutRef.current) window.clearTimeout(closingTimeoutRef.current);
+    if (reopenTimeoutRef.current) window.clearTimeout(reopenTimeoutRef.current);
+    setIsCurtainClosed(false);
+    setActiveChapterIdx(0);
+    setSelectedGalleryIdx(0);
+    setSceneMode('opening'); // Always start from PROLOGUE!
+    setAnimKey((k) => k + 1);
+  }, []);
+
+  // When user clicks to view Journey from Navbar, restart from PROLOGUE
   useEffect(() => {
     const handleSectionView = (e: any) => {
       if (e?.detail?.sectionId === 'journey') {
-        if (closingTimeoutRef.current) window.clearTimeout(closingTimeoutRef.current);
-        if (reopenTimeoutRef.current) window.clearTimeout(reopenTimeoutRef.current);
-        setIsCurtainClosed(false);
-        setActiveChapterIdx(0);
-        setSelectedGalleryIdx(0);
-        setSceneMode('chapter_content');
-        setAnimKey((k) => k + 1);
+        resetJourneyToFirst();
       }
     };
     window.addEventListener('mantif:section-view', handleSectionView as EventListener);
-    return () => window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
-  }, []);
+
+    const handleHash = () => {
+      if (window.location.hash === '#journey') {
+        resetJourneyToFirst();
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+
+    return () => {
+      window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+      window.removeEventListener('hashchange', handleHash);
+    };
+  }, [resetJourneyToFirst]);
+
+  // When scrolling into Journey after being out of view, automatically restart from PROLOGUE
+  useEffect(() => {
+    const sectionEl = sectionRef.current;
+    if (!sectionEl) return;
+
+    let hasBeenOutOfView = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.intersectionRatio < 0.15) {
+            hasBeenOutOfView = true;
+          } else if (entry.intersectionRatio >= 0.45 && hasBeenOutOfView) {
+            hasBeenOutOfView = false;
+            resetJourneyToFirst();
+          }
+        }
+      },
+      { threshold: [0.1, 0.45] }
+    );
+
+    observer.observe(sectionEl);
+    return () => observer.disconnect();
+  }, [resetJourneyToFirst]);
 
   /* ─── Theatrical Screen Close after Chapter F & Restart From Title Card ─── */
   const closeScreenAndRestartFromTitle = useCallback(() => {
@@ -346,7 +386,7 @@ export const JourneySection: React.FC = () => {
                   }}
                   onClick={() => {
                     if (tab.id === 'chapter_content') {
-                      goToChapter(activeChapterIdx);
+                      goToChapter(0);
                     } else {
                       setSceneMode(tab.id);
                       setAnimKey((k) => k + 1);

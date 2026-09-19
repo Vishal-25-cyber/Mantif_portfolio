@@ -139,17 +139,26 @@ export const PeopleSection: React.FC = () => {
     preloadImages(CRITICAL_IMAGES);
   }, []);
 
-  // Viewport trigger
+  // Viewport trigger & auto-restart from first person when scrolled into view
   useEffect(() => {
+    let hasBeenOutOfView = false;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          if (entry.intersectionRatio < 0.15) {
+            hasBeenOutOfView = true;
+          } else if (entry.intersectionRatio >= 0.45 && hasBeenOutOfView) {
+            hasBeenOutOfView = false;
+            setCurrentIndex(0);
+            setPhase('entering');
+          }
           if (entry.isIntersecting) {
             setHasEnteredView(true);
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: [0.1, 0.45] }
     );
 
     if (sectionRef.current) {
@@ -159,7 +168,7 @@ export const PeopleSection: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // When user clicks to view People from Navbar, restart from the first person
+  // When user clicks to view People from Navbar or URL hash, restart from the first person
   useEffect(() => {
     const handleSectionView = (e: any) => {
       if (e?.detail?.sectionId === 'people') {
@@ -168,7 +177,19 @@ export const PeopleSection: React.FC = () => {
       }
     };
     window.addEventListener('mantif:section-view', handleSectionView as EventListener);
-    return () => window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+
+    const handleHash = () => {
+      if (window.location.hash === '#people') {
+        setCurrentIndex(0);
+        setPhase('entering');
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+
+    return () => {
+      window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+      window.removeEventListener('hashchange', handleHash);
+    };
   }, []);
 
   // 2-Second Hold Loop State Machine (Zero re-renders during hold, GPU handles countdown)

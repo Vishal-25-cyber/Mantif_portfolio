@@ -103,6 +103,28 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
     return clearTimers;
   }, []);
 
+  // When user clicks to view Intro from Navbar, restart animation from the very first walking stage
+  useEffect(() => {
+    const handleSectionView = (e: any) => {
+      if (e?.detail?.sectionId === 'intro') {
+        startSequence();
+      }
+    };
+    window.addEventListener('mantif:section-view', handleSectionView as EventListener);
+
+    const handleHash = () => {
+      if (window.location.hash === '#intro' || window.location.hash === '') {
+        startSequence();
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+
+    return () => {
+      window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+      window.removeEventListener('hashchange', handleHash);
+    };
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (stage !== 'completed' && (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter')) {

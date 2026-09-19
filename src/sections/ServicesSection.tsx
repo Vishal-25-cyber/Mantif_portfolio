@@ -16,6 +16,7 @@ export const ServicesSection: React.FC = () => {
   const [isHoveredStack, setIsHoveredStack] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
   const [shuffleStep, setShuffleStep] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
   const touchStartXRef = useRef<number | null>(null);
   const touchTimeoutRef = useRef<number | null>(null);
 
@@ -64,7 +65,7 @@ export const ServicesSection: React.FC = () => {
     return () => clearInterval(timer);
   }, [isAutoPlay, isHoveredStack, isTouched, totalCards]);
 
-  // When user clicks to view Services from Navbar, restart from the first service card
+  // When user clicks to view Services from Navbar or URL hash, restart from the first service card
   useEffect(() => {
     const handleSectionView = (e: any) => {
       if (e?.detail?.sectionId === 'services') {
@@ -73,7 +74,45 @@ export const ServicesSection: React.FC = () => {
       }
     };
     window.addEventListener('mantif:section-view', handleSectionView as EventListener);
-    return () => window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+
+    const handleHash = () => {
+      if (window.location.hash === '#services') {
+        setActiveIndex(0);
+        setShuffleStep(0);
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+
+    return () => {
+      window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+      window.removeEventListener('hashchange', handleHash);
+    };
+  }, []);
+
+  // When scrolling into Services after being out of view, automatically restart from card 0
+  useEffect(() => {
+    const sectionEl = sectionRef.current;
+    if (!sectionEl) return;
+
+    let hasBeenOutOfView = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.intersectionRatio < 0.15) {
+            hasBeenOutOfView = true;
+          } else if (entry.intersectionRatio >= 0.45 && hasBeenOutOfView) {
+            hasBeenOutOfView = false;
+            setActiveIndex(0);
+            setShuffleStep(0);
+          }
+        }
+      },
+      { threshold: [0.1, 0.45] }
+    );
+
+    observer.observe(sectionEl);
+    return () => observer.disconnect();
   }, []);
 
   // Touch handlers for mobile / touch devices — touches stop the auto-shuffle
@@ -111,6 +150,7 @@ export const ServicesSection: React.FC = () => {
 
   return (
     <section
+      ref={sectionRef}
       id="services"
       className="relative w-full min-h-screen lg:h-[100dvh] lg:max-h-[100dvh] bg-[#FAF8F5] pt-14 sm:pt-16 pb-3 sm:pb-4 px-4 sm:px-8 overflow-hidden select-none flex flex-col justify-between"
     >
