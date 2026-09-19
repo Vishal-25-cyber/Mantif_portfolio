@@ -99,6 +99,9 @@ export const PhilosophySection: React.FC = () => {
   // ── ACT 3: THE PLEDGE SEPARATELY STATE ──
   const [pledgeRevealedStep, setPledgeRevealedStep] = useState<number>(0);
 
+  // Cycle key to guarantee re-running animations from step 1 on every click/view
+  const [animCycleKey, setAnimCycleKey] = useState<number>(0);
+
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animFrameRef = useRef<number | null>(null);
@@ -143,7 +146,7 @@ export const PhilosophySection: React.FC = () => {
     }, 110); // 110ms per letter: cinematic cadence
 
     return () => window.clearInterval(interval);
-  }, [phase, isPlaying]);
+  }, [phase, isPlaying, animCycleKey]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ACT 2: SINGLE SMOOTH CONTINUOUS TRANSFORMATION (GURUKULAM → MODERN AI)
@@ -199,10 +202,10 @@ export const PhilosophySection: React.FC = () => {
       window.clearTimeout(timeoutToPledge);
       if (animFrame) cancelAnimationFrame(animFrame);
     };
-  }, [phase, isPlaying]);
+  }, [phase, isPlaying, animCycleKey]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ACT 5: DISPLAY THE PLEDGE SEPARATELY
+  // ACT 3: DISPLAY THE PLEDGE SEPARATELY
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (phase !== 'pledge') return;
@@ -220,7 +223,7 @@ export const PhilosophySection: React.FC = () => {
     }
 
     return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [phase]);
+  }, [phase, animCycleKey]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // FLOATING PARTICLE CANVAS (Cybernetic Light Grid during transformation)
@@ -302,14 +305,80 @@ export const PhilosophySection: React.FC = () => {
 
   const handleRestartAll = () => {
     setPhase('typewriter');
+    setTypedCharsCount(0);
+    setTypewriterFading(false);
+    setMorphProgress(0);
+    setStageFading(false);
+    setPledgeRevealedStep(0);
     setIsPlaying(true);
-    soundManager.playClick();
+    setAnimCycleKey((k) => k + 1);
   };
 
   const handleSkipToPhase = (targetPhase: CinematicPhase) => {
-    setPhase(targetPhase);
     soundManager.playClick();
+    if (targetPhase === 'typewriter') {
+      setPhase('typewriter');
+      setTypedCharsCount(0);
+      setTypewriterFading(false);
+      setAnimCycleKey((k) => k + 1);
+    } else if (targetPhase === 'transformation') {
+      setPhase('transformation');
+      setMorphProgress(0);
+      setStageFading(false);
+      setAnimCycleKey((k) => k + 1);
+    } else if (targetPhase === 'pledge') {
+      setPhase('pledge');
+      setPledgeRevealedStep(0);
+      setAnimCycleKey((k) => k + 1);
+    }
   };
+
+  // When user clicks to view Philosophy from Navbar or URL hash, start animation from the first
+  useEffect(() => {
+    const handleSectionView = (e: any) => {
+      if (e?.detail?.sectionId === 'philosophy') {
+        handleRestartAll();
+      }
+    };
+    window.addEventListener('mantif:section-view', handleSectionView as EventListener);
+
+    const handleHash = () => {
+      if (window.location.hash === '#philosophy') {
+        handleRestartAll();
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+
+    return () => {
+      window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+      window.removeEventListener('hashchange', handleHash);
+    };
+  }, []);
+
+  // When scrolling into Philosophy after being out of view, automatically start from the first
+  useEffect(() => {
+    const sectionEl = sectionRef.current;
+    if (!sectionEl) return;
+
+    let hasBeenOutOfView = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.intersectionRatio < 0.15) {
+            hasBeenOutOfView = true;
+          } else if (entry.intersectionRatio >= 0.45 && hasBeenOutOfView) {
+            hasBeenOutOfView = false;
+            handleRestartAll();
+          }
+        }
+      },
+      { threshold: [0.1, 0.45] }
+    );
+
+    observer.observe(sectionEl);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section

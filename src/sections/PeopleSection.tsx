@@ -159,6 +159,18 @@ export const PeopleSection: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
+  // When user clicks to view People from Navbar, restart from the first person
+  useEffect(() => {
+    const handleSectionView = (e: any) => {
+      if (e?.detail?.sectionId === 'people') {
+        setCurrentIndex(0);
+        setPhase('entering');
+      }
+    };
+    window.addEventListener('mantif:section-view', handleSectionView as EventListener);
+    return () => window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+  }, []);
+
   // 2-Second Hold Loop State Machine (Zero re-renders during hold, GPU handles countdown)
   useEffect(() => {
     if (!isAutoPlay || isHovered || isTouched || !hasEnteredView) {

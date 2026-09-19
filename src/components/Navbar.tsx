@@ -74,6 +74,14 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
     } catch {
       // ignore
     }
+
+    // Notify all sections that user clicked to view this section so animations start from the first
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('mantif:section-view', { detail: { sectionId: id } })
+      );
+    }
+
     const element = document.getElementById(id);
     if (element) {
       const lenis = (window as any).__lenis;

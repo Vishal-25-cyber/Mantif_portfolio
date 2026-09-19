@@ -64,6 +64,18 @@ export const ServicesSection: React.FC = () => {
     return () => clearInterval(timer);
   }, [isAutoPlay, isHoveredStack, isTouched, totalCards]);
 
+  // When user clicks to view Services from Navbar, restart from the first service card
+  useEffect(() => {
+    const handleSectionView = (e: any) => {
+      if (e?.detail?.sectionId === 'services') {
+        setActiveIndex(0);
+        setShuffleStep(0);
+      }
+    };
+    window.addEventListener('mantif:section-view', handleSectionView as EventListener);
+    return () => window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
+  }, []);
+
   // Touch handlers for mobile / touch devices — touches stop the auto-shuffle
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsTouched(true);

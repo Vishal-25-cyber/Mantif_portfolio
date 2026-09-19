@@ -121,13 +121,26 @@ export const JourneySection: React.FC = () => {
     setIsCurtainClosed(false);
     setActiveChapterIdx(idx);
     setSelectedGalleryIdx(0);
-    setSceneMode((prev) => {
-      if (prev !== 'chapter_content') {
+    setSceneMode('chapter_content');
+    setAnimKey((k) => k + 1); // Always restart animation from the first for this chapter
+    soundManager.playRopePluck(240 + idx * 45);
+  }, []);
+
+  // When user clicks to view Journey from Navbar, restart from the first chapter
+  useEffect(() => {
+    const handleSectionView = (e: any) => {
+      if (e?.detail?.sectionId === 'journey') {
+        if (closingTimeoutRef.current) window.clearTimeout(closingTimeoutRef.current);
+        if (reopenTimeoutRef.current) window.clearTimeout(reopenTimeoutRef.current);
+        setIsCurtainClosed(false);
+        setActiveChapterIdx(0);
+        setSelectedGalleryIdx(0);
+        setSceneMode('chapter_content');
         setAnimKey((k) => k + 1);
       }
-      return 'chapter_content';
-    });
-    soundManager.playRopePluck(240 + idx * 45);
+    };
+    window.addEventListener('mantif:section-view', handleSectionView as EventListener);
+    return () => window.removeEventListener('mantif:section-view', handleSectionView as EventListener);
   }, []);
 
   /* ─── Theatrical Screen Close after Chapter F & Restart From Title Card ─── */
