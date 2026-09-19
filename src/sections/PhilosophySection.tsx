@@ -363,17 +363,24 @@ export const PhilosophySection: React.FC = () => {
         }
       `}</style>
 
+      {/* Ghost big number backdrop alone */}
+      <div
+        className="absolute top-4 sm:top-8 left-4 sm:left-10 pointer-events-none select-none z-0"
+        aria-hidden="true"
+      >
+        <span
+          className="font-serif font-bold text-[18vw] text-[#DFB74A] leading-none"
+          style={{ opacity: 0.05 }}
+        >
+          05
+        </span>
+      </div>
+
       {/* ═══════════════════════════════════════════════════════════════════════ */}
-      {/* MINIMAL TOP UTILITIES (SOUND TOGGLE & CLEAN CHAPTER INDICATOR)          */}
+      {/* MINIMAL TOP UTILITIES (SOUND TOGGLE & QUICK ACT CONTROLS)               */}
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       <div className="relative z-40 w-full max-w-7xl mx-auto px-4 sm:px-8 pt-4 pb-2 flex items-center justify-between shrink-0">
-        {/* Discreet Chapter Stamp */}
-        <div className="flex items-center gap-2.5">
-          <span className="w-2 h-2 rounded-full bg-[#DFB74A] shadow-[0_0_8px_#DFB74A]" />
-          <span className="font-mono text-[9px] sm:text-[10px] font-bold tracking-[0.25em] text-[#DFB74A] uppercase">
-            CHAPTER 05 · HISTORICAL EVOLUTION
-          </span>
-        </div>
+        <div />
 
         {/* Minimal Audio & Progress Navigation */}
         <div className="flex items-center gap-3">

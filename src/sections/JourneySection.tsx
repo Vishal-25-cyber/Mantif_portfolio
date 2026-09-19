@@ -1118,20 +1118,6 @@ export const JourneySection: React.FC = () => {
           </svg>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════════════════ */}
-        {/* 5. AUDITORIUM FOOTER NOTES & TIME TICK                                 */}
-        {/* ═══════════════════════════════════════════════════════════════════════ */}
-        <div className="w-full max-w-[1400px] pt-1 border-t border-white/[0.05] flex items-center justify-between text-[8px] sm:text-[9px] font-mono text-white/40 shrink-0">
-          <div className="flex items-center gap-1.5">
-            <Film className="w-3 h-3 text-[#DFB74A]" />
-            <span>MANTIF CINEMATIC ARCHIVE · AUTOMATED MOVIE REEL</span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="hidden sm:inline">[← / →] PREV/NEXT · [SPACE] PAUSE · CLICK LETTER TO JUMP</span>
-            <span className="text-white/20 hidden sm:inline">|</span>
-            <span className="text-[#DFB74A]">MANTIF.COM</span>
-          </div>
-        </div>
       </div>
 
       {/* High-Resolution Media Reveal Modal */}
