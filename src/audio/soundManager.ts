@@ -163,6 +163,191 @@ class SoundEngine {
     if (this.isMuted) return;
     this.playChime(640, 'triangle', 0.12, 0.05);
   }
+
+  /**
+   * Old mechanical typewriter / printing press key strike
+   * Synthesizes mechanical key strike + cast-iron press thud + metallic paper impact
+   */
+  public playTypewriterKey(jitter = 0) {
+    if (this.isMuted || !this.ctx || !this.masterGain) return;
+    try {
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+
+      // 1. Heavy cast-iron press bed impact (deep physical thud)
+      const thudOsc = this.ctx.createOscillator();
+      const thudGain = this.ctx.createGain();
+      const thudFreq = 120 + (jitter % 4) * 15;
+
+      thudOsc.type = 'sine';
+      thudOsc.frequency.setValueAtTime(thudFreq, now);
+      thudOsc.frequency.exponentialRampToValueAtTime(40, now + 0.08);
+
+      thudGain.gain.setValueAtTime(0.14, now);
+      thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+
+      thudOsc.connect(thudGain);
+      thudGain.connect(this.masterGain);
+
+      thudOsc.start(now);
+      thudOsc.stop(now + 0.1);
+
+      // 2. Paper & ink friction noise burst
+      const bufferSize = Math.floor(this.ctx.sampleRate * 0.04); // 40ms
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.22));
+      }
+      const noiseNode = this.ctx.createBufferSource();
+      noiseNode.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1600 + (jitter % 5) * 90, now);
+      filter.Q.setValueAtTime(2.8, now);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.12, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+
+      noiseNode.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(this.masterGain);
+
+      noiseNode.start(now);
+      noiseNode.stop(now + 0.05);
+
+      // 3. Resonant metallic mechanical type strike
+      const osc = this.ctx.createOscillator();
+      const oscGain = this.ctx.createGain();
+      const strikeFreq = 720 + (jitter % 7) * 55;
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(strikeFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(strikeFreq * 0.55, now + 0.07);
+
+      oscGain.gain.setValueAtTime(0.08, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
+      osc.connect(oscGain);
+      oscGain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 0.09);
+    } catch {
+      // Ignore
+    }
+  }
+
+  /**
+   * Futuristic Digital Neural-Network Morph Sweep
+   */
+  public playDigitalMorphSweep() {
+    if (this.isMuted || !this.ctx || !this.masterGain) return;
+    try {
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      const now = this.ctx.currentTime;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(280, now);
+      osc.frequency.exponentialRampToValueAtTime(1180, now + 0.6);
+
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.06, now + 0.25);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 0.75);
+
+      // Shimmering overtone
+      setTimeout(() => {
+        this.playChime(1320, 'sine', 0.5, 0.03);
+      }, 250);
+    } catch {
+      // Ignore
+    }
+  }
+
+  /**
+   * Deep Cinematic Sub-Bass Impact for MANTIF Reveal
+   */
+  public playCinematicImpact() {
+    if (this.isMuted || !this.ctx || !this.masterGain) return;
+    try {
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      const now = this.ctx.currentTime;
+
+      // Sub-bass sine drop
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(95, now);
+      osc.frequency.exponentialRampToValueAtTime(38, now + 1.2);
+
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 1.7);
+
+      // Warm harmonic swell
+      setTimeout(() => {
+        this.playChime(432, 'sine', 1.4, 0.08);
+      }, 100);
+    } catch {
+      // Ignore
+    }
+  }
+
+  /**
+   * Subtle historical ambient breeze
+   */
+  public playHistoricalAmbience() {
+    if (this.isMuted) return;
+    this.playChime(320, 'sine', 1.8, 0.04);
+  }
+
+  /**
+   * Deep cinematic curtain / shutter close transition
+   */
+  public playCurtainClose() {
+    if (this.isMuted || !this.ctx || !this.masterGain) return;
+    try {
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      const now = this.ctx.currentTime;
+
+      // Low frequency cloth swoosh
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(32, now + 1.1);
+
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 1.25);
+    } catch {
+      // Ignore
+    }
+  }
 }
 
 export const soundManager = new SoundEngine();
