@@ -11,8 +11,7 @@ import { setCursorMode } from '../hooks/useCursor';
 type CinematicPhase =
   | 'typewriter'       // 1. Plain dark screen, letter-by-letter with printing sound
   | 'transformation'   // 2. Single smooth morph: Ancient Gurukulam → Modern AI Classroom
-  | 'closing'          // 3. Totally close the screen with cinematic shutters
-  | 'pledge';          // 4. Display the pledge separately in all its majesty
+  | 'pledge';          // 3. Display the pledge separately in all its majesty
 
 // ── FIXED IMMUTABLE MOVIE ENTRY CARD CHARACTERS ──
 interface EntryWord {
@@ -95,11 +94,9 @@ export const PhilosophySection: React.FC = () => {
 
   // ── ACT 2: SINGLE SMOOTH TRANSFORMATION STATE ──
   const [morphProgress, setMorphProgress] = useState<number>(0); // 0 (Ancient Gurukulam) to 1 (Modern AI)
+  const [stageFading, setStageFading] = useState<boolean>(false);
 
-  // ── ACT 3: TOTALLY CLOSE STATE ──
-  const [curtainClosed, setCurtainClosed] = useState<boolean>(false);
-
-  // ── ACT 4: THE PLEDGE SEPARATELY STATE ──
+  // ── ACT 3: THE PLEDGE SEPARATELY STATE ──
   const [pledgeRevealedStep, setPledgeRevealedStep] = useState<number>(0);
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -155,10 +152,12 @@ export const PhilosophySection: React.FC = () => {
     if (phase !== 'transformation') return;
 
     setMorphProgress(0);
+    setStageFading(false);
     soundManager.playHistoricalAmbience();
 
     let animFrame: number;
-    let timeoutClose: number;
+    let timeoutToPledge: number;
+    let timeoutFadeOut: number;
     let timeoutMorphStart: number;
 
     // 1. Brief 700ms opening breath showing ancient Gurukulam in all its purity
@@ -177,12 +176,17 @@ export const PhilosophySection: React.FC = () => {
         if (progress < 1) {
           animFrame = requestAnimationFrame(step);
         } else {
-          // 2. Hold the transformed modern AI classroom for 1.2s, then close stage
-          timeoutClose = window.setTimeout(() => {
+          // 2. Hold the transformed modern AI classroom for 1.8s, then smoothly transition directly to the pledge
+          timeoutFadeOut = window.setTimeout(() => {
             if (isPlaying) {
-              setPhase('closing');
+              setStageFading(true);
+
+              timeoutToPledge = window.setTimeout(() => {
+                setPhase('pledge');
+                setStageFading(false);
+              }, 700);
             }
-          }, 1200);
+          }, 1800);
         }
       };
 
@@ -191,35 +195,11 @@ export const PhilosophySection: React.FC = () => {
 
     return () => {
       window.clearTimeout(timeoutMorphStart);
-      window.clearTimeout(timeoutClose);
+      window.clearTimeout(timeoutFadeOut);
+      window.clearTimeout(timeoutToPledge);
       if (animFrame) cancelAnimationFrame(animFrame);
     };
   }, [phase, isPlaying]);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ACT 4: TOTALLY CLOSE THAT
-  // ═══════════════════════════════════════════════════════════════════════════
-  useEffect(() => {
-    if (phase !== 'closing') return;
-
-    setCurtainClosed(false);
-    soundManager.playCurtainClose();
-
-    // Animate shutters / curtains to slide closed over 1.2s
-    const tClose = window.setTimeout(() => {
-      setCurtainClosed(true);
-    }, 100);
-
-    // After screen is totally closed and dark, transition to the Pledge separately
-    const tPledge = window.setTimeout(() => {
-      setPhase('pledge');
-    }, 1600);
-
-    return () => {
-      window.clearTimeout(tClose);
-      window.clearTimeout(tPledge);
-    };
-  }, [phase]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ACT 5: DISPLAY THE PLEDGE SEPARATELY
@@ -405,7 +385,7 @@ export const PhilosophySection: React.FC = () => {
               { id: 'transformation', label: 'Transformation' },
               { id: 'pledge', label: 'The Pledge' },
             ].map((item, idx) => {
-              const isActive = phase === item.id || (phase === 'closing' && item.id === 'transformation');
+              const isActive = phase === item.id;
               return (
                 <button
                   key={item.id}
@@ -506,8 +486,12 @@ export const PhilosophySection: React.FC = () => {
         {/* =================================================================== */}
         {/* 2. ACT 02 — SINGLE SMOOTH TRANSFORMATION (GURUKULAM → MODERN AI)    */}
         {/* =================================================================== */}
-        {(phase === 'transformation' || phase === 'closing') && (
-          <div className="relative w-full max-w-5xl h-[360px] sm:h-[430px] lg:h-[480px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#080D14] flex items-center justify-center">
+        {phase === 'transformation' && (
+          <div
+            className={`relative w-full max-w-5xl h-[360px] sm:h-[430px] lg:h-[480px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#080D14] flex items-center justify-center transition-all duration-700 ease-out ${
+              stageFading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+            }`}
+          >
             {/* ── BASE LAYER: HISTORICAL GURUKULAM IMAGE ── */}
             <div
               className="absolute inset-0 w-full h-full overflow-hidden"
@@ -561,30 +545,6 @@ export const PhilosophySection: React.FC = () => {
                 }}
               />
             </div>
-
-
-
-            {/* ── CINEMATIC SHUTTERS / CURTAINS: TOTALLY CLOSE THAT (ACT 4) ── */}
-            {phase === 'closing' && (
-              <div className="absolute inset-0 z-40 pointer-events-none overflow-hidden flex">
-                {/* Left Shutter Door */}
-                <div
-                  className="h-full bg-[#02060D] border-r-2 border-[#DFB74A]/80 transition-transform duration-1000 ease-in-out shadow-2xl"
-                  style={{
-                    width: '50.5%',
-                    transform: curtainClosed ? 'translateX(0%)' : 'translateX(-100%)',
-                  }}
-                />
-                {/* Right Shutter Door */}
-                <div
-                  className="h-full bg-[#02060D] border-l-2 border-[#DFB74A]/80 transition-transform duration-1000 ease-in-out shadow-2xl"
-                  style={{
-                    width: '50.5%',
-                    transform: curtainClosed ? 'translateX(0%)' : 'translateX(100%)',
-                  }}
-                />
-              </div>
-            )}
           </div>
         )}
 
@@ -677,7 +637,7 @@ export const PhilosophySection: React.FC = () => {
           <span className="text-white/80 font-semibold uppercase">
             {phase === 'typewriter'
               ? 'ACT 01 · THE QUESTION'
-              : phase === 'transformation' || phase === 'closing'
+              : phase === 'transformation'
               ? 'ACT 02 · TRANSFORMATION'
               : 'ACT 03 · THE PLEDGE'}
           </span>
