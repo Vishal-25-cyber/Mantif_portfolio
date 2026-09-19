@@ -10,44 +10,80 @@ import { setCursorMode } from '../hooks/useCursor';
 
 type CinematicPhase =
   | 'typewriter'       // 1. Plain dark screen, letter-by-letter with printing sound
-  | 'gurukulam'         // 2. Gurukulam image appears from darkness, Ken Burns, historical text
-  | 'transformation'   // 3. Smooth morph: Guru & students transform into AI teacher & laptop learners
-  | 'closing'          // 4. Totally close the screen with cinematic curtains/shutters
-  | 'pledge';          // 5. Display the pledge separately in all its majesty
+  | 'transformation'   // 2. Single smooth morph: Ancient Gurukulam → Modern AI Classroom
+  | 'closing'          // 3. Totally close the screen with cinematic shutters
+  | 'pledge';          // 4. Display the pledge separately in all its majesty
 
-// ── MOVIE ENTRY CARD FLY-IN CONFIGURATION ──
-const MOVIE_ENTRY_WORDS = [
-  { text: 'What', isMantif: false },
-  { text: 'is', isMantif: false },
-  { text: 'MANTIF', isMantif: true },
-  { text: 'trying', isMantif: false },
-  { text: 'to', isMantif: false },
-  { text: 'do?', isMantif: false },
-];
-
-const PROCESSED_ENTRY_WORDS: {
+// ── FIXED IMMUTABLE MOVIE ENTRY CARD CHARACTERS ──
+interface EntryWord {
   word: string;
   isMantif: boolean;
   letters: { char: string; idx: number }[];
-}[] = [];
+}
 
-let runningCharIdx = 0;
-MOVIE_ENTRY_WORDS.forEach((item, wIndex) => {
-  const letters = item.text.split('').map((char) => ({
-    char,
-    idx: runningCharIdx++,
-  }));
-  PROCESSED_ENTRY_WORDS.push({
-    word: item.text,
-    isMantif: item.isMantif,
-    letters,
-  });
-  if (wIndex < MOVIE_ENTRY_WORDS.length - 1) {
-    runningCharIdx++;
-  }
-});
+const PROCESSED_ENTRY_WORDS: EntryWord[] = [
+  {
+    word: 'What',
+    isMantif: false,
+    letters: [
+      { char: 'W', idx: 0 },
+      { char: 'h', idx: 1 },
+      { char: 'a', idx: 2 },
+      { char: 't', idx: 3 },
+    ],
+  },
+  {
+    word: 'is',
+    isMantif: false,
+    letters: [
+      { char: 'i', idx: 4 },
+      { char: 's', idx: 5 },
+    ],
+  },
+  {
+    word: 'MANTIF',
+    isMantif: true,
+    letters: [
+      { char: 'M', idx: 6 },
+      { char: 'A', idx: 7 },
+      { char: 'N', idx: 8 },
+      { char: 'T', idx: 9 },
+      { char: 'I', idx: 10 },
+      { char: 'F', idx: 11 },
+    ],
+  },
+  {
+    word: 'trying',
+    isMantif: false,
+    letters: [
+      { char: 't', idx: 12 },
+      { char: 'r', idx: 13 },
+      { char: 'y', idx: 14 },
+      { char: 'i', idx: 15 },
+      { char: 'n', idx: 16 },
+      { char: 'g', idx: 17 },
+    ],
+  },
+  {
+    word: 'to',
+    isMantif: false,
+    letters: [
+      { char: 't', idx: 18 },
+      { char: 'o', idx: 19 },
+    ],
+  },
+  {
+    word: 'do?',
+    isMantif: false,
+    letters: [
+      { char: 'd', idx: 20 },
+      { char: 'o', idx: 21 },
+      { char: '?', idx: 22 },
+    ],
+  },
+];
 
-const TOTAL_ENTRY_STEPS = runningCharIdx;
+const TOTAL_ENTRY_LETTERS = 23;
 
 export const PhilosophySection: React.FC = () => {
   const [phase, setPhase] = useState<CinematicPhase>('typewriter');
@@ -57,15 +93,13 @@ export const PhilosophySection: React.FC = () => {
   const [typedCharsCount, setTypedCharsCount] = useState<number>(0);
   const [typewriterFading, setTypewriterFading] = useState<boolean>(false);
 
-  // ── ACT 2: GURUKULAM REVEAL STATE (Clean Unobstructed Visual) ──
+  // ── ACT 2: SINGLE SMOOTH TRANSFORMATION STATE ──
+  const [morphProgress, setMorphProgress] = useState<number>(0); // 0 (Ancient Gurukulam) to 1 (Modern AI)
 
-  // ── ACT 3: TRANSFORMATION STATE ──
-  const [morphProgress, setMorphProgress] = useState<number>(0); // 0 (Ancient) to 1 (Modern AI)
-
-  // ── ACT 4: TOTALLY CLOSE STATE ──
+  // ── ACT 3: TOTALLY CLOSE STATE ──
   const [curtainClosed, setCurtainClosed] = useState<boolean>(false);
 
-  // ── ACT 5: THE PLEDGE SEPARATELY STATE ──
+  // ── ACT 4: THE PLEDGE SEPARATELY STATE ──
   const [pledgeRevealedStep, setPledgeRevealedStep] = useState<number>(0);
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -93,86 +127,72 @@ export const PhilosophySection: React.FC = () => {
       charIdx++;
       setTypedCharsCount(charIdx);
 
-      // Check if current step corresponds to a real letter (not inter-word space)
-      const isLetter = PROCESSED_ENTRY_WORDS
-        .flatMap((w) => w.letters)
-        .some((l) => l.idx === charIdx - 1);
+      // Play mechanical sound for every letter that lands
+      soundManager.playTypewriterKey(charIdx);
 
-      if (isLetter) {
-        soundManager.playTypewriterKey(charIdx);
-      }
-
-      if (charIdx >= TOTAL_ENTRY_STEPS) {
+      // Stop immediately upon reaching the 23rd character ('?')
+      if (charIdx >= TOTAL_ENTRY_LETTERS) {
         window.clearInterval(interval);
 
-        // Pause for 1.8 seconds after all letters have landed, then fade out
+        // Hold full question for 1.5 seconds, then smoothly dissolve directly into the single transformation
         window.setTimeout(() => {
           setTypewriterFading(true);
 
           window.setTimeout(() => {
-            setPhase('gurukulam');
-          }, 950);
-        }, 1800);
+            setPhase('transformation');
+          }, 700);
+        }, 1500);
       }
-    }, 110); // 110ms per letter: deliberate, grand, movie trailer entry cadence
+    }, 110); // 110ms per letter: cinematic cadence
 
     return () => window.clearInterval(interval);
   }, [phase, isPlaying]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ACT 2: GURUKULAM REVEALS (CLEAN UNOBSTRUCTED HISTORICAL SCENE)
-  // ═══════════════════════════════════════════════════════════════════════════
-  useEffect(() => {
-    if (phase !== 'gurukulam') return;
-
-    soundManager.playHistoricalAmbience();
-
-    // Swiftly transition into transformation without unnecessary waiting
-    const advanceTimer = window.setTimeout(() => {
-      if (isPlaying) {
-        setPhase('transformation');
-      }
-    }, 1600);
-
-    return () => {
-      window.clearTimeout(advanceTimer);
-    };
-  }, [phase, isPlaying]);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ACT 3: SMOOTH TRANSFORMATION AT NORMAL NATURAL SPEED
+  // ACT 2: SINGLE SMOOTH CONTINUOUS TRANSFORMATION (GURUKULAM → MODERN AI)
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (phase !== 'transformation') return;
 
     setMorphProgress(0);
-    soundManager.playDigitalMorphSweep();
+    soundManager.playHistoricalAmbience();
 
-    // Normal, natural continuous morph from 0.0 to 1.0 over 3.5s
-    const startTime = Date.now();
-    const duration = 3500;
+    let animFrame: number;
+    let timeoutClose: number;
+    let timeoutMorphStart: number;
 
-    const morphInterval = window.setInterval(() => {
-      if (!isPlaying) return;
-      const elapsed = Date.now() - startTime;
-      const p = Math.min(1, elapsed / duration);
-      setMorphProgress(p);
+    // 1. Brief 700ms opening breath showing ancient Gurukulam in all its purity
+    timeoutMorphStart = window.setTimeout(() => {
+      soundManager.playDigitalMorphSweep();
 
-      if (p >= 1) {
-        window.clearInterval(morphInterval);
-      }
-    }, 25);
+      const morphStartTime = performance.now();
+      const morphDuration = 3200; // 3.2s single unbroken smooth dissolve
 
-    // After transformation reaches 100% and holds modern classroom, close the screen
-    const closeTrigger = window.setTimeout(() => {
-      if (isPlaying) {
-        setPhase('closing');
-      }
-    }, 4400);
+      const step = (now: number) => {
+        if (!isPlaying) return;
+        const elapsed = now - morphStartTime;
+        const progress = Math.min(1, Math.max(0, elapsed / morphDuration));
+        setMorphProgress(progress);
+
+        if (progress < 1) {
+          animFrame = requestAnimationFrame(step);
+        } else {
+          // 2. Hold the transformed modern AI classroom for 1.2s, then close stage
+          timeoutClose = window.setTimeout(() => {
+            if (isPlaying) {
+              setPhase('closing');
+            }
+          }, 1200);
+        }
+      };
+
+      animFrame = requestAnimationFrame(step);
+    }, 700);
 
     return () => {
-      window.clearInterval(morphInterval);
-      window.clearTimeout(closeTrigger);
+      window.clearTimeout(timeoutMorphStart);
+      window.clearTimeout(timeoutClose);
+      if (animFrame) cancelAnimationFrame(animFrame);
     };
   }, [phase, isPlaying]);
 
@@ -382,7 +402,6 @@ export const PhilosophySection: React.FC = () => {
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
             {[
               { id: 'typewriter', label: 'Prologue' },
-              { id: 'gurukulam', label: 'Gurukulam' },
               { id: 'transformation', label: 'Transformation' },
               { id: 'pledge', label: 'The Pledge' },
             ].map((item, idx) => {
@@ -485,19 +504,16 @@ export const PhilosophySection: React.FC = () => {
         )}
 
         {/* =================================================================== */}
-        {/* 2 & 3. GURUKULAM & SMOOTH TRANSFORMATION INTO AI & STUDENTS         */}
+        {/* 2. ACT 02 — SINGLE SMOOTH TRANSFORMATION (GURUKULAM → MODERN AI)    */}
         {/* =================================================================== */}
-        {(phase === 'gurukulam' || phase === 'transformation' || phase === 'closing') && (
+        {(phase === 'transformation' || phase === 'closing') && (
           <div className="relative w-full max-w-5xl h-[360px] sm:h-[430px] lg:h-[480px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#080D14] flex items-center justify-center">
             {/* ── BASE LAYER: HISTORICAL GURUKULAM IMAGE ── */}
             <div
-              className="absolute inset-0 w-full h-full overflow-hidden transition-all duration-1000 ease-out"
+              className="absolute inset-0 w-full h-full overflow-hidden"
               style={{
                 animation: 'kenBurnsHistorical 14s ease-out forwards',
-                filter:
-                  phase === 'gurukulam'
-                    ? 'sepia(0.18) contrast(1.05) brightness(0.96)'
-                    : 'contrast(1.1) brightness(0.9)',
+                filter: 'contrast(1.05) brightness(0.96)',
               }}
             >
               <picture className="w-full h-full">
@@ -519,33 +535,32 @@ export const PhilosophySection: React.FC = () => {
               />
             </div>
 
-            {/* ── OVERLAY LAYER: MODERN AI CLASSROOM (SMOOTH MORPH TRANSFORMATION) ── */}
-            {(phase === 'transformation' || phase === 'closing') && (
-              <div
-                className="absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-300 ease-out"
-                style={{
-                  opacity: morphProgress, // Smooth 0 to 1 progressive dissolve
-                }}
-              >
-                <picture className="w-full h-full">
-                  <source srcSet="/images/modern_classroom.webp" type="image/webp" />
-                  <img
-                    src="/images/modern_classroom.png"
-                    alt="Modern Connected Classroom with AI Teacher and Laptop Students"
-                    className="w-full h-full object-cover object-center"
-                  />
-                </picture>
-
-                {/* Subtle Digital Holographic Cyan & Gold Atmosphere */}
-                <div
-                  className="absolute inset-0 pointer-events-none mix-blend-screen opacity-35"
-                  style={{
-                    background:
-                      'radial-gradient(ellipse at 75% 50%, rgba(56, 189, 248, 0.4) 0%, transparent 65%)',
-                  }}
+            {/* ── OVERLAY LAYER: MODERN AI CLASSROOM (SINGLE CONTINUOUS SMOOTH MORPH) ── */}
+            <div
+              className="absolute inset-0 w-full h-full overflow-hidden"
+              style={{
+                opacity: morphProgress, // Silky 60fps unbroken dissolve driven directly by RAF
+              }}
+            >
+              <picture className="w-full h-full">
+                <source srcSet="/images/modern_classroom.webp" type="image/webp" />
+                <img
+                  src="/images/modern_classroom.png"
+                  alt="Modern Connected Classroom with AI Teacher and Laptop Students"
+                  className="w-full h-full object-cover object-center"
                 />
-              </div>
-            )}
+              </picture>
+
+              {/* Subtle Digital Holographic Cyan & Gold Atmosphere */}
+              <div
+                className="absolute inset-0 pointer-events-none mix-blend-screen"
+                style={{
+                  opacity: morphProgress * 0.35,
+                  background:
+                    'radial-gradient(ellipse at 75% 50%, rgba(56, 189, 248, 0.4) 0%, transparent 65%)',
+                }}
+              />
+            </div>
 
 
 
@@ -662,13 +677,9 @@ export const PhilosophySection: React.FC = () => {
           <span className="text-white/80 font-semibold uppercase">
             {phase === 'typewriter'
               ? 'ACT 01 · THE QUESTION'
-              : phase === 'gurukulam'
-              ? 'ACT 02 · GURUKULAM'
-              : phase === 'transformation'
-              ? 'ACT 03 · TRANSFORMATION'
-              : phase === 'closing'
-              ? 'ACT 04 · CLOSING STAGE'
-              : 'ACT 05 · THE PLEDGE'}
+              : phase === 'transformation' || phase === 'closing'
+              ? 'ACT 02 · TRANSFORMATION'
+              : 'ACT 03 · THE PLEDGE'}
           </span>
         </div>
 
