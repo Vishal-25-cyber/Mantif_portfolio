@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Volume2,
   VolumeX,
-  RotateCcw,
   Sparkles,
 } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
@@ -647,11 +646,6 @@ export const PhilosophySection: React.FC = () => {
           <div className="relative z-30 w-full max-w-3xl px-4 py-2 flex flex-col items-center animate-fadeIn">
             {/* Standalone Majestic Header */}
             <div className="text-center mb-6 shrink-0">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#DFB74A]/10 border border-[#DFB74A]/30 text-[#DFB74A] text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.25em] uppercase mb-2 shadow-[0_0_20px_rgba(223,183,74,0.2)]">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>MANTIF CORE MANIFESTO</span>
-              </div>
-
               <h2
                 className="font-serif font-bold text-[#FAF8F5] tracking-tight leading-tight"
                 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.6rem)' }}
@@ -708,21 +702,6 @@ export const PhilosophySection: React.FC = () => {
               </div>
             </div>
 
-            {/* Replay Entire Historical Evolution Experience Button */}
-            <div className="mt-6">
-              <button
-                onClick={handleRestartAll}
-                onMouseEnter={() => {
-                  setCursorMode('hover');
-                  soundManager.playHoverTick();
-                }}
-                onMouseLeave={() => setCursorMode('default')}
-                className="px-5 py-2 rounded-full bg-white/5 border border-white/20 hover:border-[#DFB74A] hover:bg-white/10 text-white font-mono text-[10px] font-bold tracking-widest uppercase transition-all flex items-center gap-2 shadow-lg"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-[#DFB74A]" />
-                <span>REPLAY HISTORICAL EVOLUTION</span>
-              </button>
-            </div>
           </div>
         )}
       </div>
