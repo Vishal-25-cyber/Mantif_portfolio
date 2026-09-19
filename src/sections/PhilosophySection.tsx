@@ -121,31 +121,42 @@ export const PhilosophySection: React.FC = () => {
     setTypewriterFading(false);
 
     let charIdx = 0;
+    let isFinished = false;
+    let fadeTimer: number;
+    let transTimer: number;
+
     const interval = window.setInterval(() => {
-      if (!isPlaying) return;
+      if (!isPlaying || isFinished) return;
 
       charIdx++;
       setTypedCharsCount(charIdx);
 
-      // Play mechanical sound for every letter that lands
-      soundManager.playTypewriterKey(charIdx);
+      // Play mechanical sound only while printing valid letters (1 to 23)
+      if (charIdx <= TOTAL_ENTRY_LETTERS) {
+        soundManager.playTypewriterKey(charIdx);
+      }
 
-      // Stop immediately upon reaching the 23rd character ('?')
+      // The exact moment the '?' symbol lands (character 23), stop typing completely and bring the image!
       if (charIdx >= TOTAL_ENTRY_LETTERS) {
+        isFinished = true;
         window.clearInterval(interval);
 
-        // Hold full question for 1.5 seconds, then smoothly dissolve directly into the single transformation
-        window.setTimeout(() => {
+        // Right after '?' symbol, smoothly reveal the image without delay
+        fadeTimer = window.setTimeout(() => {
           setTypewriterFading(true);
 
-          window.setTimeout(() => {
+          transTimer = window.setTimeout(() => {
             setPhase('transformation');
-          }, 700);
-        }, 1500);
+          }, 250);
+        }, 300);
       }
-    }, 110); // 110ms per letter: cinematic cadence
+    }, 105);
 
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(fadeTimer);
+      window.clearTimeout(transTimer);
+    };
   }, [phase, isPlaying, animCycleKey]);
 
   // ═══════════════════════════════════════════════════════════════════════════
