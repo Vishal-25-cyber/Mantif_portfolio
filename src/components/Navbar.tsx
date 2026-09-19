@@ -66,9 +66,22 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
+    try {
+      sessionStorage.setItem('mantif_last_active_section', id);
+      if (window.location.hash !== '#' + id) {
+        history.replaceState(null, '', '#' + id);
+      }
+    } catch {
+      // ignore
+    }
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const lenis = (window as any).__lenis;
+      if (lenis && typeof lenis.scrollTo === 'function') {
+        lenis.scrollTo(element, { duration: 0.6 });
+      } else {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
@@ -99,12 +112,17 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
             aria-label="MANTIF Home"
           >
             <div className="w-8 h-8 rounded-full border border-[#002137]/20 flex items-center justify-center bg-[#FAF8F5]/80 backdrop-blur-sm group-hover:border-[#004B79] transition-colors">
-              <img
-                src="/images/mantif_icon.png"
-                alt="MANTIF"
-                className="w-5 h-5 object-contain"
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png'; }}
-              />
+              <picture>
+                <source srcSet="/images/mantif_icon.webp" type="image/webp" />
+                <img
+                  src="/images/mantif_icon.png"
+                  alt="MANTIF"
+                  loading="eager"
+                  decoding="async"
+                  className="w-5 h-5 object-contain"
+                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png'; }}
+                />
+              </picture>
             </div>
             <div className="flex flex-col">
               <span className="font-serif tracking-widest text-base font-bold text-[#002137]">
@@ -194,12 +212,17 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
               aria-label="MANTIF Home"
             >
               <div className="w-8 h-8 rounded-full border border-[#002137]/20 flex items-center justify-center bg-[#FAF8F5] group-hover:border-[#004B79] transition-colors">
-                <img
-                  src="/images/mantif_icon.png"
-                  alt="MANTIF"
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png'; }}
-                />
+                <picture>
+                  <source srcSet="/images/mantif_icon.webp" type="image/webp" />
+                  <img
+                    src="/images/mantif_icon.png"
+                    alt="MANTIF"
+                    loading="eager"
+                    decoding="async"
+                    className="w-5 h-5 object-contain"
+                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png'; }}
+                  />
+                </picture>
               </div>
               <div className="flex flex-col">
                 <span className="font-serif tracking-widest text-base font-bold text-[#002137]">

@@ -73,9 +73,9 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
     push(() => {
       setStage('handshake');
       soundManager.playHandshakeChord();
-    }, 2800);
+    }, 2600);
 
-    push(() => setStage('fadeCharacters'), 6500);
+    push(() => setStage('fadeCharacters'), 5800);
 
     push(() => {
       setStage('titleReveal');
@@ -83,19 +83,19 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
         const id = setTimeout(() => {
           setLettersRevealed((prev) => [...prev, idx]);
           soundManager.playLetterReveal(idx);
-        }, idx * 220);
+        }, idx * 180);
         timeoutsRef.current.push(id);
       });
-    }, 7200);
+    }, 6400);
 
     push(() => {
       setShowSubtitle(true);
-    }, 9000);
+    }, 7800);
 
     push(() => {
       setStage('completed');
       onIntroComplete?.();
-    }, 9500);
+    }, 8400);
   };
 
   useEffect(() => {
@@ -152,20 +152,20 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
             }}
           />
 
-          <div className="relative w-full max-w-3xl h-80 sm:h-[380px] flex items-end justify-center">
+          <div className="relative w-full max-w-3xl h-72 sm:h-[330px] flex items-end justify-center">
 
             {/* Human character */}
             <div
               className="absolute bottom-0 flex flex-col items-center will-change-transform"
               style={{
-                transition: stage === 'handshake' ? 'transform 0.8s cubic-bezier(0.2,1,0.3,1)' : undefined,
+                transition: stage === 'handshake' ? 'transform 0.5s cubic-bezier(0.2,1,0.3,1)' : undefined,
                 transform: stage === 'walking'
                   ? 'translateX(-180%)'
-                  : 'translateX(var(--human-target, -68px))',
-                animation: stage === 'walking' ? 'walkHumanAnim 2.8s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
+                  : 'translateX(var(--human-target, -60px))',
+                animation: stage === 'walking' ? 'walkHumanAnim 2.6s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
               }}
             >
-              <svg viewBox="0 0 64 130" className="w-28 h-56 sm:w-36 sm:h-72 overflow-visible" fill="none">
+              <svg viewBox="0 0 64 130" className="w-24 h-[195px] sm:w-[120px] sm:h-[244px] overflow-visible" fill="none">
                 {/* Head with warm skin tone */}
                 <ellipse cx="32" cy="19" rx="11" ry="12" fill="#F5CBA7" stroke="#002137" strokeWidth="2" />
                 {/* Hair */}
@@ -191,45 +191,35 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 )}
                 {/* Legs */}
                 <line x1="29" y1="65" x2="24" y2="110" stroke="#1E293B" strokeWidth="7" strokeLinecap="round"
-                  style={stage === 'walking' ? { animation: 'legSwingL 0.55s ease-in-out infinite', transformOrigin: '29px 65px' } : undefined} />
+                  style={stage === 'walking' ? { animation: 'legSwingL 0.45s ease-in-out infinite', transformOrigin: '29px 65px' } : undefined} />
                 <line x1="35" y1="65" x2="40" y2="110" stroke="#1E293B" strokeWidth="7" strokeLinecap="round"
-                  style={stage === 'walking' ? { animation: 'legSwingR 0.55s ease-in-out infinite', transformOrigin: '35px 65px' } : undefined} />
+                  style={stage === 'walking' ? { animation: 'legSwingR 0.45s ease-in-out infinite', transformOrigin: '35px 65px' } : undefined} />
                 {/* Shoes */}
                 <ellipse cx="22" cy="112" rx="6" ry="3" fill="#0F172A" />
                 <ellipse cx="40" cy="112" rx="6" ry="3" fill="#0F172A" />
                 {/* Shadow */}
                 <ellipse cx="32" cy="118" rx="16" ry="3.5" fill="#002137" opacity="0.08" />
               </svg>
-              <span className="font-mono text-[11px] sm:text-xs tracking-[0.25em] text-[#64748B] uppercase mt-2 font-bold">HUMAN</span>
+              <span className="font-mono text-[10px] sm:text-[11px] tracking-[0.25em] text-[#64748B] uppercase mt-2 font-bold">HUMAN</span>
             </div>
 
-            {/* Handshake convergence focal point */}
-            {stage === 'handshake' && (
-              <div className="absolute bottom-32 sm:bottom-40 z-30 flex items-center justify-center pointer-events-none">
-                {/* Pulsing rings */}
-                <div className="absolute w-32 h-32 sm:w-44 sm:h-44 rounded-full border border-[#DFB74A]/60 animate-ping" style={{ animationDuration: '1.2s' }} />
-                <div className="absolute w-20 h-20 sm:w-28 sm:h-28 rounded-full border border-[#004B79]/40 animate-ping" style={{ animationDuration: '1.8s' }} />
-                {/* Central glow */}
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#DFB74A] shadow-[0_0_40px_15px_rgba(223,183,74,0.5)]" />
-              </div>
-            )}
 
             {/* Robot character */}
             <div
               className="absolute bottom-0 flex flex-col items-center will-change-transform"
               style={{
-                transition: stage === 'handshake' ? 'transform 0.8s cubic-bezier(0.2,1,0.3,1)' : undefined,
+                transition: stage === 'handshake' ? 'transform 0.5s cubic-bezier(0.2,1,0.3,1)' : undefined,
                 transform: stage === 'walking'
                   ? 'translateX(180%)'
-                  : 'translateX(var(--robot-target, 68px))',
-                animation: stage === 'walking' ? 'walkRobotAnim 2.8s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
+                  : 'translateX(var(--robot-target, 60px))',
+                animation: stage === 'walking' ? 'walkRobotAnim 2.6s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
               }}
             >
-              <svg viewBox="0 0 64 130" className="w-28 h-56 sm:w-36 sm:h-72 overflow-visible" fill="none">
+              <svg viewBox="0 0 64 130" className="w-24 h-[195px] sm:w-[120px] sm:h-[244px] overflow-visible" fill="none">
                 {/* Antenna */}
                 <line x1="32" y1="0" x2="32" y2="10" stroke="#DFB74A" strokeWidth="2.5" strokeLinecap="round" />
                 <circle cx="32" cy="0" r="3" fill="#DFB74A" />
-                <circle cx="32" cy="0" r="5" fill="#DFB74A" opacity="0.3" className="animate-ping" style={{ animationDuration: '2s' }} />
+                <circle cx="32" cy="0" r="5" fill="#DFB74A" opacity="0.3" className="animate-ping" style={{ animationDuration: '1.2s' }} />
                 {/* Rounded head */}
                 <rect x="16" y="10" width="32" height="24" rx="10" fill="#FAF8F5" stroke="#004B79" strokeWidth="2" />
                 {/* Visor */}
@@ -256,16 +246,16 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 <line x1="48" y1="46" x2="56" y2="68" stroke="#004B79" strokeWidth="5" strokeLinecap="round" />
                 {/* Legs */}
                 <rect x="24" y="70" width="6" height="38" rx="3" fill="#002137"
-                  style={stage === 'walking' ? { animation: 'legSwingR 0.55s ease-in-out infinite', transformOrigin: '27px 70px' } : undefined} />
+                  style={stage === 'walking' ? { animation: 'legSwingR 0.45s ease-in-out infinite', transformOrigin: '27px 70px' } : undefined} />
                 <rect x="34" y="70" width="6" height="38" rx="3" fill="#002137"
-                  style={stage === 'walking' ? { animation: 'legSwingL 0.55s ease-in-out infinite', transformOrigin: '37px 70px' } : undefined} />
+                  style={stage === 'walking' ? { animation: 'legSwingL 0.45s ease-in-out infinite', transformOrigin: '37px 70px' } : undefined} />
                 {/* Feet */}
                 <ellipse cx="27" cy="112" rx="7" ry="3.5" fill="#001A2C" />
                 <ellipse cx="37" cy="112" rx="7" ry="3.5" fill="#001A2C" />
                 {/* Shadow */}
                 <ellipse cx="32" cy="118" rx="16" ry="3.5" fill="#002137" opacity="0.08" />
               </svg>
-              <span className="font-mono text-[11px] sm:text-xs tracking-[0.25em] text-[#004B79] uppercase mt-2 font-bold">AI ASSISTANT</span>
+              <span className="font-mono text-[10px] sm:text-[11px] tracking-[0.25em] text-[#004B79] uppercase mt-2 font-bold">AI ASSISTANT</span>
             </div>
           </div>
 
@@ -370,14 +360,20 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                   transformStyle: 'preserve-3d',
                 }}
               >
-                <img
-                  src="/images/mantif_icon.png"
-                  alt="MANTIF Logo"
-                  className="w-full h-full object-contain filter drop-shadow-[0_12px_28px_rgba(0,33,55,0.18)] drop-shadow-[0_4px_12px_rgba(223,183,74,0.3)] transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png';
-                  }}
-                />
+                <picture>
+                  <source srcSet="/images/mantif_icon.webp" type="image/webp" />
+                  <img
+                    src="/images/mantif_icon.png"
+                    alt="MANTIF Logo"
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                    className="w-full h-full object-contain filter drop-shadow-[0_12px_28px_rgba(0,33,55,0.18)] drop-shadow-[0_4px_12px_rgba(223,183,74,0.3)] transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png';
+                    }}
+                  />
+                </picture>
               </div>
             </div>
           </div>
@@ -405,13 +401,13 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       {/* Walk and 3D Logo Pop-Up animations */}
       <style>{`
         :root {
-          --human-target: -56px;
-          --robot-target: 56px;
+          --human-target: -48px;
+          --robot-target: 48px;
         }
         @media (min-width: 640px) {
           :root {
-            --human-target: -68px;
-            --robot-target: 68px;
+            --human-target: -60px;
+            --robot-target: 60px;
           }
         }
         @keyframes walkHumanAnim {

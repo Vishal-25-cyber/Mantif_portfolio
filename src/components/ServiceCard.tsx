@@ -112,90 +112,97 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ card }) => {
         <div className="absolute inset-0 bg-grain opacity-50 pointer-events-none" />
 
         {/* Content */}
-        <div className="relative z-10 p-5 sm:p-6 flex flex-col flex-1">
+        <div className="relative z-10 p-4 sm:p-4.5 flex flex-col flex-1 justify-between">
 
-          {/* Top row: id + badge */}
-          <div className="flex items-center justify-between mb-3.5">
-            <div className="flex items-center gap-2">
-              <span
-                className="font-mono text-xl font-bold leading-none"
-                style={{ color: accent }}
-              >
-                {card.id}
-              </span>
-              <div className="flex flex-col">
-                <span className="font-mono text-[9px] font-bold tracking-[0.2em] uppercase text-[#64748B]">
-                  {card.category}
+          <div>
+            {/* Top row: id + badge */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span
+                  className="font-mono text-lg sm:text-xl font-bold leading-none"
+                  style={{ color: accent }}
+                >
+                  {card.id}
                 </span>
+                <div className="flex flex-col">
+                  <span className="font-mono text-[9px] font-bold tracking-[0.2em] uppercase text-[#64748B]">
+                    {card.category}
+                  </span>
+                </div>
               </div>
+              <span className="px-2 py-0.5 rounded-full font-mono text-[8px] font-bold tracking-wider uppercase border"
+                style={{
+                  color: accent,
+                  borderColor: accent + '40',
+                  background: accent + '0D',
+                }}>
+                {card.badge}
+              </span>
             </div>
-            <span className="px-2 py-0.5 rounded-full font-mono text-[8px] font-bold tracking-wider uppercase border"
-              style={{
-                color: accent,
-                borderColor: accent + '40',
-                background: accent + '0D',
-              }}>
-              {card.badge}
-            </span>
-          </div>
 
-          {/* Heading */}
-          <h3
-            className="font-serif text-xl sm:text-2xl font-bold text-[#002137] transition-all duration-300 leading-snug"
-            style={{ transform: isHovered ? 'translateX(2px)' : 'translateX(0)' }}
-          >
-            {card.title}
-          </h3>
-
-          {/* Thin accent underline on hover */}
-          <div
-            className="mt-1.5 h-[2px] rounded-full transition-all duration-500"
-            style={{
-              width: isHovered ? '50%' : '20px',
-              background: `linear-gradient(to right, ${accent}, transparent)`,
-            }}
-          />
-
-          <p className="font-sans text-xs text-[#475569] mt-2.5 leading-relaxed">
-            {card.description}
-          </p>
-
-          {/* Optional italic quote */}
-          {card.quote && (
-            <div
-              className="mt-2.5 px-3 py-2 rounded-xl border-l-2 text-xs font-serif italic text-[#002137] leading-relaxed"
-              style={{
-                borderColor: accent,
-                background: accent + '0A',
-              }}
+            {/* Heading */}
+            <h3
+              className="font-serif text-lg sm:text-xl font-bold text-[#002137] transition-all duration-300 leading-snug"
+              style={{ transform: isHovered ? 'translateX(2px)' : 'translateX(0)' }}
             >
-              {card.quote}
-            </div>
-          )}
+              {card.title}
+            </h3>
 
-          {/* Feature list */}
-          <ul className="mt-3 space-y-1.5">
-            {card.features.map((feature, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-xs text-[#334155]">
-                <div
-                  className="w-1.5 h-1.5 rounded-full mt-[5px] shrink-0"
-                  style={{ background: accent }}
-                />
-                <span className="leading-snug">{feature}</span>
-              </li>
-            ))}
-          </ul>
+            {/* Thin accent underline on hover */}
+            <div
+              className="mt-1 h-[2px] rounded-full transition-all duration-500"
+              style={{
+                width: isHovered ? '50%' : '20px',
+                background: `linear-gradient(to right, ${accent}, transparent)`,
+              }}
+            />
+
+            <p className="font-sans text-[11px] sm:text-xs text-[#475569] mt-1.5 leading-relaxed line-clamp-2">
+              {card.description}
+            </p>
+
+            {/* Optional italic quote */}
+            {card.quote && (
+              <div
+                className="mt-1.5 px-2.5 py-1.5 rounded-xl border-l-2 text-[11px] font-serif italic text-[#002137] leading-relaxed"
+                style={{
+                  borderColor: accent,
+                  background: accent + '0A',
+                }}
+              >
+                {card.quote}
+              </div>
+            )}
+
+            {/* Feature list */}
+            <ul className="mt-2 space-y-1">
+              {card.features.map((feature, idx) => (
+                <li key={idx} className="flex items-start gap-1.5 text-[11px] text-[#334155]">
+                  <div
+                    className="w-1.5 h-1.5 rounded-full mt-[4px] shrink-0"
+                    style={{ background: accent }}
+                  />
+                  <span className="leading-tight">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {/* Card 01 — Origin Milestone & Capability Tags */}
           {card.id === '01' && (
             <div className="mt-3 pt-2.5 border-t border-[#002137]/10 flex flex-col gap-2">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-[#002137]/10">
-                  <img
-                    src="/images/gallery_1.jpg"
-                    alt="Tutoring Hub Origin"
-                    className="w-full h-full object-cover"
-                  />
+                  <picture className="w-full h-full">
+                    <source srcSet="/images/gallery_1.webp" type="image/webp" />
+                    <img
+                      src="/images/gallery_1.jpg"
+                      alt="Tutoring Hub Origin"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                    />
+                  </picture>
                 </div>
                 <div>
                   <span className="font-mono text-[8px] uppercase tracking-wider font-bold" style={{ color: accent }}>

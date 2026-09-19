@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { initAssetPreloading } from '../utils/imagePreloader';
 
 interface LoadingScreenProps {
   onComplete: () => void;
@@ -11,6 +12,11 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
   const [rotation, setRotation] = useState(0);
   const rafRef = useRef<number>(0);
   const startRef = useRef<number>(0);
+
+  /* Background preload all critical images into GPU memory during intro */
+  useEffect(() => {
+    initAssetPreloading();
+  }, []);
 
   /* Continuous subtle geometric rotation */
   useEffect(() => {
@@ -238,17 +244,22 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
             }}
           >
             {/* The Crisp MANTIF Brain × AI Icon */}
-            <img
-              src="/images/mantif_icon.png"
-              alt="MANTIF Icon"
-              className="w-20 h-20 sm:w-24 sm:h-24 object-contain transition-transform"
-              style={{
-                filter: 'drop-shadow(0 6px 12px rgba(0, 33, 55, 0.12))',
-              }}
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png';
-              }}
-            />
+            <picture>
+              <source srcSet="/images/mantif_icon.webp" type="image/webp" />
+              <img
+                src="/images/mantif_icon.png"
+                alt="MANTIF Icon"
+                loading="eager"
+                decoding="async"
+                className="w-20 h-20 sm:w-24 sm:h-24 object-contain transition-transform"
+                style={{
+                  filter: 'drop-shadow(0 6px 12px rgba(0, 33, 55, 0.12))',
+                }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png';
+                }}
+              />
+            </picture>
           </div>
         </div>
 

@@ -77,7 +77,16 @@ export const MediaRevealModal: React.FC<MediaModalProps> = ({
               className="w-full h-full object-contain"
             />
           ) : mediaType === 'image' && src ? (
-            <img src={src} alt={title} className="w-full h-full object-contain" />
+            <picture className="w-full h-full flex items-center justify-center">
+              <source srcSet={src.replace(/\.(jpg|png)$/, '.webp')} type="image/webp" />
+              <img
+                src={src}
+                alt={title}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-contain animate-fadeIn"
+              />
+            </picture>
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center text-[#FAF8F5]">
               <div className="w-16 h-16 rounded-full border border-[#DFB74A]/40 flex items-center justify-center mb-4 bg-[#002137]">

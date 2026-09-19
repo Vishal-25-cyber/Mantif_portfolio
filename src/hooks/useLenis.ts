@@ -21,6 +21,7 @@ export function useLenis(isLocked = false) {
       touchMultiplier: 1.25,
     });
     lenisRef.current = lenis;
+    (window as any).__lenis = lenis;
 
     // Synchronize Lenis with GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
@@ -36,6 +37,9 @@ export function useLenis(isLocked = false) {
       gsap.ticker.remove(updateTicker);
       lenis.destroy();
       lenisRef.current = null;
+      if ((window as any).__lenis === lenis) {
+        delete (window as any).__lenis;
+      }
     };
   }, []);
 

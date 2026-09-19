@@ -5,6 +5,7 @@ interface MarqueeStripProps {
   dark?: boolean;
   speed?: number;
   reverse?: boolean;
+  className?: string;
 }
 
 const DEFAULT_ITEMS = [
@@ -25,16 +26,17 @@ const DEFAULT_ITEMS = [
 export const MarqueeStrip: React.FC<MarqueeStripProps> = ({
   dark = false,
   reverse = false,
+  className = '',
 }) => {
   const items = [...DEFAULT_ITEMS, ...DEFAULT_ITEMS, ...DEFAULT_ITEMS];
 
   return (
     <div
-      className={`relative w-full overflow-hidden py-4 border-y ${
+      className={`relative w-full overflow-hidden py-4.5 sm:py-5.5 my-10 sm:my-16 lg:my-20 border-y ${
         dark
           ? 'bg-[#002137] border-[#004B79]/40 text-[#DFB74A]'
           : 'bg-[#EDE7DA] border-[#002137]/10 text-[#002137]'
-      }`}
+      } ${className}`}
       aria-hidden="true"
     >
       <div
@@ -46,7 +48,7 @@ export const MarqueeStrip: React.FC<MarqueeStripProps> = ({
         {items.map((item, idx) => (
           <span
             key={idx}
-            className={`inline-block px-5 font-mono text-xs font-bold tracking-[0.2em] uppercase ${
+            className={`inline-block px-6 sm:px-8 font-mono text-xs sm:text-[13px] font-bold tracking-[0.22em] uppercase ${
               item === '✦'
                 ? dark
                   ? 'text-[#DFB74A]'

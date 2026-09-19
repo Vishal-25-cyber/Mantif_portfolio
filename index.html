@@ -15,6 +15,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet" />
+
+    <!-- Priority WebP Image Preloads & Prefetches for Instant Carousel & Hero Rendering -->
+    <link rel="preload" as="image" href="/images/founder_karunya_clean.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/mantif_icon.webp" type="image/webp" />
+    <link rel="prefetch" as="image" href="/images/team_vishal_clean.webp" type="image/webp" />
+    <link rel="prefetch" as="image" href="/images/team_solairaj_clean.webp" type="image/webp" />
+
+    <!-- Preserve target section and ensure intro plays at top on browser refresh -->
+    <script>
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      try {
+        var h = window.location.hash;
+        if (h && h !== '#intro' && h !== '#') {
+          sessionStorage.setItem('mantif_last_active_section', h.replace('#', ''));
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+      } catch (e) {}
+      window.scrollTo(0, 0);
+    </script>
   </head>
   <body class="bg-[#FAF8F5] text-[#002137] font-sans antialiased selection:bg-[#004B79] selection:text-[#FAF8F5] overflow-x-hidden">
     <div id="root"></div>

@@ -100,106 +100,138 @@ export const ServicesSection: React.FC = () => {
   return (
     <section
       id="services"
-      className="relative w-full min-h-screen bg-[#FAF8F5] py-20 sm:py-28 px-4 sm:px-8 overflow-hidden select-none"
+      className="relative w-full min-h-screen lg:h-[100dvh] lg:max-h-[100dvh] bg-[#FAF8F5] pt-14 sm:pt-16 pb-3 sm:pb-4 px-4 sm:px-8 overflow-hidden select-none flex flex-col justify-between"
     >
-      {/* Ghost big number backdrop */}
-      <div className="absolute top-8 left-4 sm:left-10 pointer-events-none select-none" aria-hidden="true">
+      {/* Ghost big number backdrop alone */}
+      <div className="absolute top-4 sm:top-8 left-4 sm:left-10 pointer-events-none select-none z-0" aria-hidden="true">
         <span
           className="font-serif font-bold text-[18vw] text-[#002137] leading-none"
-          style={{ opacity: 0.03 }}
+          style={{ opacity: 0.05 }}
         >
           02
         </span>
       </div>
 
-      {/* Decorative top-right architectural cross lines */}
-      <div className="absolute top-8 right-8 sm:right-16 opacity-[0.08] pointer-events-none" aria-hidden="true">
-        <div className="w-20 h-[1px] bg-[#002137]" />
-        <div className="w-[1px] h-20 bg-[#002137] mt-[-1px] ml-auto" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Top editorial metadata strip */}
-        <div className="flex items-center justify-between mb-10 pb-4 border-b border-[#002137]/10">
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-[10px] text-[#64748B] tracking-[0.25em] uppercase">Chapter 02</span>
-            <span className="w-4 h-[1px] bg-[#002137]/20" />
-            <span className="font-mono text-[10px] text-[#DFB74A] font-bold tracking-[0.25em] uppercase">
-              Services & Offerings
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] animate-pulse" />
-            <span className="font-mono text-[10px] text-[#64748B] hidden sm:block">mantif.com/services</span>
-          </div>
-        </div>
-
-        {/* Section Header — editorial split layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-6 mb-10">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 min-h-0 flex flex-col justify-between">
+        {/* Section Header (Clean: removed both redundant title strips, kept watermark number) */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-end gap-3 sm:gap-6 mb-2 sm:mb-3 shrink-0">
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-[1px] bg-[#DFB74A]" />
-              <span className="font-mono text-xs font-bold tracking-widest text-[#004B79] uppercase">
-                {services.eyebrow}
-              </span>
-            </div>
-
             <h2
               className="font-serif font-bold text-[#002137] tracking-tight"
-              style={{ fontSize: 'clamp(2.5rem, 5.5vw, 5rem)' }}
+              style={{ fontSize: 'clamp(1.8rem, 3.8vw, 3rem)' }}
             >
               {services.heading}
             </h2>
           </div>
 
           {/* MSME Registered Callout box */}
-          <div className="border border-[#002137]/12 rounded-2xl p-5 max-w-sm bg-white/60 backdrop-blur-sm shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-mono text-[9px] tracking-[0.2em] text-[#64748B] uppercase font-bold">
-                MSME Registered
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-[#DFB74A]/15 border border-[#DFB74A]/30 font-mono text-[8px] font-bold text-[#002137] uppercase">
-                TN-GOV
-              </span>
+          <div className="border border-[#002137]/12 rounded-xl p-2 sm:p-2.5 max-w-md bg-white/70 backdrop-blur-sm shadow-xs flex items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="font-mono text-[9px] tracking-[0.2em] text-[#64748B] uppercase font-bold">
+                  MSME Registered
+                </span>
+                <span className="px-1.5 py-0.2 rounded-full bg-[#DFB74A]/15 border border-[#DFB74A]/30 font-mono text-[8px] font-bold text-[#002137] uppercase">
+                  TN-GOV
+                </span>
+              </div>
+              <p className="font-sans text-[11px] sm:text-xs text-[#475569] leading-snug line-clamp-1 sm:line-clamp-2">
+                {services.subheading}
+              </p>
             </div>
-            <p className="font-sans text-xs text-[#475569] leading-relaxed">{services.subheading}</p>
             <a
               href="https://mantif.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] font-bold text-[#004B79] hover:text-[#DFB74A] transition-colors"
+              className="shrink-0 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#002137] text-white hover:bg-[#004B79] font-mono text-[9px] font-bold tracking-wider transition-all uppercase shadow-xs"
             >
-              <span>Explore Platform</span>
-              <ArrowUpRight className="w-3 h-3" />
+              <span>Explore</span>
+              <ArrowUpRight className="w-3 h-3 text-[#DFB74A]" />
             </a>
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* ATTRACTIVE & UNIQUE "ONE OVER ANOTHER" 3D FAN STACK CAROUSEL              */}
-        {/* ========================================================================= */}
-        <div className="relative w-full py-6 sm:py-8 flex flex-col items-center">
-          {/* 3D Stack Stage Container — Symmetrical Both Sides Visibility */}
+        {/* Minimalist Card Navigation Bar */}
+        <div className="flex items-center justify-between gap-2 py-1.5 mb-2 border-b border-[#002137]/10 shrink-0">
+          <div className="flex items-center gap-1.5">
+            {services.cards.map((card, idx) => {
+              const isActive = activeIndex === idx;
+              const accentColor = card.id === '01' ? '#DFB74A' : card.id === '02' ? '#004B79' : '#002137';
+              return (
+                <button
+                  key={card.id}
+                  onClick={() => handleSelectCard(idx)}
+                  onMouseEnter={() => {
+                    setCursorMode('hover');
+                    soundManager.playHoverTick();
+                  }}
+                  onMouseLeave={() => setCursorMode('default')}
+                  className={`px-3 py-1 rounded-full font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 ${
+                    isActive
+                      ? 'bg-[#002137] text-white shadow-xs'
+                      : 'text-[#64748B] hover:text-[#002137] hover:bg-[#002137]/5'
+                  }`}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{
+                      backgroundColor: isActive ? accentColor : '#94A3B8',
+                    }}
+                  />
+                  <span>
+                    {card.id} · {card.title}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrev}
+              onMouseEnter={() => {
+                setCursorMode('hover');
+                soundManager.playHoverTick();
+              }}
+              onMouseLeave={() => setCursorMode('default')}
+              className="w-7 h-7 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
+              aria-label="Previous service"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={handleNext}
+              onMouseEnter={() => {
+                setCursorMode('hover');
+                soundManager.playHoverTick();
+              }}
+              onMouseLeave={() => setCursorMode('default')}
+              className="w-7 h-7 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
+              aria-label="Next service"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* 3D Fan Stack Stage Container — Symmetrical Both Sides Visibility */}
+        <div className="relative w-full flex-1 min-h-0 py-1 flex flex-col items-center justify-center">
           <div
             onMouseEnter={() => setIsHoveredStack(true)}
             onMouseLeave={() => setIsHoveredStack(false)}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
             style={{ perspective: '1200px' }}
-            className="relative w-full max-w-[340px] sm:max-w-[370px] h-[440px] sm:h-[465px] mx-auto flex items-center justify-center"
+            className="relative w-full max-w-[340px] sm:max-w-[370px] h-[370px] sm:h-[400px] lg:h-[420px] mx-auto flex items-center justify-center"
           >
-            {/* Decorative Ambient Luxury Orbiting Ring behind the Stack */}
+            {/* Ambient Orbiting Rings */}
             <div
-              className="absolute -inset-10 sm:-inset-14 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
-              style={{
-                animation: 'spin 60s linear infinite',
-              }}
+              className="absolute -inset-8 sm:-inset-12 rounded-full border border-dashed border-[#DFB74A]/25 pointer-events-none"
+              style={{ animation: 'spin 60s linear infinite' }}
             />
             <div
-              className="absolute -inset-4 sm:-inset-6 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
-              style={{
-                animation: 'spin 40s linear infinite reverse',
-              }}
+              className="absolute -inset-3 sm:-inset-5 rounded-full border border-dotted border-[#002137]/15 pointer-events-none"
+              style={{ animation: 'spin 40s linear infinite reverse' }}
             />
 
             {/* Floating Prev Button (<) — Framed outside left fanned card */}
@@ -214,7 +246,7 @@ export const ServicesSection: React.FC = () => {
                 setCursorMode('default');
                 setIsHoveredStack(false);
               }}
-              className="absolute -left-4 sm:-left-20 lg:-left-24 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
+              className="absolute -left-4 sm:-left-20 lg:-left-24 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
               aria-label="Previous card in stack"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -232,7 +264,7 @@ export const ServicesSection: React.FC = () => {
                 setCursorMode('default');
                 setIsHoveredStack(false);
               }}
-              className="absolute -right-4 sm:-right-20 lg:-right-24 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
+              className="absolute -right-4 sm:-right-20 lg:-right-24 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/95 border border-[#002137]/15 shadow-md flex items-center justify-center text-[#002137] hover:border-[#DFB74A] hover:scale-110 active:scale-95 transition-all backdrop-blur-md"
               aria-label="Next card in stack"
             >
               <ChevronRight className="w-5 h-5" />
@@ -339,16 +371,16 @@ export const ServicesSection: React.FC = () => {
           </div>
 
         {/* Bottom credentials strip */}
-        <div className="mt-14 pt-6 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-mono text-[#64748B]">
+        <div className="pt-2.5 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[10px] sm:text-[11px] font-mono text-[#64748B] shrink-0">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#DFB74A]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A]" />
             <span>MANTIF is an MSME-registered EdTech startup — Tamil Nadu, India.</span>
           </div>
           <a
             href="https://mantif.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[#004B79] text-[#002137] font-semibold transition-colors flex items-center gap-1.5"
+            className="hover:text-[#004B79] text-[#002137] font-semibold transition-colors flex items-center gap-1"
           >
             <span>mantif.com ↗</span>
           </a>
