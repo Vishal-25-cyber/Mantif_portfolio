@@ -4,8 +4,6 @@ import {
   Pause,
   ChevronLeft,
   ChevronRight,
-  Volume2,
-  VolumeX,
 } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
 import { setCursorMode } from '../hooks/useCursor';
@@ -54,7 +52,6 @@ const TOTAL_ENTRY_STEPS = runningCharIdx;
 export const PhilosophySection: React.FC = () => {
   const [phase, setPhase] = useState<CinematicPhase>('typewriter');
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
 
   // ── ACT 1: TYPEWRITER FLY-IN LETTERS STATE ──
   const [typedCharsCount, setTypedCharsCount] = useState<number>(0);
@@ -75,15 +72,10 @@ export const PhilosophySection: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animFrameRef = useRef<number | null>(null);
 
-  // Sync mute state with soundManager
+  // Initialize and unlock audio graph by default
   useEffect(() => {
-    setIsMuted(soundManager.getMuted());
+    soundManager.unlockAudio();
   }, []);
-
-  const handleToggleMute = () => {
-    const muted = soundManager.toggleMute();
-    setIsMuted(muted);
-  };
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ACT 1: MOVIE ENTRY CARD LETTER-BY-LETTER FLY-IN WITH PRINTING SOUND
@@ -416,26 +408,6 @@ export const PhilosophySection: React.FC = () => {
               );
             })}
           </div>
-
-          {/* Sound Toggle (🔊 / 🔇) */}
-          <button
-            onClick={handleToggleMute}
-            onMouseEnter={() => {
-              setCursorMode('hover');
-              soundManager.playHoverTick();
-            }}
-            onMouseLeave={() => setCursorMode('default')}
-            className={`px-3 py-1 rounded-full border text-[10px] font-mono font-bold tracking-wider uppercase transition-all flex items-center gap-1.5 backdrop-blur-md ${
-              !isMuted
-                ? 'bg-[#DFB74A]/15 border-[#DFB74A]/50 text-[#DFB74A]'
-                : 'bg-white/5 border-white/10 text-white/50 hover:text-white'
-            }`}
-            aria-label={isMuted ? 'Turn Sound ON' : 'Mute Sound'}
-            title={isMuted ? 'Turn Sound ON for Typewriter & Ambience' : 'Mute Sound'}
-          >
-            {!isMuted ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            <span>{!isMuted ? 'SOUND ON' : 'SOUND OFF'}</span>
-          </button>
         </div>
       </div>
 

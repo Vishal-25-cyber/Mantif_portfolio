@@ -6,21 +6,28 @@
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
-  private isMuted: boolean = true;
+  private isMuted: boolean = false; // Enabled by default as requested
   private masterGain: GainNode | null = null;
   private bgmAudio: HTMLAudioElement | null = null;
   private currentTrack: 'leo' | 'master' = 'leo';
 
-  private init() {
+  public init() {
     if (this.ctx) return;
     try {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.ctx = new AudioCtx();
       this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.4, this.ctx.currentTime);
+      this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.45, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
     } catch {
       // AudioContext unavailable
+    }
+  }
+
+  public unlockAudio() {
+    this.init();
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
     }
   }
 
@@ -42,10 +49,10 @@ class SoundEngine {
 
     if (this.ctx) {
       if (this.ctx.state === 'suspended') {
-        this.ctx.resume();
+        this.ctx.resume().catch(() => {});
       }
       if (this.masterGain) {
-        const targetGain = this.isMuted ? 0 : 0.35;
+        const targetGain = this.isMuted ? 0 : 0.45;
         this.masterGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.05);
       }
     }
@@ -169,9 +176,13 @@ class SoundEngine {
    * Synthesizes mechanical key strike + cast-iron press thud + metallic paper impact
    */
   public playTypewriterKey(jitter = 0) {
-    if (this.isMuted || !this.ctx || !this.masterGain) return;
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx || !this.masterGain) return;
     try {
-      if (this.ctx.state === 'suspended') this.ctx.resume();
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
 
       const now = this.ctx.currentTime;
 
@@ -245,9 +256,11 @@ class SoundEngine {
    * Futuristic Digital Neural-Network Morph Sweep
    */
   public playDigitalMorphSweep() {
-    if (this.isMuted || !this.ctx || !this.masterGain) return;
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx || !this.masterGain) return;
     try {
-      if (this.ctx.state === 'suspended') this.ctx.resume();
+      if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
       const now = this.ctx.currentTime;
 
       const osc = this.ctx.createOscillator();
@@ -280,9 +293,11 @@ class SoundEngine {
    * Deep Cinematic Sub-Bass Impact for MANTIF Reveal
    */
   public playCinematicImpact() {
-    if (this.isMuted || !this.ctx || !this.masterGain) return;
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx || !this.masterGain) return;
     try {
-      if (this.ctx.state === 'suspended') this.ctx.resume();
+      if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
       const now = this.ctx.currentTime;
 
       // Sub-bass sine drop
@@ -323,9 +338,11 @@ class SoundEngine {
    * Deep cinematic curtain / shutter close transition
    */
   public playCurtainClose() {
-    if (this.isMuted || !this.ctx || !this.masterGain) return;
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx || !this.masterGain) return;
     try {
-      if (this.ctx.state === 'suspended') this.ctx.resume();
+      if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
       const now = this.ctx.currentTime;
 
       // Low frequency cloth swoosh
@@ -351,3 +368,13 @@ class SoundEngine {
 }
 
 export const soundManager = new SoundEngine();
+
+// Auto-unlock Web Audio context on the first user interaction anywhere on the page
+if (typeof window !== 'undefined') {
+  const tryUnlock = () => {
+    soundManager.unlockAudio();
+  };
+  ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach((evt) => {
+    window.addEventListener(evt, tryUnlock, { once: true, passive: true });
+  });
+}
