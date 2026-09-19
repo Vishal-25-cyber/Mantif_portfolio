@@ -50,8 +50,7 @@ export const PhilosophySection: React.FC = () => {
   const [typedCharsCount, setTypedCharsCount] = useState<number>(0);
   const [typewriterFading, setTypewriterFading] = useState<boolean>(false);
 
-  // ── ACT 2: GURUKULAM REVEAL STATE ──
-  const [gurukulamStep, setGurukulamStep] = useState<number>(0);
+  // ── ACT 2: GURUKULAM REVEAL STATE (Clean Unobstructed Visual) ──
 
   // ── ACT 3: TRANSFORMATION STATE ──
   const [morphProgress, setMorphProgress] = useState<number>(0); // 0 (Ancient) to 1 (Modern AI)
@@ -120,35 +119,27 @@ export const PhilosophySection: React.FC = () => {
   }, [phase, isPlaying]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ACT 2: GURUKULAM REVEALS
+  // ACT 2: GURUKULAM REVEALS (CLEAN UNOBSTRUCTED HISTORICAL SCENE)
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (phase !== 'gurukulam') return;
 
-    setGurukulamStep(0);
     soundManager.playHistoricalAmbience();
 
-    const t1 = window.setTimeout(() => setGurukulamStep(1), 1200);
-    const t2 = window.setTimeout(() => setGurukulamStep(2), 3200);
-    const t3 = window.setTimeout(() => setGurukulamStep(3), 5200);
-
-    // Auto advance into smooth transformation after user has experienced the ancient scene
+    // Swiftly transition into transformation without unnecessary waiting
     const advanceTimer = window.setTimeout(() => {
       if (isPlaying) {
         setPhase('transformation');
       }
-    }, 7200);
+    }, 1600);
 
     return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-      window.clearTimeout(t3);
       window.clearTimeout(advanceTimer);
     };
   }, [phase, isPlaying]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ACT 3: SMOOTH TRANSFORMATION (GURU & STUDENTS → AI & LAPTOP LEARNERS)
+  // ACT 3: SMOOTH RAPID TRANSFORMATION (GURU & STUDENTS → AI & LAPTOP LEARNERS)
   // ═══════════════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (phase !== 'transformation') return;
@@ -157,9 +148,9 @@ export const PhilosophySection: React.FC = () => {
     setTransformTextStep(0);
     soundManager.playDigitalMorphSweep();
 
-    // Smooth continuous morph from 0.0 to 1.0 over 5.5s
+    // Fast, smooth continuous morph from 0.0 to 1.0 over 2.4s
     const startTime = Date.now();
-    const duration = 5500;
+    const duration = 2400;
 
     const morphInterval = window.setInterval(() => {
       if (!isPlaying) return;
@@ -170,18 +161,18 @@ export const PhilosophySection: React.FC = () => {
       if (p >= 1) {
         window.clearInterval(morphInterval);
       }
-    }, 30);
+    }, 25);
 
-    const t1 = window.setTimeout(() => setTransformTextStep(1), 800);
-    const t2 = window.setTimeout(() => setTransformTextStep(2), 2600);
-    const t3 = window.setTimeout(() => setTransformTextStep(3), 4200);
+    const t1 = window.setTimeout(() => setTransformTextStep(1), 350);
+    const t2 = window.setTimeout(() => setTransformTextStep(2), 1000);
+    const t3 = window.setTimeout(() => setTransformTextStep(3), 1700);
 
-    // After transformation finishes and is held, trigger the screen closing!
+    // After transformation finishes and holds briefly, trigger the screen closing
     const closeTrigger = window.setTimeout(() => {
       if (isPlaying) {
         setPhase('closing');
       }
-    }, 7600);
+    }, 3200);
 
     return () => {
       window.clearInterval(morphInterval);
@@ -576,42 +567,7 @@ export const PhilosophySection: React.FC = () => {
               </div>
             )}
 
-            {/* ── GURUKULAM TEXT REVEAL (ACT 2) ── */}
-            {phase === 'gurukulam' && (
-              <div className="absolute inset-x-0 bottom-6 sm:bottom-10 z-20 px-6 max-w-2xl mx-auto text-center">
-                <div className="p-4 sm:p-5 rounded-2xl bg-black/75 border border-white/10 backdrop-blur-md shadow-2xl flex flex-col items-center gap-1.5">
-                  <p
-                    className={`font-serif italic text-lg sm:text-xl text-[#FAF8F5] transition-all duration-700 ${
-                      gurukulamStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-                    }`}
-                  >
-                    "Once, learning was personal."
-                  </p>
 
-                  <p
-                    className={`font-sans text-xs sm:text-sm text-[#DFB74A] transition-all duration-700 ${
-                      gurukulamStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-                    }`}
-                  >
-                    Knowledge was passed from one generation to another.
-                  </p>
-
-                  <div
-                    className={`mt-2 pt-2 border-t border-white/15 flex items-center justify-center gap-3 font-mono text-[9px] sm:text-[10px] font-bold text-white/80 uppercase tracking-widest transition-all duration-700 ${
-                      gurukulamStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-                    }`}
-                  >
-                    <span>Teacher</span>
-                    <span className="text-[#DFB74A]">✦</span>
-                    <span>Student</span>
-                    <span className="text-[#DFB74A]">✦</span>
-                    <span>Time</span>
-                    <span className="text-[#DFB74A]">✦</span>
-                    <span>Experience</span>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* ── TRANSFORMATION TEXT REVEAL (ACT 3) ── */}
             {phase === 'transformation' && (
