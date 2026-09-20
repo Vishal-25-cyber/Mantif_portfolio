@@ -347,4 +347,9 @@ body {
   }
 }
 
+/* Fallback OSM dark filter */
+.osm-dark-tiles {
+  filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(90%);
+}
+
 

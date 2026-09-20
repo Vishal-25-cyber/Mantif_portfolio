@@ -142,12 +142,11 @@ export const GoogleMapsStoryExperience: React.FC<GoogleMapsStoryExperienceProps>
     });
     mapInstanceRef.current = map;
 
-    // 1. CARTO Dark Matter Tile Layer (High reliability, fast multi-domain CDN)
-    const cartoLayer = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    // 1. ESRI World Dark Gray Canvas Base (100% Free, NO API KEY, NO WATERMARK)
+    const esriBaseLayer = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
       {
-        subdomains: 'abcd',
-        maxZoom: 19,
+        maxZoom: 16,
         minZoom: 1,
         keepBuffer: 3,
         updateWhenZooming: true,
@@ -155,23 +154,34 @@ export const GoogleMapsStoryExperience: React.FC<GoogleMapsStoryExperienceProps>
         crossOrigin: true,
       }
     );
-    cartoLayer.addTo(map);
+    esriBaseLayer.addTo(map);
 
-    // Fallback: If CARTO fails, add ESRI Canvas Dark Gray as backup
-    cartoLayer.on('tileerror', () => {
-      if (map && !map.hasLayer(esriBackupLayer)) {
-        esriBackupLayer.addTo(map);
-      }
-    });
-
-    const esriBackupLayer = L.tileLayer(
-      'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    // 2. ESRI World Dark Gray Reference Layer (Crisp English City Labels & Roads)
+    const esriLabelsLayer = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
       {
         maxZoom: 16,
         minZoom: 1,
-        keepBuffer: 2,
+        keepBuffer: 3,
+        updateWhenZooming: true,
+        updateWhenIdle: false,
+        crossOrigin: true,
       }
     );
+    esriLabelsLayer.addTo(map);
+
+    // 3. Fallback: OpenStreetMap with Dark Filter (Open source, zero watermark)
+    const osmBackupLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      minZoom: 1,
+      className: 'osm-dark-tiles',
+    });
+
+    esriBaseLayer.on('tileerror', () => {
+      if (map && !map.hasLayer(osmBackupLayer)) {
+        osmBackupLayer.addTo(map);
+      }
+    });
 
     // Dynamic layer group for vector boundaries, filaments, and hubs
     const layersGroup = L.layerGroup().addTo(map);
