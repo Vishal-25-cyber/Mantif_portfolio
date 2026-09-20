@@ -51,85 +51,9 @@ class BulletSoundEngine {
   }
 
   /**
-   * Play a sharp, punchy bullet impact sound
-   * @param index Letter index (1..23) for slight organic pitch variation
-   * @param isFinal True for the final '?' mark, adding metallic ricochet resonance
+   * Typing / bullet impact sound removed per user request
    */
-  public playBulletImpact(index: number = 0, isFinal: boolean = false) {
-    const ctx = this.getContext();
-    if (!ctx) return;
-
-    if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
-    }
-
-    const now = ctx.currentTime;
-
-    // 1. Supersonic Crack / Snap (Noise burst through bandpass filter)
-    const bufferSize = Math.floor(ctx.sampleRate * 0.04);
-    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      output[i] = Math.random() * 2 - 1;
-    }
-
-    const whiteNoise = ctx.createBufferSource();
-    whiteNoise.buffer = noiseBuffer;
-
-    const bandpass = ctx.createBiquadFilter();
-    bandpass.type = 'bandpass';
-    const jitter = ((index * 79) % 30) - 15;
-    bandpass.frequency.setValueAtTime(3200 + jitter * 20, now);
-    bandpass.Q.setValueAtTime(3.5, now);
-
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.35, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
-
-    whiteNoise.connect(bandpass);
-    bandpass.connect(noiseGain);
-    noiseGain.connect(ctx.destination);
-
-    whiteNoise.start(now);
-    whiteNoise.stop(now + 0.04);
-
-    // 2. Heavy Bullet Body Punch (Triangle wave pitch drop)
-    const osc = ctx.createOscillator();
-    const oscGain = ctx.createGain();
-
-    osc.type = 'triangle';
-    const startFreq = 360 + jitter * 5;
-    osc.frequency.setValueAtTime(startFreq, now);
-    osc.frequency.exponentialRampToValueAtTime(45, now + 0.055);
-
-    oscGain.gain.setValueAtTime(0.48, now);
-    oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
-
-    osc.connect(oscGain);
-    oscGain.connect(ctx.destination);
-
-    osc.start(now);
-    osc.stop(now + 0.07);
-
-    // 3. Final '?' Impact: Metallic Ricochet Ring
-    if (isFinal) {
-      const metalOsc = ctx.createOscillator();
-      const metalGain = ctx.createGain();
-
-      metalOsc.type = 'sine';
-      metalOsc.frequency.setValueAtTime(1450, now);
-      metalOsc.frequency.exponentialRampToValueAtTime(820, now + 0.28);
-
-      metalGain.gain.setValueAtTime(0.25, now);
-      metalGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
-
-      metalOsc.connect(metalGain);
-      metalGain.connect(ctx.destination);
-
-      metalOsc.start(now + 0.01);
-      metalOsc.stop(now + 0.34);
-    }
-  }
+  public playBulletImpact(_index: number = 0, _isFinal: boolean = false) {}
 
   /**
    * Unique Cinematic 3D Globe Quantum Prismatic Detonation Sound

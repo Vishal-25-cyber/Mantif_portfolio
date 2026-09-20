@@ -178,11 +178,6 @@ export const PhilosophySection: React.FC = () => {
       charIdx++;
       setTypedCharsCount(charIdx);
 
-      // Play bullet typing sound for each character — only fires while section is visible
-      if (charIdx <= TOTAL_ENTRY_LETTERS) {
-        bulletAudio.playBulletImpact(charIdx, charIdx === TOTAL_ENTRY_LETTERS);
-      }
-
       if (charIdx >= TOTAL_ENTRY_LETTERS) {
         isFinished = true;
         window.clearInterval(interval);

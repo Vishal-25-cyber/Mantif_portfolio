@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
 
 import { setCursorMode } from '../hooks/useCursor';
+import { soundManager } from '../audio/soundManager';
 
 interface IntroSectionProps {
   onIntroComplete?: () => void;
@@ -18,6 +19,13 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
   const [logoTilt, setLogoTilt] = useState({ x: 0, y: 0 });
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [logoBurst, setLogoBurst] = useState(false);
+
+  const triggerAudioUnlock = () => {
+    soundManager.unlockAudio();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('mantif:start-audio'));
+    }
+  };
 
   const handleLogoMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -125,6 +133,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      triggerAudioUnlock();
       if (stage !== 'completed' && (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter')) {
         skipIntro();
       }
@@ -144,6 +153,9 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
   return (
     <section
       id="intro"
+      onClick={triggerAudioUnlock}
+      onPointerDown={triggerAudioUnlock}
+      onTouchStart={triggerAudioUnlock}
       className="relative w-full h-screen h-[100dvh] flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
       <div

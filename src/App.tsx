@@ -13,11 +13,10 @@ import { FooterSection } from './sections/FooterSection';
 
 // ── Background Music ─────────────────────────────────────────────────────────
 // Plays Tamil mass BGM during the intro only.
-// Strategy:
-//   1. Try direct unmuted autoplay with fade-in
-//   2. Try muted autoplay, then immediately unmute (Chrome allows this once
-//      the audio is already playing — no gesture needed)
-//   3. If browser keeps it muted, fall back to first pointer/key gesture
+// Automatic playback strategy:
+//   1. Try unmuted direct autoplay immediately on mount/refresh
+//   2. If browser requires user activation, immediately start playing muted so the stream is active
+//   3. Aggressively listen to any user gesture (enter key, click, touch, mouse move/hover, scroll, focus) to instantly unmute and fade-in
 function useBgMusic(src: string): React.MutableRefObject<(() => void) | null> {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const started = useRef(false);
@@ -44,11 +43,11 @@ function useBgMusic(src: string): React.MutableRefObject<(() => void) | null> {
       }, 50);
     };
 
-    // Smooth fade-in 0 → target over ~1.5 s
+    // Smooth fade-in 0 → target over ~1.2 s
     const fadeIn = (target = 0.45) => {
-      audio.volume = 0;
-      let v = 0;
-      const step = target / 30;
+      audio.muted = false;
+      let v = audio.volume || 0;
+      const step = target / 24;
       const timer = setInterval(() => {
         v = Math.min(v + step, target);
         audio.volume = v;
@@ -56,53 +55,78 @@ function useBgMusic(src: string): React.MutableRefObject<(() => void) | null> {
       }, 50);
     };
 
+    const tryUnmuteAndPlay = () => {
+      if (started.current) return;
+      audio.muted = false;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            started.current = true;
+            removeListeners();
+            fadeIn();
+          })
+          .catch(() => {
+            // If still blocked, make sure muted is playing
+            audio.muted = true;
+            audio.play().catch(() => {});
+          });
+      }
+    };
+
+    const events = [
+      'pointerdown',
+      'mousedown',
+      'click',
+      'touchstart',
+      'touchend',
+      'keydown',
+      'keyup',
+      'focus',
+      'mouseenter',
+      'pointermove',
+      'mousemove',
+      'wheel',
+      'scroll',
+      'visibilitychange',
+      'mantif:start-audio'
+    ];
+
     const removeListeners = () => {
-      window.removeEventListener('pointerdown', onGesture);
-      window.removeEventListener('click', onGesture);
-      window.removeEventListener('keydown', onGesture);
-      window.removeEventListener('touchstart', onGesture);
-      window.removeEventListener('mousemove', onGesture);
-      window.removeEventListener('wheel', onGesture);
-      window.removeEventListener('scroll', onGesture);
+      events.forEach((evt) => {
+        window.removeEventListener(evt, tryUnmuteAndPlay, true);
+        document.removeEventListener(evt, tryUnmuteAndPlay, true);
+      });
     };
 
     const attachListeners = () => {
-      window.addEventListener('pointerdown', onGesture, { passive: true });
-      window.addEventListener('click', onGesture, { passive: true });
-      window.addEventListener('keydown', onGesture, { passive: true });
-      window.addEventListener('touchstart', onGesture, { passive: true });
-      window.addEventListener('mousemove', onGesture, { passive: true });
-      window.addEventListener('wheel', onGesture, { passive: true });
-      window.addEventListener('scroll', onGesture, { passive: true });
+      events.forEach((evt) => {
+        window.addEventListener(evt, tryUnmuteAndPlay, { passive: true, capture: true });
+        document.addEventListener(evt, tryUnmuteAndPlay, { passive: true, capture: true });
+      });
     };
 
-    // Gesture fallback: starts the audio seamlessly on first interaction
-    const onGesture = () => {
-      if (started.current) return;
-      audio.muted = false;
-      audio.play()
-        .then(() => {
-          started.current = true;
-          removeListeners();
-          fadeIn();
-        })
-        .catch(() => {});
-    };
-
-    // ── Direct autoplay attempt ───────────────────────────────────────────
+    // 1. Immediate direct unmuted autoplay attempt
     audio.volume = 0;
     audio.muted = false;
-    audio.play()
-      .then(() => {
-        // Direct unmuted autoplay permitted by browser
-        started.current = true;
-        fadeIn();
-      })
-      .catch(() => {
-        // Browser requires user interaction on this domain (first-time visit)
-        // Attach listeners so any mouse movement, touch, click, or keypress begins audio seamlessly
-        attachListeners();
-      });
+    const initialPromise = audio.play();
+
+    if (initialPromise !== undefined) {
+      initialPromise
+        .then(() => {
+          started.current = true;
+          fadeIn();
+        })
+        .catch(() => {
+          // 2. Direct unmuted blocked by browser policy -> immediately play muted in background
+          audio.muted = true;
+          audio.play().catch(() => {});
+          // 3. Attach listeners so the VERY FIRST interaction immediately unmutes and fades in
+          attachListeners();
+        });
+    } else {
+      attachListeners();
+    }
 
     return () => {
       audio.pause();

@@ -13,9 +13,7 @@ class SoundEngine {
   public playHandshakeChord() {
     bulletAudio.playHandshakeChord();
   }
-  public playLetterReveal(index?: number) {
-    bulletAudio.playLetterReveal(index);
-  }
+  public playLetterReveal(_index?: number) {}
   public playRopePluck(_pitch?: number) {}
   public playHoverTick() {
     bulletAudio.playHoverTick();
@@ -23,9 +21,7 @@ class SoundEngine {
   public playClick() {
     bulletAudio.playHoverTick();
   }
-  public playTypewriterKey(jitter?: number, isFinal?: boolean) {
-    bulletAudio.playBulletImpact(jitter, isFinal);
-  }
+  public playTypewriterKey(_jitter?: number, _isFinal?: boolean) {}
   public playDigitalMorphSweep() {}
   public playCinematicImpact() {}
   public playHistoricalAmbience() {}
