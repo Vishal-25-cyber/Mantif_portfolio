@@ -162,7 +162,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
         }}
       />
 
-      {/* IT Tech Headquarters Architectural Background - visible clearly and professionally during title reveal & completed screen */}
+      {/* IT Tech Headquarters Architectural Background - clear, vivid, and 100% free of white haze */}
       <div
         className={`absolute inset-0 w-full h-full pointer-events-none z-0 transition-opacity duration-1000 ease-out ${
           isTitleActive ? 'opacity-100' : 'opacity-0'
@@ -172,25 +172,15 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
         <img
           src="/images/it_building_bg.jpg"
           alt="MANTIF IT Campus Architecture"
-          className="w-full h-full object-cover object-center filter brightness-[1.02] contrast-[1.05]"
+          className="w-full h-full object-cover object-center"
         />
-        {/* Balanced Architectural Luminance Scrim: Preserves the glass architecture, glowing windows and reflection pool while ensuring razor-sharp typography contrast */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse 85% 78% at 50% 48%, rgba(250, 248, 245, 0.52) 0%, rgba(250, 248, 245, 0.35) 50%, rgba(0, 22, 38, 0.5) 100%)',
-          }}
-        />
-        {/* Soft top gradient for clean header integration */}
-        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#FAF8F5]/80 via-[#FAF8F5]/30 to-transparent pointer-events-none" />
-        {/* Soft bottom gradient for continue button */}
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#001728]/50 via-[#001728]/15 to-transparent pointer-events-none" />
       </div>
 
-      {/* Ambient radial gradient spotlight */}
+      {/* Ambient radial gradient spotlight - ONLY during walk and handshake */}
       <div
-        className="absolute inset-0 pointer-events-none z-[1]"
+        className={`absolute inset-0 pointer-events-none z-[1] transition-opacity duration-700 ${
+          isSceneActive ? 'opacity-100' : 'opacity-0'
+        }`}
         aria-hidden="true"
         style={{
           background: 'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,75,121,0.05) 0%, transparent 70%)',
@@ -348,8 +338,8 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                     style={{
                       fontSize: 'clamp(4rem, 12vw, 9.5rem)',
                       textShadow: item.isLambda
-                        ? '0 0 35px rgba(223,183,74,0.7), 0 2px 10px rgba(255,255,255,0.95), 0 8px 30px rgba(0,22,38,0.35)'
-                        : '0 2px 12px rgba(255,255,255,0.95), 0 0 26px rgba(255,255,255,0.8), 0 8px 30px rgba(0,22,38,0.25)',
+                        ? '0 6px 30px rgba(223,183,74,0.4), 0 2px 4px rgba(0,0,0,0.35)'
+                        : '0 6px 30px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3)',
                     }}
                   >
                     {item.char}
@@ -361,12 +351,12 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
 
           {/* Subtitle reveal */}
           <div className={`flex flex-col items-center mt-8 transition-all duration-800 ${showSubtitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="flex items-center gap-3 sm:gap-5 mb-4 bg-[#FAF8F5]/85 backdrop-blur-md px-5 py-1.5 rounded-full border border-[#002137]/15 shadow-sm">
-              <span className="w-8 sm:w-16 h-[1.5px] bg-[#DFB74A]" />
-              <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.25em] text-[#002137] uppercase">
+            <div className="flex items-center gap-3 sm:gap-5 mb-4">
+              <span className="w-10 sm:w-20 h-[1.5px] bg-[#DFB74A]" />
+              <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.25em] text-[#002137] uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]">
                 Human × Artificial Intelligence
               </span>
-              <span className="w-8 sm:w-16 h-[1.5px] bg-[#DFB74A]" />
+              <span className="w-10 sm:w-20 h-[1.5px] bg-[#DFB74A]" />
             </div>
 
             {/* Standalone 3D Pop-Up Logo (Without Card Background) */}
@@ -394,12 +384,12 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 />
               )}
 
-              {/* Ambient radial gold & white backlight disk for clear depth against the architectural facade */}
+              {/* Ambient radial gold backlight */}
               <div
-                className="absolute w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-gradient-to-tr from-[#DFB74A]/30 via-[#FAF8F5]/75 to-[#DFB74A]/25 blur-2xl pointer-events-none transition-opacity duration-500"
+                className="absolute w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-gradient-to-tr from-[#DFB74A]/25 via-[#004B79]/15 to-[#DFB74A]/20 blur-2xl pointer-events-none transition-opacity duration-500"
                 style={{
                   animation: showSubtitle ? 'logoAuraPulse 4s ease-in-out infinite' : undefined,
-                  opacity: isLogoHovered ? 0.95 : 0.75,
+                  opacity: isLogoHovered ? 0.95 : 0.6,
                 }}
               />
 
@@ -422,7 +412,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                     loading="eager"
                     decoding="async"
                     fetchPriority="high"
-                    className="w-full h-full object-contain filter drop-shadow-[0_12px_28px_rgba(0,33,55,0.22)] drop-shadow-[0_4px_12px_rgba(223,183,74,0.35)] drop-shadow-[0_0_16px_rgba(255,255,255,0.9)] transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-contain filter drop-shadow-[0_12px_28px_rgba(0,33,55,0.22)] drop-shadow-[0_4px_12px_rgba(223,183,74,0.35)] transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'https://mantif.com/images/mantif_icon.png';
                     }}
@@ -443,11 +433,11 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
           onClick={scrollToNext}
           onMouseEnter={() => setCursorMode('hover')}
           onMouseLeave={() => setCursorMode('default')}
-          className="group flex items-center gap-2.5 text-[#002137] bg-[#FAF8F5]/85 hover:bg-[#FAF8F5] backdrop-blur-md px-5 py-2 rounded-full border border-[#002137]/15 shadow-sm transition-all hover:scale-105"
+          className="group flex flex-col items-center gap-2 text-[#002137] hover:text-[#DFB74A] transition-colors"
         >
-          <span className="font-mono text-[10px] tracking-[0.25em] uppercase font-bold text-[#002137]">Continue</span>
-          <div className="w-6 h-6 rounded-full border border-[#002137]/30 flex items-center justify-center text-[#002137] group-hover:border-[#002137] group-hover:translate-y-0.5 transition-all">
-            <ArrowDown className="w-3 h-3" />
+          <span className="font-mono text-[10px] tracking-[0.25em] uppercase font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.2)]">Continue</span>
+          <div className="w-8 h-8 rounded-full border border-[#002137]/30 flex items-center justify-center group-hover:border-[#DFB74A] group-hover:translate-y-1 transition-all bg-black/5">
+            <ArrowDown className="w-3.5 h-3.5" />
           </div>
         </button>
       </div>
