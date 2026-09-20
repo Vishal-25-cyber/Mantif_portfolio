@@ -8,7 +8,6 @@ import { siteContent } from '../data/content';
 import { ServiceCard } from '../components/ServiceCard';
 import { soundManager } from '../audio/soundManager';
 import { setCursorMode } from '../hooks/useCursor';
-import { CentralTorchStage } from '../components/CentralTorchStage';
 
 export const ServicesSection: React.FC = () => {
   const { services } = siteContent;
@@ -267,8 +266,8 @@ export const ServicesSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Central Torch Stage with Flash & Expanding Light Shadow */}
-        <CentralTorchStage activeCardIndex={activeIndex} onTorchClick={handleNext}>
+        {/* 3D Fan Stack Stage Container — Symmetrical Both Sides Visibility */}
+        <div className="relative w-full flex-1 min-h-0 py-1 flex flex-col items-center justify-center">
           <div
             onMouseEnter={() => setIsHoveredStack(true)}
             onMouseLeave={() => setIsHoveredStack(false)}
@@ -421,7 +420,7 @@ export const ServicesSection: React.FC = () => {
                 );
               })}
           </div>
-        </CentralTorchStage>
+        </div>
 
         {/* Bottom credentials strip */}
         <div className="pt-2.5 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[10px] sm:text-[11px] font-mono text-[#64748B] shrink-0">
