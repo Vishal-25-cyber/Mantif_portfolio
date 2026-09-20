@@ -6,6 +6,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
+import { bulletAudio } from '../audio/bulletAudio';
 import { setCursorMode } from '../hooks/useCursor';
 
 type CinematicPhase =
@@ -142,6 +143,8 @@ export const PhilosophySection: React.FC = () => {
         for (const entry of entries) {
           if (entry.intersectionRatio < 0.1) {
             wasOutOfView = true;
+            // Stop all sounds immediately when user scrolls away
+            setIsPlaying(false);
           } else if (entry.intersectionRatio >= 0.25 && wasOutOfView) {
             wasOutOfView = false;
             resetAll();
@@ -174,6 +177,11 @@ export const PhilosophySection: React.FC = () => {
 
       charIdx++;
       setTypedCharsCount(charIdx);
+
+      // Play bullet typing sound for each character — only fires while section is visible
+      if (charIdx <= TOTAL_ENTRY_LETTERS) {
+        bulletAudio.playBulletImpact(charIdx, charIdx === TOTAL_ENTRY_LETTERS);
+      }
 
       if (charIdx >= TOTAL_ENTRY_LETTERS) {
         isFinished = true;
