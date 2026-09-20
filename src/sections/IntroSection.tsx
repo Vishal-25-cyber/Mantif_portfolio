@@ -148,9 +148,11 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       id="intro"
       className="relative w-full h-screen h-[100dvh] flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
-      {/* Full-bleed Checked Grid Background - Covers 100% of the screen edge-to-edge */}
+      {/* Full-bleed Checked Grid Background - ONLY visible during intro (walk & handshake), fades out for title */}
       <div
-        className="absolute inset-0 w-full h-full pointer-events-none z-0"
+        className={`absolute inset-0 w-full h-full pointer-events-none z-0 transition-opacity duration-1000 ${
+          isSceneActive ? 'opacity-100' : 'opacity-0'
+        }`}
         aria-hidden="true"
         style={{
           backgroundImage:
