@@ -6,7 +6,6 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
-import { bulletAudio } from '../audio/bulletAudio';
 import { setCursorMode } from '../hooks/useCursor';
 
 type CinematicPhase =
@@ -175,11 +174,6 @@ export const PhilosophySection: React.FC = () => {
 
       charIdx++;
       setTypedCharsCount(charIdx);
-
-      if (charIdx <= TOTAL_ENTRY_LETTERS) {
-        bulletAudio.playBulletImpact(charIdx, charIdx === TOTAL_ENTRY_LETTERS);
-        soundManager.playTypewriterKey(charIdx, charIdx === TOTAL_ENTRY_LETTERS);
-      }
 
       if (charIdx >= TOTAL_ENTRY_LETTERS) {
         isFinished = true;
