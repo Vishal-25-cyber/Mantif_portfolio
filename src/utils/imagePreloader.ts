@@ -59,6 +59,7 @@ export const CRITICAL_IMAGES = [
   '/images/team_solairaj_clean.webp',
   '/images/mantif_icon.webp',
   '/images/mantif_logo.webp',
+  '/images/watercolor_people_mantif_rich_wide.webp',
 ];
 
 /**

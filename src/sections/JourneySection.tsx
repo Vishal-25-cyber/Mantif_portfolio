@@ -774,6 +774,11 @@ export const JourneySection: React.FC = () => {
                             playsInline
                             className="w-full h-full object-cover"
                           />
+                          {/* Timecode overlay */}
+                          <div className="absolute top-2.5 left-2.5 z-30 font-mono text-[8px] sm:text-[9px] text-[#FAF8F5] tracking-widest uppercase flex items-center gap-1.5 bg-black/85 px-2.5 py-0.5 rounded border border-white/10 backdrop-blur-xs shadow-md">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                            <span className="font-bold">MANTIF ARCHIVE // SCENE 0{activeChapterIdx + 1}</span>
+                          </div>
                           <button
                             onClick={() => openModal(activeItem)}
                             className="absolute inset-0 z-30 flex items-center justify-center bg-black/25 hover:bg-black/10 transition-colors group"
@@ -808,9 +813,21 @@ export const JourneySection: React.FC = () => {
                               alt={activeItem.milestone}
                               loading="eager"
                               decoding="async"
+                              onError={(e) => {
+                                const target = e.currentTarget;
+                                if (!target.src.endsWith('.jpg')) {
+                                  target.src = activeItem.mediaSrc;
+                                }
+                              }}
                               className="w-full h-full object-cover transition-transform duration-[12000ms] ease-out group-hover:scale-105"
                               style={{
                                 animation: 'theatreKenBurns 16s ease-in-out infinite alternate',
+                                objectPosition:
+                                  activeItem.letter === 'T'
+                                    ? 'center 22%'
+                                    : activeItem.letter === 'F'
+                                    ? 'center 45%'
+                                    : 'center',
                               }}
                             />
                           </picture>
@@ -905,8 +922,17 @@ export const JourneySection: React.FC = () => {
                           onMouseLeave={() => setCursorMode('default')}
                           className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-[#DFB74A] to-[#F5D77F] text-[#002137] hover:from-white hover:to-white font-mono text-[10px] sm:text-[11.5px] font-bold tracking-wider uppercase transition-all shadow-[0_0_18px_rgba(223,183,74,0.35)] hover:scale-105"
                         >
-                          <Maximize2 className="w-3.5 h-3.5" />
-                          <span>FULL RESOLUTION ARCHIVE</span>
+                          {activeItem.mediaType === 'video' ? (
+                            <>
+                              <Play className="w-3.5 h-3.5 fill-current" />
+                              <span>PLAY CINEMATIC VIDEO</span>
+                            </>
+                          ) : (
+                            <>
+                              <Maximize2 className="w-3.5 h-3.5" />
+                              <span>FULL RESOLUTION ARCHIVE</span>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>

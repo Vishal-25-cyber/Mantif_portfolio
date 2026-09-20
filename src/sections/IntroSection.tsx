@@ -148,9 +148,22 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       id="intro"
       className="relative w-full h-screen h-[100dvh] flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
+      {/* Full-bleed Checked Grid Background - covers full page during walk & handshake */}
+      <div
+        className={`absolute inset-0 w-full h-full pointer-events-none z-0 transition-opacity duration-1000 ${isSceneActive ? 'opacity-100' : 'opacity-0'
+          }`}
+        aria-hidden="true"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(0, 33, 55, 0.16) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 33, 55, 0.16) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+          backgroundPosition: 'center center',
+        }}
+      />
+
       {/* Ambient radial gradient spotlight */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0"
         aria-hidden="true"
         style={{
           background: 'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,75,121,0.06) 0%, transparent 70%)',
@@ -166,15 +179,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
           {/* Ground horizon line */}
           <div className="absolute bottom-[22%] inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#002137]/12 to-transparent pointer-events-none" />
 
-          {/* Subtle grid lines - editorial touch */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-            style={{
-              backgroundImage: 'linear-gradient(#002137 1px, transparent 1px), linear-gradient(90deg, #002137 1px, transparent 1px)',
-              backgroundSize: '80px 80px'
-            }}
-          />
-
-          <div className="relative w-full max-w-3xl h-72 sm:h-[330px] flex items-end justify-center">
+          <div className="relative w-full max-w-4xl h-80 sm:h-[380px] md:h-[440px] flex items-end justify-center">
 
             {/* Human character */}
             <div
@@ -183,11 +188,11 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 transition: stage === 'handshake' ? 'transform 0.5s cubic-bezier(0.2,1,0.3,1)' : undefined,
                 transform: stage === 'walking'
                   ? 'translateX(-180%)'
-                  : 'translateX(var(--human-target, -60px))',
+                  : 'translateX(var(--human-target, -80px))',
                 animation: stage === 'walking' ? 'walkHumanAnim 2.6s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
               }}
             >
-              <svg viewBox="0 0 64 130" className="w-24 h-[195px] sm:w-[120px] sm:h-[244px] overflow-visible" fill="none">
+              <svg viewBox="0 0 64 130" className="w-28 h-[225px] sm:w-[155px] sm:h-[315px] md:w-[185px] md:h-[375px] overflow-visible" fill="none">
                 {/* Head with warm skin tone */}
                 <ellipse cx="32" cy="19" rx="11" ry="12" fill="#F5CBA7" stroke="#002137" strokeWidth="2" />
                 {/* Hair */}
@@ -222,7 +227,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 {/* Shadow */}
                 <ellipse cx="32" cy="118" rx="16" ry="3.5" fill="#002137" opacity="0.08" />
               </svg>
-              <span className="font-mono text-[10px] sm:text-[11px] tracking-[0.25em] text-[#64748B] uppercase mt-2 font-bold">HUMAN</span>
+              <span className="font-mono text-[11px] sm:text-xs md:text-sm tracking-[0.25em] text-[#64748B] uppercase mt-2.5 font-bold">HUMAN</span>
             </div>
 
 
@@ -233,11 +238,11 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 transition: stage === 'handshake' ? 'transform 0.5s cubic-bezier(0.2,1,0.3,1)' : undefined,
                 transform: stage === 'walking'
                   ? 'translateX(180%)'
-                  : 'translateX(var(--robot-target, 60px))',
+                  : 'translateX(var(--robot-target, 80px))',
                 animation: stage === 'walking' ? 'walkRobotAnim 2.6s cubic-bezier(0.25,1,0.5,1) forwards' : undefined,
               }}
             >
-              <svg viewBox="0 0 64 130" className="w-24 h-[195px] sm:w-[120px] sm:h-[244px] overflow-visible" fill="none">
+              <svg viewBox="0 0 64 130" className="w-28 h-[225px] sm:w-[155px] sm:h-[315px] md:w-[185px] md:h-[375px] overflow-visible" fill="none">
                 {/* Antenna */}
                 <line x1="32" y1="0" x2="32" y2="10" stroke="#DFB74A" strokeWidth="2.5" strokeLinecap="round" />
                 <circle cx="32" cy="0" r="3" fill="#DFB74A" />
@@ -277,7 +282,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
                 {/* Shadow */}
                 <ellipse cx="32" cy="118" rx="16" ry="3.5" fill="#002137" opacity="0.08" />
               </svg>
-              <span className="font-mono text-[10px] sm:text-[11px] tracking-[0.25em] text-[#004B79] uppercase mt-2 font-bold">AI ASSISTANT</span>
+              <span className="font-mono text-[11px] sm:text-xs md:text-sm tracking-[0.25em] text-[#004B79] uppercase mt-2.5 font-bold">AI ASSISTANT</span>
             </div>
           </div>
 
@@ -423,13 +428,19 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       {/* Walk and 3D Logo Pop-Up animations */}
       <style>{`
         :root {
-          --human-target: -48px;
-          --robot-target: 48px;
+          --human-target: -60px;
+          --robot-target: 60px;
         }
         @media (min-width: 640px) {
           :root {
-            --human-target: -60px;
-            --robot-target: 60px;
+            --human-target: -80px;
+            --robot-target: 80px;
+          }
+        }
+        @media (min-width: 768px) {
+          :root {
+            --human-target: -96px;
+            --robot-target: 96px;
           }
         }
         @keyframes walkHumanAnim {

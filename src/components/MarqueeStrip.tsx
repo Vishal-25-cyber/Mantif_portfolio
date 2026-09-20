@@ -32,7 +32,7 @@ export const MarqueeStrip: React.FC<MarqueeStripProps> = ({
 
   return (
     <div
-      className={`relative w-full overflow-hidden py-4.5 sm:py-5.5 my-10 sm:my-16 lg:my-20 border-y ${
+      className={`relative w-full overflow-hidden py-4 sm:py-5 my-10 sm:my-16 lg:my-20 border-y ${
         dark
           ? 'bg-[#002137] border-[#004B79]/40 text-[#DFB74A]'
           : 'bg-[#EDE7DA] border-[#002137]/10 text-[#002137]'

@@ -113,26 +113,17 @@ const PEOPLE_DATA: PersonData[] = [
 
 export const PeopleSection: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [phase, setPhase] = useState<'entering' | 'showing' | 'exiting'>('entering');
+  const [phase, setPhase] = useState<'entering' | 'showing' | 'exiting'>('showing');
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
   const [hasEnteredView, setHasEnteredView] = useState(false);
-
   const sectionRef = useRef<HTMLElement>(null);
   const touchTimeoutRef = useRef<number | null>(null);
 
-  const currentPerson = PEOPLE_DATA[currentIndex];
-
-  // Alternating side logic:
-  // Step 0 (Karunya): Image on RIGHT, Text on LEFT
-  // Step 1 (Vishal): Image on LEFT, Text on RIGHT
-  // Step 2 (Solairaj): Image on RIGHT, Text on LEFT
-  const isImageOnRight = currentIndex % 2 === 0;
-
-  const ENTER_DURATION = 500;
-  const HOLD_DURATION = 2000; // Exact 2-second hold requested by user
-  const EXIT_DURATION = 450;
+  const ENTER_DURATION = 350;
+  const HOLD_DURATION = 2800; // Cadence for reading
+  const EXIT_DURATION = 300;
 
   // Preload and GPU-decode all team members and critical images on mount
   useEffect(() => {
@@ -192,7 +183,7 @@ export const PeopleSection: React.FC = () => {
     };
   }, []);
 
-  // 2-Second Hold Loop State Machine (Zero re-renders during hold, GPU handles countdown)
+  // Autoplay loop state machine
   useEffect(() => {
     if (!isAutoPlay || isHovered || isTouched || !hasEnteredView) {
       return;
@@ -253,13 +244,15 @@ export const PeopleSection: React.FC = () => {
     }, 3500);
   };
 
+  const currentPerson = PEOPLE_DATA[currentIndex];
+
   return (
     <section
       ref={sectionRef}
       id="people"
-      className="relative w-full min-h-screen lg:h-[100dvh] lg:max-h-[100dvh] bg-[#FAF8F5] pt-14 sm:pt-16 pb-3 sm:pb-4 overflow-hidden select-none flex flex-col justify-between"
+      className="relative w-full min-h-screen lg:h-[100dvh] lg:max-h-[100dvh] bg-[#FAF8F5] pt-14 sm:pt-16 pb-3 sm:pb-4 px-4 sm:px-8 overflow-hidden select-none flex flex-col justify-between"
     >
-      {/* Dynamic Keyframes for Alternating Sides & GPU-Accelerated Progress Line */}
+      {/* Dynamic Keyframes */}
       <style>{`
         @keyframes progressLineAnim {
           0% {
@@ -269,71 +262,54 @@ export const PeopleSection: React.FC = () => {
             transform: scaleX(1);
           }
         }
-
-        @keyframes slideInRight {
-          0% {
-            opacity: 0;
-            transform: translate3d(70px, 0, 0) scale(0.98);
-          }
-          100% {
-            opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
-          }
-        }
-
-        @keyframes slideOutRight {
-          0% {
-            opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: translate3d(70px, 0, 0) scale(0.98);
-          }
-        }
-
-        @keyframes slideInLeft {
-          0% {
-            opacity: 0;
-            transform: translate3d(-70px, 0, 0) scale(0.98);
-          }
-          100% {
-            opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
-          }
-        }
-
-        @keyframes slideOutLeft {
-          0% {
-            opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: translate3d(-70px, 0, 0) scale(0.98);
-          }
-        }
-
-        .anim-enter-right {
-          animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          will-change: transform, opacity;
-        }
-        .anim-exit-right {
-          animation: slideOutRight 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
-          will-change: transform, opacity;
-        }
-
-        .anim-enter-left {
-          animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          will-change: transform, opacity;
-        }
-        .anim-exit-left {
-          animation: slideOutLeft 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
-          will-change: transform, opacity;
-        }
       `}</style>
 
-      {/* Ghost big number backdrop alone */}
+      {/* ═════════════════════════════════════════════════════════════════════════ */}
+      {/* MANTIF BRAND WATERCOLOR WASH BACKGROUND                                   */}
+      {/* ═════════════════════════════════════════════════════════════════════════ */}
+      <div
+        className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden"
+        aria-hidden="true"
+      >
+        <picture className="w-full h-full block">
+          <source
+            media="(min-width: 768px)"
+            srcSet="/images/watercolor_people_mantif_rich_wide.webp"
+            type="image/webp"
+          />
+          <source
+            media="(min-width: 768px)"
+            srcSet="/images/watercolor_people_mantif_rich_wide.jpg"
+            type="image/jpeg"
+          />
+          <source
+            srcSet="/images/watercolor_mantif_rich.webp"
+            type="image/webp"
+          />
+          <img
+            src="/images/watercolor_people_mantif_rich_wide.jpg"
+            alt=""
+            className="w-full h-full object-cover object-center opacity-75"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
+
+        {/* Soft Radial Vignette: Provides pristine contrast directly on watercolor background */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 90% 92% at 42% 50%, rgba(250, 248, 245, 0.85) 0%, rgba(250, 248, 245, 0.55) 55%, rgba(250, 248, 245, 0.15) 100%)',
+          }}
+        />
+
+        {/* Delicate Top and Bottom Edge Blends into adjoining sections */}
+        <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-[#FAF8F5] to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-14 bg-gradient-to-t from-[#FAF8F5] to-transparent pointer-events-none" />
+      </div>
+
+      {/* Ghost big number backdrop */}
       <div
         className="absolute top-4 sm:top-8 left-4 sm:left-10 pointer-events-none select-none z-0"
         aria-hidden="true"
@@ -346,31 +322,29 @@ export const PeopleSection: React.FC = () => {
         </span>
       </div>
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-8 flex-1 min-h-0 flex flex-col justify-between">
-        {/* Section Header (Clean: removed the two redundant strips, kept heading + watermark number) */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-2 sm:mb-3 shrink-0">
+      <div className="relative z-10 w-full max-w-5xl xl:max-w-6xl mx-auto flex-1 min-h-0 flex flex-col justify-between">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-2 shrink-0">
           <div>
             <h2
               className="font-serif font-bold text-[#002137] tracking-tight"
-              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)' }}
+              style={{ fontSize: 'clamp(1.8rem, 3.4vw, 2.7rem)' }}
             >
               The Minds Shaping MANTIF.
             </h2>
           </div>
 
-          <div className="text-right hidden sm:block pb-1">
-            <span className="font-mono text-[10px] text-[#64748B] tracking-wider uppercase font-bold">
+          <div className="text-right hidden sm:block pb-0.5">
+            <span className="inline-block px-3 py-0.5 rounded-full bg-[#002137]/5 border border-[#002137]/12 font-mono text-[10px] text-[#002137] tracking-wider uppercase font-bold">
               Founder & Engineering Core
             </span>
           </div>
         </div>
 
-        {/* ═════════════════════════════════════════════════════════════════════════ */}
-        {/* CARD-FREE MINIMALIST NAV BAR (TIGHT & BALANCED)                          */}
-        {/* ═════════════════════════════════════════════════════════════════════════ */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 py-1.5 mb-2 border-b border-[#002137]/10 shrink-0">
-          {/* Minimalist Tabs */}
-          <div className="flex items-center gap-1.5">
+        {/* Minimalist Cardless Navigation Bar */}
+        <div className="flex items-center justify-between gap-2 py-1.5 mb-2 border-b border-[#002137]/10 shrink-0">
+          {/* High-Contrast Nav Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
             {PEOPLE_DATA.map((person, idx) => {
               const isActive = currentIndex === idx;
               return (
@@ -382,20 +356,23 @@ export const PeopleSection: React.FC = () => {
                     soundManager.playHoverTick();
                   }}
                   onMouseLeave={() => setCursorMode('default')}
-                  className={`px-3.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 ${
+                  className={`px-3.5 py-1 rounded-full font-mono text-[10px] sm:text-[11px] font-bold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 shrink-0 ${
                     isActive
                       ? 'bg-[#002137] text-white shadow-xs'
-                      : 'text-[#64748B] hover:text-[#002137] hover:bg-[#002137]/5'
+                      : 'text-[#475569] hover:text-[#002137] hover:bg-[#002137]/5'
                   }`}
                 >
-                  {idx === 0 && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A] shadow-[0_0_6px_#DFB74A]" />
-                  )}
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{
+                      backgroundColor: isActive ? person.accent : '#94A3B8',
+                    }}
+                  />
                   <span>
                     {person.order} · {person.name}
                   </span>
                   {idx === 0 && (
-                    <span className="hidden md:inline text-[#DFB74A] text-[8px] font-normal">
+                    <span className="hidden md:inline text-[#DFB74A] text-[9px] font-semibold">
                       (FOUNDER)
                     </span>
                   )}
@@ -405,7 +382,7 @@ export const PeopleSection: React.FC = () => {
           </div>
 
           {/* Next/prev navigation buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={handlePrev}
               onMouseEnter={() => {
@@ -413,7 +390,7 @@ export const PeopleSection: React.FC = () => {
                 soundManager.playHoverTick();
               }}
               onMouseLeave={() => setCursorMode('default')}
-              className="w-7 h-7 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
+              className="w-7 h-7 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all hover:bg-white/40"
               aria-label="Previous person"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -426,7 +403,7 @@ export const PeopleSection: React.FC = () => {
                 soundManager.playHoverTick();
               }}
               onMouseLeave={() => setCursorMode('default')}
-              className="w-7 h-7 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all"
+              className="w-7 h-7 rounded-full border border-[#002137]/15 hover:border-[#DFB74A] flex items-center justify-center text-[#002137] transition-all hover:bg-white/40"
               aria-label="Next person"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -434,8 +411,8 @@ export const PeopleSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 2-Second Hold Countdown Progress Line (100% GPU Composited, Zero React Re-renders) */}
-        <div className="w-full h-[2px] bg-[#002137]/6 rounded-full mb-3 sm:mb-4 overflow-hidden shrink-0">
+        {/* Progress countdown indicator */}
+        <div className="w-full h-[2px] bg-[#002137]/6 rounded-full mb-2 shrink-0 overflow-hidden">
           <div
             key={`progress-${currentIndex}-${phase}-${isAutoPlay && !isHovered && !isTouched}`}
             className="h-full origin-left will-change-transform"
@@ -452,99 +429,93 @@ export const PeopleSection: React.FC = () => {
         </div>
 
         {/* ═════════════════════════════════════════════════════════════════════════ */}
-        {/* CARD-FREE OPEN STAGE — FULL VIEWPORT COVERAGE                            */}
+        {/* EDITORIAL HERO STAGE — CARDLESS, INTEGRATED DIRECTLY WITH BACKGROUND     */}
         {/* ═════════════════════════════════════════════════════════════════════════ */}
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="relative w-full max-w-5xl mx-auto flex-1 min-h-0 py-1 flex items-center justify-center"
+          className="relative w-full flex-1 min-h-0 py-1 flex items-center justify-center"
         >
-          {/* Subtle Ambient Radial Glow */}
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full pointer-events-none transition-all duration-700 blur-3xl"
-            style={{
-              background: `radial-gradient(circle, ${currentPerson.accent}15 0%, transparent 70%)`,
-            }}
-          />
-
-          {/* Symmetrical, tight-gap flex layout with alternating sides */}
-          <div
-            className={`relative z-10 w-full flex flex-col ${
-              isImageOnRight ? 'lg:flex-row' : 'lg:flex-row-reverse'
-            } items-center justify-center gap-6 lg:gap-10`}
-          >
-            {/* ── WORDS CONTAINER (Snug, authentic MANTIF content) ── */}
+          {/* Symmetrical 2-column layout: Editorial Typography on Left, Cutout on Right */}
+          <div className="relative z-10 w-full flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 xl:gap-16 h-full">
+            
+            {/* ── WORDS COLUMN: PURE EDITORIAL TYPOGRAPHY (ZERO CARD CONTAINERS) ── */}
             <div
               key={currentPerson.id + '-words'}
-              className={`flex-1 max-w-xl flex flex-col justify-center ${
+              className={`w-full lg:w-auto flex-1 max-w-lg lg:max-w-[490px] xl:max-w-[530px] flex flex-col justify-center transition-all duration-300 ease-out ${
                 phase === 'entering'
-                  ? isImageOnRight
-                    ? 'anim-enter-left'
-                    : 'anim-enter-right'
+                  ? 'opacity-100 translate-y-0'
                   : phase === 'exiting'
-                  ? isImageOnRight
-                    ? 'anim-exit-left'
-                    : 'anim-exit-right'
-                  : 'opacity-100'
+                  ? 'opacity-0 -translate-y-2'
+                  : 'opacity-100 translate-y-0'
               }`}
             >
-              {/* Category eyebrow */}
+              {/* Category eyebrow badge */}
               <div className="flex items-center gap-2 mb-1">
-                <span
-                  className="font-mono text-[10px] font-bold tracking-[0.25em] uppercase"
-                  style={{ color: currentPerson.accent }}
-                >
+                <span className="font-mono text-[10px] sm:text-[11px] font-extrabold tracking-[0.22em] uppercase text-[#004B79]">
                   {currentPerson.eyebrow}
                 </span>
-                <span className="text-[#002137]/25">✦</span>
-                <span className="font-mono text-[10px] tracking-wider text-[#64748B]">
-                  0{currentIndex + 1} of 03
+                <span className="text-[#DFB74A] text-xs">✦</span>
+                <span className="font-mono text-[10px] sm:text-[11px] font-bold tracking-wider text-[#64748B]">
+                  0{currentIndex + 1} / 03
                 </span>
               </div>
 
               {/* Name */}
-              <h3 className="font-serif font-bold text-2xl sm:text-3xl lg:text-4xl text-[#002137] tracking-tight mb-0.5">
+              <h3
+                className="font-serif font-bold text-[#002137] tracking-tight leading-none mb-1"
+                style={{ fontSize: 'clamp(2rem, 3.4vw, 3rem)' }}
+              >
                 {currentPerson.name}
               </h3>
 
-              {/* Role */}
-              <p className="font-mono text-xs sm:text-sm font-semibold text-[#004B79] tracking-wide mb-2.5">
-                {currentPerson.role}
-              </p>
+              {/* Role with Gold Bullet */}
+              <div className="flex items-center gap-2 mb-2">
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: currentPerson.accent }}
+                />
+                <p className="font-mono text-xs sm:text-[13px] font-bold text-[#004B79] tracking-wide">
+                  {currentPerson.role}
+                </p>
+              </div>
 
               {/* Authentic Quote if Karunya */}
               {currentPerson.quote && (
                 <div
-                  className="relative pl-3.5 py-1 border-l-2 mb-2.5"
+                  className="relative pl-3 py-1 mb-2 border-l-2"
                   style={{ borderColor: currentPerson.accent }}
                 >
-                  <p className="font-serif italic text-xs sm:text-sm text-[#002137]/90 leading-relaxed">
-                    "{currentPerson.quote}"
+                  <p className="font-serif italic text-xs sm:text-[13px] text-[#002137] font-medium leading-relaxed">
+                    “{currentPerson.quote}”
                   </p>
                 </div>
               )}
 
               {/* Primary Narrative */}
-              <p className="font-sans text-xs sm:text-[13px] text-[#334155] leading-relaxed mb-2 line-clamp-3 sm:line-clamp-4">
+              <p className="font-sans text-xs sm:text-[13px] text-[#0f172a] font-medium leading-relaxed mb-1.5">
                 {currentPerson.bioPrimary}
               </p>
 
               {/* Secondary Narrative */}
               {currentPerson.bioSecondary && (
-                <p className="font-sans text-xs sm:text-[13px] text-[#475569] leading-relaxed mb-2.5 line-clamp-2 hidden sm:block">
+                <p className="font-sans text-xs sm:text-[13px] text-[#334155] leading-relaxed mb-2.5 line-clamp-2 sm:line-clamp-3">
                   {currentPerson.bioSecondary}
                 </p>
               )}
 
               {/* Real Milestone (Kongu Alma Mater) */}
               {currentPerson.milestone && (
-                <div className="p-2 sm:p-2.5 rounded-xl bg-[#002137]/5 border border-[#002137]/8 mb-2.5">
-                  <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#C49326] block mb-0.5">
-                    Classroom Heritage
-                  </span>
-                  <p className="font-sans text-xs text-[#334155] leading-snug">
+                <div className="py-2 border-y border-[#002137]/10 mb-2.5">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="w-1 h-1 rounded-full bg-[#DFB74A]" />
+                    <span className="font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#946200]">
+                      Classroom Heritage
+                    </span>
+                  </div>
+                  <p className="font-sans text-xs sm:text-[12.5px] text-[#0f172a] font-medium leading-snug">
                     {currentPerson.milestone}
                   </p>
                 </div>
@@ -552,14 +523,14 @@ export const PeopleSection: React.FC = () => {
 
               {/* Real Skills & Core Focus Tags */}
               <div className="mb-3">
-                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#64748B] block mb-1.5">
+                <span className="font-mono text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#475569] block mb-1.5">
                   {currentPerson.specialtyTitle}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {currentPerson.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2.5 py-0.5 rounded-md bg-[#002137]/5 border border-[#002137]/10 font-mono text-[9px] font-semibold text-[#334155]"
+                      className="px-2.5 py-0.5 rounded-full bg-[#002137]/[0.05] border border-[#002137]/15 font-mono text-[9px] sm:text-[10px] font-bold text-[#002137] hover:border-[#DFB74A] hover:bg-[#DFB74A]/10 transition-colors"
                     >
                       {tag}
                     </span>
@@ -569,54 +540,47 @@ export const PeopleSection: React.FC = () => {
 
               {/* Platform Link */}
               <div className="pt-2 border-t border-[#002137]/10 flex items-center justify-between">
-                <span className="font-mono text-[10px] text-[#64748B]">
+                <span className="font-mono text-[10px] sm:text-[11px] font-bold text-[#64748B]">
                   Verified MANTIF Leadership
                 </span>
                 <a
                   href={currentPerson.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#002137] text-white hover:bg-[#004B79] font-mono text-[10px] font-semibold tracking-wider transition-all uppercase shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#002137] text-white hover:bg-[#003B5C] font-mono text-[10px] sm:text-[11px] font-bold tracking-wider transition-all uppercase shadow-xs hover:shadow-sm"
                 >
                   <Globe className="w-3 h-3" style={{ color: currentPerson.accent }} />
                   <span>mantif.com</span>
-                  <ArrowUpRight className="w-3 h-3" />
+                  <ArrowUpRight className="w-3 h-3 text-[#DFB74A]" />
                 </a>
               </div>
             </div>
 
-            {/* ── STANDING CUTOUT IMAGE (WITHOUT BACKGROUND, ALTERNATING SIDE ENTRANCE) ── */}
+            {/* ── MAJESTIC FULL-HEIGHT CUTOUT FIGURE (ON RIGHT) ── */}
             <div
-              className={`w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[310px] shrink-0 flex flex-col items-center justify-end h-[340px] sm:h-[390px] lg:h-[430px] relative`}
+              className="w-full max-w-[260px] sm:max-w-[300px] lg:max-w-[340px] xl:max-w-[380px] shrink-0 flex flex-col items-center justify-end h-[360px] sm:h-[440px] lg:h-[480px] xl:h-[510px] relative"
             >
               {/* Soft Ambient Pedestal Floor Shadow */}
               <div
-                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[220px] sm:w-[260px] h-[20px] rounded-full pointer-events-none"
+                className="absolute bottom-1 left-1/2 -translate-x-1/2 w-[200px] sm:w-[260px] lg:w-[300px] h-[20px] rounded-full pointer-events-none"
                 style={{
-                  background: `radial-gradient(ellipse at center, rgba(0, 33, 55, 0.22) 0%, rgba(223, 183, 74, 0.15) 45%, transparent 75%)`,
-                  filter: 'blur(6px)',
+                  background:
+                    'radial-gradient(ellipse at center, rgba(0, 33, 55, 0.25) 0%, rgba(223, 183, 74, 0.15) 45%, transparent 75%)',
+                  filter: 'blur(7px)',
                 }}
               />
 
-              {/* Cutout Figures Persistent Multi-DOM Stack (0ms Switch, Zero-Flicker) */}
+              {/* Cutout Figures Stack */}
               <div className="relative z-10 w-full h-full flex items-end justify-center">
                 {PEOPLE_DATA.map((person, idx) => {
                   const isCurrent = currentIndex === idx;
                   return (
                     <div
                       key={person.id}
-                      className={`absolute inset-0 w-full h-full flex items-end justify-center ${
+                      className={`absolute inset-0 w-full h-full flex items-end justify-center transition-all duration-400 ease-out ${
                         isCurrent
-                          ? phase === 'entering'
-                            ? isImageOnRight
-                              ? 'anim-enter-right pointer-events-auto'
-                              : 'anim-enter-left pointer-events-auto'
-                            : phase === 'exiting'
-                            ? isImageOnRight
-                              ? 'anim-exit-right pointer-events-auto'
-                              : 'anim-exit-left pointer-events-auto'
-                            : 'opacity-100 pointer-events-auto'
-                          : 'opacity-0 pointer-events-none'
+                          ? 'opacity-100 scale-100 pointer-events-auto'
+                          : 'opacity-0 scale-98 pointer-events-none'
                       }`}
                       style={{
                         visibility: isCurrent ? 'visible' : 'hidden',
@@ -630,9 +594,10 @@ export const PeopleSection: React.FC = () => {
                           alt={`${person.name} — ${person.role}`}
                           loading="eager"
                           decoding="async"
-                          className="h-full w-auto max-h-[340px] sm:max-h-[390px] lg:max-h-[430px] object-contain object-bottom pointer-events-none select-none transition-transform duration-500 ease-out hover:scale-[1.02]"
+                          className="h-full w-auto max-h-[350px] sm:max-h-[430px] lg:max-h-[470px] xl:max-h-[500px] object-contain object-bottom pointer-events-none select-none transition-transform duration-500 hover:scale-[1.02]"
                           style={{
-                            filter: 'drop-shadow(0 20px 30px rgba(0, 33, 55, 0.20))',
+                            filter:
+                              'drop-shadow(0 18px 30px rgba(0, 33, 55, 0.20)) drop-shadow(0 4px 12px rgba(223, 183, 74, 0.16))',
                           }}
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = person.fallbackImage;
@@ -645,19 +610,19 @@ export const PeopleSection: React.FC = () => {
               </div>
 
               {/* Floating Role Badge */}
-              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap">
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap">
                 <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white font-mono text-[9px] font-bold tracking-[0.2em] uppercase shadow-md border transition-all duration-300"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-0.5 rounded-full text-white font-mono text-[10px] font-bold tracking-[0.2em] uppercase shadow-md border"
                   style={{
                     background: '#002137',
-                    borderColor: `${currentPerson.accent}60`,
+                    borderColor: `${currentPerson.accent}80`,
                   }}
                 >
                   <span
-                    className="w-1.5 h-1.5 rounded-full transition-colors duration-300"
+                    className="w-1.5 h-1.5 rounded-full"
                     style={{
                       backgroundColor: currentPerson.accent,
-                      boxShadow: `0 0 6px ${currentPerson.accent}`,
+                      boxShadow: `0 0 8px ${currentPerson.accent}`,
                     }}
                   />
                   {currentPerson.badge}
@@ -668,7 +633,7 @@ export const PeopleSection: React.FC = () => {
         </div>
 
         {/* Bottom credentials bar */}
-        <div className="pt-2.5 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[10px] sm:text-[11px] font-mono text-[#64748B] shrink-0">
+        <div className="pt-2 border-t border-[#002137]/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[10px] sm:text-[11px] font-mono text-[#475569] shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#DFB74A]" />
             <span>MANTIF is an MSME-registered EdTech startup — Tamil Nadu, India.</span>
@@ -677,7 +642,7 @@ export const PeopleSection: React.FC = () => {
             href="https://mantif.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[#004B79] text-[#002137] font-semibold transition-colors flex items-center gap-1"
+            className="hover:text-[#004B79] text-[#002137] font-bold transition-colors flex items-center gap-1 px-3 py-1 rounded-full bg-white/80 border border-[#002137]/10 shadow-2xs"
           >
             <span>mantif.com ↗</span>
           </a>

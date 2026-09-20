@@ -9,10 +9,16 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState<boolean>(() => soundManager.getMuted());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [activeSection, setActiveSection] = useState('intro');
+
+  useEffect(() => {
+    return soundManager.subscribe((muted) => {
+      setIsMuted(muted);
+    });
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,7 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
       setLastScrollY(currentScrollY);
 
       // Identify active section
-      const sections = ['intro', 'services', 'people', 'journey', 'philosophy'];
+      const sections = ['intro', 'services', 'people', 'journey', 'philosophy', 'contact'];
       for (const sectionId of sections) {
         const el = document.getElementById(sectionId);
         if (el) {
@@ -60,6 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
   }, [mobileMenuOpen]);
 
   const toggleSound = () => {
+    soundManager.unlockAudio();
     const muted = soundManager.toggleMute();
     setIsMuted(muted);
   };
@@ -99,6 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
     { id: 'people', num: '03', title: 'People' },
     { id: 'journey', num: '04', title: 'Journey' },
     { id: 'philosophy', num: '05', title: 'Philosophy' },
+    { id: 'contact', num: '06', title: 'Connect' },
   ];
 
   return (

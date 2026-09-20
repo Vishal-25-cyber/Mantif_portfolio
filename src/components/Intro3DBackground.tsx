@@ -489,11 +489,10 @@ export const Intro3DBackground: React.FC<Intro3DBackgroundProps> = ({ stage = 'w
   return (
     <div
       ref={containerRef}
-      className={`absolute inset-0 pointer-events-none z-0 overflow-hidden select-none transition-all duration-1200 ease-out ${
-        isIntroComplete
+      className={`absolute inset-0 pointer-events-none z-0 overflow-hidden select-none transition-all duration-1200 ease-out ${isIntroComplete
           ? 'opacity-100 scale-100 visible'
           : 'opacity-0 scale-98 pointer-events-none invisible'
-      }`}
+        }`}
       aria-hidden="true"
     />
   );
