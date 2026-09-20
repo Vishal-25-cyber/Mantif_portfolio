@@ -61,64 +61,47 @@ function useBgMusic(src: string): React.MutableRefObject<(() => void) | null> {
       window.removeEventListener('click', onGesture);
       window.removeEventListener('keydown', onGesture);
       window.removeEventListener('touchstart', onGesture);
+      window.removeEventListener('mousemove', onGesture);
+      window.removeEventListener('wheel', onGesture);
+      window.removeEventListener('scroll', onGesture);
     };
 
-    // Gesture fallback: first pointer/click/key starts the audio
+    const attachListeners = () => {
+      window.addEventListener('pointerdown', onGesture, { passive: true });
+      window.addEventListener('click', onGesture, { passive: true });
+      window.addEventListener('keydown', onGesture, { passive: true });
+      window.addEventListener('touchstart', onGesture, { passive: true });
+      window.addEventListener('mousemove', onGesture, { passive: true });
+      window.addEventListener('wheel', onGesture, { passive: true });
+      window.addEventListener('scroll', onGesture, { passive: true });
+    };
+
+    // Gesture fallback: starts the audio seamlessly on first interaction
     const onGesture = () => {
       if (started.current) return;
-      started.current = true;
-      removeListeners();
       audio.muted = false;
-      audio.volume = 0;
-      audio.play().then(() => fadeIn()).catch(() => {});
+      audio.play()
+        .then(() => {
+          started.current = true;
+          removeListeners();
+          fadeIn();
+        })
+        .catch(() => {});
     };
 
-    // ── Step 1: Direct unmuted autoplay ──────────────────────────────────────
+    // ── Direct autoplay attempt ───────────────────────────────────────────
     audio.volume = 0;
     audio.muted = false;
     audio.play()
       .then(() => {
-        // Browser allowed it — great, fade in
+        // Direct unmuted autoplay permitted by browser
         started.current = true;
         fadeIn();
       })
       .catch(() => {
-        // ── Step 2: Muted autoplay then immediate unmute ──────────────────────
-        // Browsers always allow muted autoplay. Once playing, Chrome lets you
-        // set .muted = false programmatically without needing a gesture.
-        audio.muted = true;
-        audio.volume = 0.45;
-        audio.play()
-          .then(() => {
-            // Muted play started — try immediate programmatic unmute.
-            // Chrome allows this once the audio element is already playing.
-            setTimeout(() => {
-              audio.muted = false;
-              requestAnimationFrame(() => {
-                if (!audio.muted) {
-                  // ✅ Unmute worked — fade in right now
-                  started.current = true;
-                  audio.volume = 0;
-                  fadeIn();
-                } else {
-                  // Browser kept it muted — fall back to first gesture
-                  window.addEventListener('pointerdown', onGesture, { once: true });
-                  window.addEventListener('click', onGesture, { once: true });
-                  window.addEventListener('keydown', onGesture, { once: true });
-                  window.addEventListener('touchstart', onGesture, { once: true, passive: true });
-                }
-              });
-            }, 250);
-          })
-          .catch(() => {
-            // ── Step 3: Full gesture fallback ──────────────────────────────
-            audio.muted = false;
-            audio.volume = 0;
-            window.addEventListener('pointerdown', onGesture, { once: true });
-            window.addEventListener('click', onGesture, { once: true });
-            window.addEventListener('keydown', onGesture, { once: true });
-            window.addEventListener('touchstart', onGesture, { once: true, passive: true });
-          });
+        // Browser requires user interaction on this domain (first-time visit)
+        // Attach listeners so any mouse movement, touch, click, or keypress begins audio seamlessly
+        attachListeners();
       });
 
     return () => {

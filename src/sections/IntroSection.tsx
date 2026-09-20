@@ -96,12 +96,10 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
     }, 8400);
   };
 
-  // Only start the sequence after the user has clicked to enter
   useEffect(() => {
-    if (!hasEntered) return;
     startSequence();
     return clearTimers;
-  }, [hasEntered]);
+  }, []);
 
   // When user clicks to view Intro from Navbar, restart animation from the very first walking stage
   useEffect(() => {
@@ -143,42 +141,11 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
   const isSceneActive = stage === 'walking' || stage === 'handshake';
   const isTitleActive = stage === 'titleReveal' || stage === 'completed';
 
-  const handleEnter = () => {
-    setHasEntered(true);
-    // Click event naturally propagates to window → triggers audio onGesture listener
-  };
-
   return (
     <section
       id="intro"
       className="relative w-full h-screen h-[100dvh] flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
-      {/* ── Click-to-Begin Overlay (first visit audio gate) ───────────────── */}
-      {!hasEntered && (
-        <div
-          onClick={handleEnter}
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer bg-[#FAF8F5]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(0,33,55,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,33,55,0.06) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        >
-          {/* Pulsing ring */}
-          <div className="relative flex items-center justify-center mb-8">
-            <span className="absolute inline-flex h-20 w-20 rounded-full bg-[#002137]/10 animate-ping" />
-            <span className="relative inline-flex h-16 w-16 rounded-full bg-[#002137] items-center justify-center shadow-xl">
-              {/* Play icon */}
-              <svg width="22" height="26" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 2L20 13L2 24V2Z" fill="#FAF8F5" stroke="#FAF8F5" strokeWidth="2" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </div>
-          <p className="font-serif text-[#002137] text-2xl sm:text-3xl font-bold tracking-tight mb-2">Click to Begin</p>
-          <p className="font-sans text-[#002137]/50 text-sm tracking-widest uppercase">with sound</p>
-        </div>
-      )}
-      {/* Full-bleed Checked Grid Background - ONLY visible during intro (walk & handshake), fades out for title */}
       <div
         className={`absolute inset-0 w-full h-full pointer-events-none z-0 transition-opacity duration-1000 ${
           isSceneActive ? 'opacity-100' : 'opacity-0'
