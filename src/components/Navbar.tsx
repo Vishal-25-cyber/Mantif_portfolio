@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { soundManager } from '../audio/soundManager';
 import { setCursorMode } from '../hooks/useCursor';
 
@@ -9,16 +9,9 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [isMuted, setIsMuted] = useState<boolean>(() => soundManager.getMuted());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [activeSection, setActiveSection] = useState('intro');
-
-  useEffect(() => {
-    return soundManager.subscribe((muted) => {
-      setIsMuted(muted);
-    });
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,11 +58,6 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
     };
   }, [mobileMenuOpen]);
 
-  const toggleSound = () => {
-    soundManager.unlockAudio();
-    const muted = soundManager.toggleMute();
-    setIsMuted(muted);
-  };
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
@@ -175,34 +163,8 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
             })}
           </nav>
 
-          {/* Actions on Right (Sound Toggle + Menu) */}
+          {/* Actions on Right (Menu only) */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Audio Ambience Synthesizer Toggle */}
-            <button
-              onClick={toggleSound}
-              onMouseEnter={() => setCursorMode('hover')}
-              onMouseLeave={() => setCursorMode('default')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono transition-all backdrop-blur-sm ${
-                !isMuted
-                  ? 'bg-[#004B79] text-[#FAF8F5] border-[#004B79] shadow-md shadow-[#004B79]/30'
-                  : 'bg-[#FAF8F5]/80 text-[#002137]/70 border-[#002137]/15 hover:border-[#002137]/40 hover:text-[#002137]'
-              }`}
-              title={!isMuted ? 'Sound active (Click to mute)' : 'Click to enable audio'}
-              aria-label="Toggle Sound"
-            >
-              {!isMuted ? (
-                <>
-                  <Volume2 className="w-3.5 h-3.5 animate-pulse text-[#DFB74A]" />
-                  <span className="text-[10px] hidden sm:inline font-bold tracking-wider">AUDIO ON</span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="w-3.5 h-3.5" />
-                  <span className="text-[10px] hidden sm:inline">AUDIO OFF</span>
-                </>
-              )}
-            </button>
-
             {/* Menu Trigger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -251,31 +213,6 @@ export const Navbar: React.FC<NavbarProps> = ({ hidden = false }) => {
             </button>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Audio Ambience Synthesizer Toggle */}
-              <button
-                onClick={toggleSound}
-                onMouseEnter={() => setCursorMode('hover')}
-                onMouseLeave={() => setCursorMode('default')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono transition-all ${
-                  !isMuted
-                    ? 'bg-[#004B79] text-[#FAF8F5] border-[#004B79] shadow-md shadow-[#004B79]/30'
-                    : 'bg-[#FAF8F5] text-[#002137]/70 border-[#002137]/15 hover:border-[#002137]/40 hover:text-[#002137]'
-                }`}
-                title={!isMuted ? 'Sound active (Click to mute)' : 'Click to enable audio'}
-                aria-label="Toggle Sound"
-              >
-                {!isMuted ? (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 animate-pulse text-[#DFB74A]" />
-                    <span className="text-[10px] hidden sm:inline font-bold tracking-wider">AUDIO ON</span>
-                  </>
-                ) : (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5" />
-                    <span className="text-[10px] hidden sm:inline">AUDIO OFF</span>
-                  </>
-                )}
-              </button>
 
               <button
                 onClick={() => setMobileMenuOpen(false)}

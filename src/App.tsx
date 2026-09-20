@@ -11,11 +11,71 @@ import { JourneySection } from './sections/JourneySection';
 import { PhilosophySection } from './sections/PhilosophySection';
 import { FooterSection } from './sections/FooterSection';
 
+// ── Background Music ──────────────────────────────────────────────────────────
+// Browsers block autoplay until the first user gesture. We attach one-time
+// listeners for click / touchstart / scroll and start the track then.
+function useBgMusic(src: string): React.MutableRefObject<(() => void) | null> {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const started = useRef(false);
+  // stopRef holds a callable that the consumer can invoke to fade-out & stop
+  const stopRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    const audio = new Audio(src);
+    audio.loop = true;
+    audio.volume = 0.45;
+    audioRef.current = audio;
+
+    // Fade-out helper: ramps volume to 0 over ~1.2 s then pauses
+    stopRef.current = () => {
+      const step = audio.volume / 24; // ~50 ms × 24 steps = 1.2 s
+      const fade = setInterval(() => {
+        if (audio.volume > step) {
+          audio.volume = Math.max(0, audio.volume - step);
+        } else {
+          audio.volume = 0;
+          audio.pause();
+          clearInterval(fade);
+        }
+      }, 50);
+    };
+
+    const tryPlay = () => {
+      if (started.current) return;
+      started.current = true;
+      audio.play().catch(() => {});
+      window.removeEventListener('click', tryPlay);
+      window.removeEventListener('touchstart', tryPlay);
+      window.removeEventListener('keydown', tryPlay);
+      window.removeEventListener('scroll', tryPlay, true);
+    };
+
+    window.addEventListener('click', tryPlay, { once: true });
+    window.addEventListener('touchstart', tryPlay, { once: true, passive: true });
+    window.addEventListener('keydown', tryPlay, { once: true });
+    window.addEventListener('scroll', tryPlay, { once: true, passive: true, capture: true });
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+      window.removeEventListener('click', tryPlay);
+      window.removeEventListener('touchstart', tryPlay);
+      window.removeEventListener('keydown', tryPlay);
+      window.removeEventListener('scroll', tryPlay, true);
+    };
+  }, [src]);
+
+  return stopRef;
+}
+
 export function App() {
   // Track if the animated intro sequence is currently active/playing.
   // ALWAYS starts true on refresh so the user experiences the crisp intro first.
   const [isIntroActive, setIsIntroActive] = useState(true);
   const targetSectionRef = useRef<string | null>(null);
+
+  // Auto-play Tamil mass BGM (Leo movie) — stops when intro ends
+  const stopBgMusic = useBgMusic('/audio/tamil_mass_bgm.mp3');
 
   // Freeze smooth scroll & wheel while intro is active to prevent bottom layer from peeking
   useLenis(isIntroActive);
@@ -104,6 +164,8 @@ export function App() {
 
   // When intro completes (at normal speed or when skipped), launch into their respective section
   const handleIntroComplete = () => {
+    // Fade out the intro BGM
+    stopBgMusic.current?.();
     setIsIntroActive(false);
 
     const target = targetSectionRef.current;

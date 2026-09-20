@@ -31,7 +31,7 @@ export const ServicesSection: React.FC = () => {
   }, []);
 
   const totalCards = services.cards.length;
-  const AUTOPLAY_INTERVAL = 2000; // Fast cadence: 2.0s per card
+  const AUTOPLAY_INTERVAL = 1400; // Fast cadence: 1.4s per card (changed fast as requested)
 
   const handleNext = () => {
     setActiveIndex((prev) => (prev + 1) % totalCards);
@@ -162,6 +162,32 @@ export const ServicesSection: React.FC = () => {
         >
           02
         </span>
+      </div>
+
+      {/* Left Balcony: Human Drinking Coffee (User Balcony Setup) */}
+      <div
+        className="hidden lg:flex flex-col items-start absolute left-0 bottom-0 pointer-events-none select-none z-10"
+        aria-hidden="true"
+      >
+        <img
+          src="/images/balcony_human.png"
+          alt="Human Mentorship on Balcony"
+          className="h-[82vh] xl:h-[88vh] 2xl:h-[94vh] max-h-[850px] w-auto object-contain object-left-bottom drop-shadow-sm transition-all duration-500"
+          loading="eager"
+        />
+      </div>
+
+      {/* Right Balcony: 3D Robot Coding on Laptop (User Balcony Setup) */}
+      <div
+        className="hidden lg:flex flex-col items-end absolute right-0 bottom-0 pointer-events-none select-none z-10"
+        aria-hidden="true"
+      >
+        <img
+          src="/images/balcony_robot.png"
+          alt="AI Robot on Balcony"
+          className="h-[82vh] xl:h-[88vh] 2xl:h-[94vh] max-h-[850px] w-auto object-contain object-right-bottom drop-shadow-sm transition-all duration-500"
+          loading="eager"
+        />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 min-h-0 flex flex-col justify-between">
@@ -383,7 +409,7 @@ export const ServicesSection: React.FC = () => {
                     setIsTouched(true);
                     setIsHoveredStack(true);
                   }}
-                    className="absolute inset-0 rounded-3xl transition-all duration-400 ease-out will-change-transform"
+                    className="absolute inset-0 rounded-3xl transition-all duration-300 ease-out will-change-transform"
                     style={{
                       zIndex,
                       transform,
