@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
-import { soundManager } from '../audio/soundManager';
+
 import { setCursorMode } from '../hooks/useCursor';
 
 interface IntroSectionProps {
@@ -32,7 +32,6 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
 
   const handleLogoClick = () => {
     setLogoBurst(true);
-    soundManager.playHandshakeChord();
     setTimeout(() => setLogoBurst(false), 800);
   };
 
@@ -72,7 +71,6 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
 
     push(() => {
       setStage('handshake');
-      soundManager.playHandshakeChord();
     }, 2600);
 
     push(() => setStage('fadeCharacters'), 5800);
@@ -82,7 +80,6 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       letters.forEach((_, idx) => {
         const id = setTimeout(() => {
           setLettersRevealed((prev) => [...prev, idx]);
-          soundManager.playLetterReveal(idx);
         }, idx * 180);
         timeoutsRef.current.push(id);
       });
