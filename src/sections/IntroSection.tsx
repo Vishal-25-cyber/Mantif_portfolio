@@ -162,7 +162,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
         }}
       />
 
-      {/* IT Tech Headquarters Architectural Background - clear, vivid, and 100% free of white haze */}
+      {/* IT Tech Headquarters Architectural Background - clear, vivid daylight campus, 100% free of white haze */}
       <div
         className={`absolute inset-0 w-full h-full pointer-events-none z-0 transition-opacity duration-1000 ease-out ${
           isTitleActive ? 'opacity-100' : 'opacity-0'
@@ -170,7 +170,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
         aria-hidden="true"
       >
         <img
-          src="/images/it_building_bg.jpg"
+          src="/images/it_building_bg.jpg?v=2"
           alt="MANTIF IT Campus Architecture"
           className="w-full h-full object-cover object-center"
         />
@@ -435,9 +435,9 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
           onMouseLeave={() => setCursorMode('default')}
           className="group flex flex-col items-center gap-2 text-[#002137] hover:text-[#DFB74A] transition-colors"
         >
-          <span className="font-mono text-[10px] tracking-[0.25em] uppercase font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.2)]">Continue</span>
-          <div className="w-8 h-8 rounded-full border border-[#002137]/30 flex items-center justify-center group-hover:border-[#DFB74A] group-hover:translate-y-1 transition-all bg-black/5">
-            <ArrowDown className="w-3.5 h-3.5" />
+          <span className="font-mono text-[10px] tracking-[0.25em] uppercase font-bold text-[#002137] drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">Continue</span>
+          <div className="w-8 h-8 rounded-full border border-[#002137]/30 flex items-center justify-center group-hover:border-[#DFB74A] group-hover:translate-y-1 transition-all bg-white/60 backdrop-blur-sm shadow-xs">
+            <ArrowDown className="w-3.5 h-3.5 text-[#002137]" />
           </div>
         </button>
       </div>
