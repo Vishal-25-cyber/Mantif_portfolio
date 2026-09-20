@@ -186,9 +186,11 @@ export const ServicesSection: React.FC = () => {
           src="/images/balcony_robot.png"
           alt="AI Robot on Balcony"
           className="h-[82vh] xl:h-[88vh] 2xl:h-[94vh] max-h-[850px] w-auto object-contain object-right-bottom drop-shadow-sm transition-all duration-500"
+          style={{ transform: 'scaleX(-1)' }}
           loading="eager"
         />
       </div>
+
 
       <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 min-h-0 flex flex-col justify-between">
         {/* Section Header (Clean: removed both redundant title strips, kept watermark number) */}
