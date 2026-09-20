@@ -121,7 +121,7 @@ export const FooterSection: React.FC = () => {
     setIsGlobeBlasting(true);
     soundManager.playCosmicGlobeBlast();
 
-    // After 800ms (peak shockwave expansion & full dissolution), switch smoothly to Step 5
+    // After 920ms (peak shockwave expansion & full dissolution), switch smoothly to Step 5
     blastTimerRef.current = window.setTimeout(() => {
       setCurrentStep(5);
       soundManager.playNotificationChime(0);
@@ -131,7 +131,7 @@ export const FooterSection: React.FC = () => {
         setIsGlobeBlasting(false);
         isGlobeBlastingRef.current = false;
       }, 700);
-    }, 800);
+    }, 920);
   }, [currentStep]);
 
   // Jump to step
@@ -296,7 +296,7 @@ export const FooterSection: React.FC = () => {
         />
       </div>
 
-      {/* Visual Unique Supernova Flash — Single-shot hardware accelerated cinematic blast (strictly once) */}
+      {/* Visual Unique Quantum Supernova Flash — Multi-Layered Cinema Blast */}
       {isGlobeBlasting && (
         <div
           key="unique-supernova-blast"
@@ -304,31 +304,50 @@ export const FooterSection: React.FC = () => {
         >
           {/* 1. Ambient Background Cosmic Flash */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'radial-gradient(ellipse at center, rgba(223,183,74,0.22) 0%, rgba(56,189,248,0.12) 40%, transparent 70%)',
-              animation: 'ambientSpaceFlash 0.85s cubic-bezier(0.16, 1, 0.3, 1) 1 forwards',
+              background: 'radial-gradient(ellipse at center, rgba(223,183,74,0.32) 0%, rgba(56,189,248,0.18) 42%, transparent 75%)',
+              animation: 'ambientSpaceFlash 0.92s cubic-bezier(0.16, 1, 0.3, 1) 1 forwards',
             }}
           />
 
-          {/* 2. Anamorphic Horizontal Laser Flare Streak (Cinematic Movie Title Blast) */}
+          {/* 2. Anamorphic Horizontal Laser Flare Streak (Cinematic Anamorphic Beam) */}
           <div
-            className="absolute w-full h-[4px] sm:h-[6px] pointer-events-none"
+            className="absolute w-full h-[5px] sm:h-[8px] pointer-events-none"
             style={{
               background:
-                'linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.8) 20%, #FFFFFF 50%, rgba(223,183,74,0.95) 80%, transparent 100%)',
-              boxShadow: '0 0 24px rgba(223,183,74,0.9), 0 0 48px rgba(56,189,248,0.8)',
-              animation: 'anamorphicLaserFlare 0.85s cubic-bezier(0.12, 0.85, 0.28, 1) 1 forwards',
+                'linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.9) 22%, #FFFFFF 50%, rgba(223,183,74,0.95) 78%, transparent 100%)',
+              boxShadow: '0 0 32px rgba(223,183,74,0.95), 0 0 64px rgba(56,189,248,0.85)',
+              animation: 'anamorphicLaserFlare 0.92s cubic-bezier(0.12, 0.85, 0.28, 1) 1 forwards',
             }}
           />
 
-          {/* 3. Concentric Chromatic Supernova Shockwave (Gold & Cyan Rings) */}
+          {/* 3. 12-Ray Rotating Starburst Light Beams */}
           <div
-            className="w-[500px] h-[500px] sm:w-[750px] sm:h-[750px] rounded-full"
+            className="absolute w-[450px] h-[450px] sm:w-[650px] sm:h-[650px] pointer-events-none rounded-full"
             style={{
               background:
-                'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(223,183,74,0.7) 22%, rgba(56,189,248,0.4) 48%, transparent 72%)',
-              animation: 'singleSupernovaBlast 0.85s cubic-bezier(0.16, 0.8, 0.3, 1) 1 forwards',
+                'conic-gradient(from 0deg, rgba(255,255,255,0.85) 0deg, transparent 15deg, rgba(223,183,74,0.65) 30deg, transparent 45deg, rgba(56,189,248,0.75) 60deg, transparent 75deg, rgba(255,255,255,0.85) 90deg, transparent 105deg, rgba(223,183,74,0.65) 120deg, transparent 135deg, rgba(56,189,248,0.75) 150deg, transparent 165deg, rgba(255,255,255,0.85) 180deg, transparent 195deg, rgba(223,183,74,0.65) 210deg, transparent 225deg, rgba(56,189,248,0.75) 240deg, transparent 255deg, rgba(255,255,255,0.85) 270deg, transparent 285deg, rgba(223,183,74,0.65) 300deg, transparent 315deg, rgba(56,189,248,0.75) 330deg, transparent 345deg, rgba(255,255,255,0.85) 360deg)',
+              filter: 'blur(3px)',
+              animation: 'starburstRays 0.92s cubic-bezier(0.14, 0.9, 0.25, 1) 1 forwards',
+            }}
+          />
+
+          {/* 4. Expanding Quantum Hexagonal Holographic Shockwave Ring */}
+          <div
+            className="absolute w-[360px] h-[360px] sm:w-[540px] sm:h-[540px] rounded-full border-2 border-[#38BDF8]/80 shadow-[0_0_40px_rgba(56,189,248,0.65)] pointer-events-none"
+            style={{
+              animation: 'quantumHexRipples 0.92s cubic-bezier(0.16, 0.8, 0.25, 1) 1 forwards',
+            }}
+          />
+
+          {/* 5. Concentric Chromatic Supernova Core Shockwave */}
+          <div
+            className="w-[500px] h-[500px] sm:w-[750px] sm:h-[750px] rounded-full pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(circle, rgba(255,255,255,0.98) 0%, rgba(223,183,74,0.75) 20%, rgba(56,189,248,0.45) 45%, transparent 72%)',
+              animation: 'singleSupernovaBlast 0.92s cubic-bezier(0.16, 0.8, 0.3, 1) 1 forwards',
             }}
           />
         </div>

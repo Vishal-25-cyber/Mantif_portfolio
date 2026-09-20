@@ -390,10 +390,83 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
     });
 
     // ─────────────────────────────────────────────────────────────
-    // 4.5. UNIQUE MULTI-DIMENSIONAL SUPERNOVA BLAST SYSTEM
+    // 4.5. UNIQUE MULTI-DIMENSIONAL QUANTUM PRISMATIC SHATTER BLAST SYSTEM
     // ─────────────────────────────────────────────────────────────
-    // A. Primary Gold Equatorial Shockwave Ring
-    const goldShockwaveGeo = new THREE.RingGeometry(0.6, 1.8, 64);
+    // A. 3D Prismatic Crystal Shards (140 Tumbling Faceted Polyhedrons)
+    const crystalCount = 140;
+    const crystalGeo = new THREE.TetrahedronGeometry(0.24, 0);
+    const crystalMat = new THREE.MeshBasicMaterial({
+      color: 0xFFFFFF,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const crystalMesh = new THREE.InstancedMesh(crystalGeo, crystalMat, crystalCount);
+    crystalMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+    const crystalOrigins: THREE.Vector3[] = [];
+    const crystalVelocities: THREE.Vector3[] = [];
+    const crystalRotSpeeds: THREE.Vector3[] = [];
+    const crystalDummy = new THREE.Object3D();
+
+    const shardColors = [
+      new THREE.Color(0xDFB74A), // Radiant Erode Gold
+      new THREE.Color(0xFFE58F), // Brilliant Solar Shimmer
+      new THREE.Color(0x38BDF8), // Electric Cyan
+      new THREE.Color(0xFFFFFF), // Diamond Stellar White
+      new THREE.Color(0xF59E0B), // Warm Deep Amber
+      new THREE.Color(0x60A5FA), // Azure Neon
+    ];
+
+    // Uniform Fibonacci sphere distribution for planetary surface coverage
+    const goldenRatio = (1 + Math.sqrt(5)) / 2;
+    for (let i = 0; i < crystalCount; i++) {
+      const theta = (2 * Math.PI * i) / goldenRatio;
+      const phi = Math.acos(1 - (2 * (i + 0.5)) / crystalCount);
+      const x = Math.sin(phi) * Math.cos(theta);
+      const y = Math.sin(phi) * Math.sin(theta);
+      const z = Math.cos(phi);
+      const dir = new THREE.Vector3(x, y, z).normalize();
+
+      const origin = dir.clone().multiplyScalar(globeRadius);
+      crystalOrigins.push(origin);
+
+      // Explosive outward velocity with natural swirl
+      const speed = 18 + (i % 8) * 3.5 + Math.random() * 8;
+      const swirl = new THREE.Vector3(-z, y * 0.4, x).normalize().multiplyScalar(speed * 0.28);
+      const velocity = dir.clone().multiplyScalar(speed).add(swirl);
+      crystalVelocities.push(velocity);
+
+      // Rapid independent 3D tumble speeds (rad/sec)
+      crystalRotSpeeds.push(new THREE.Vector3(
+        (Math.random() - 0.5) * 16,
+        (Math.random() - 0.5) * 16,
+        (Math.random() - 0.5) * 16
+      ));
+
+      crystalMesh.setColorAt(i, shardColors[i % shardColors.length]);
+    }
+    if (crystalMesh.instanceColor) crystalMesh.instanceColor.needsUpdate = true;
+    crystalMesh.visible = false;
+    scene.add(crystalMesh);
+
+    // B. Geodetic Coordinate Lattice Deconstruction Shell (Planetary Matrix Shatter)
+    const geodeticCageGeo = new THREE.IcosahedronGeometry(globeRadius * 1.015, 2);
+    const geodeticCageMat = new THREE.MeshBasicMaterial({
+      wireframe: true,
+      color: 0x38BDF8,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const geodeticCageMesh = new THREE.Mesh(geodeticCageGeo, geodeticCageMat);
+    scene.add(geodeticCageMesh);
+
+    // C. Multi-Axis Astrolabe Gyroscopic Shockwave Rings
+    // 1. Primary Gold Tachyon Equatorial Shockwave Ring
+    const goldShockwaveGeo = new THREE.RingGeometry(0.5, 2.0, 64);
     const goldShockwaveMat = new THREE.MeshBasicMaterial({
       color: 0xDFB74A,
       side: THREE.DoubleSide,
@@ -405,8 +478,8 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
     const goldShockwaveMesh = new THREE.Mesh(goldShockwaveGeo, goldShockwaveMat);
     scene.add(goldShockwaveMesh);
 
-    // B. Secondary Cyan Quantum Orbital Shockwave Ring (Angled Gyroscopic Warp)
-    const cyanShockwaveGeo = new THREE.RingGeometry(0.5, 1.6, 64);
+    // 2. Secondary Cyan Quantum Orbital Shockwave Ring (Angled Gyroscopic Warp)
+    const cyanShockwaveGeo = new THREE.RingGeometry(0.45, 1.8, 64);
     const cyanShockwaveMat = new THREE.MeshBasicMaterial({
       color: 0x38BDF8,
       side: THREE.DoubleSide,
@@ -416,12 +489,27 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
       depthWrite: false,
     });
     const cyanShockwaveMesh = new THREE.Mesh(cyanShockwaveGeo, cyanShockwaveMat);
-    cyanShockwaveMesh.rotation.x = Math.PI * 0.38;
-    cyanShockwaveMesh.rotation.z = Math.PI * 0.22;
+    cyanShockwaveMesh.rotation.x = Math.PI * 0.36;
+    cyanShockwaveMesh.rotation.z = Math.PI * 0.24;
     scene.add(cyanShockwaveMesh);
 
-    // C. White-Hot Core Supernova Plasma Shell
-    const coreNovaGeo = new THREE.RingGeometry(0.3, 1.2, 48);
+    // 3. Oblique Singularity Meridian Ring (Platinum Diamond)
+    const platinumShockwaveGeo = new THREE.RingGeometry(0.4, 1.6, 64);
+    const platinumShockwaveMat = new THREE.MeshBasicMaterial({
+      color: 0xEEF2FF,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const platinumShockwaveMesh = new THREE.Mesh(platinumShockwaveGeo, platinumShockwaveMat);
+    platinumShockwaveMesh.rotation.x = -Math.PI * 0.32;
+    platinumShockwaveMesh.rotation.y = Math.PI * 0.28;
+    scene.add(platinumShockwaveMesh);
+
+    // 4. White-Hot Core Supernova Plasma Shell
+    const coreNovaGeo = new THREE.RingGeometry(0.2, 1.3, 48);
     const coreNovaMat = new THREE.MeshBasicMaterial({
       color: 0xFFFFFF,
       side: THREE.DoubleSide,
@@ -433,15 +521,70 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
     const coreNovaMesh = new THREE.Mesh(coreNovaGeo, coreNovaMat);
     scene.add(coreNovaMesh);
 
-    // D. Radiant 3D Volumetric Spark Shards (Dynamically animated on blast)
-    const sparkCount = 96;
+    // D. Anamorphic 8-Spike Radiant Starburst Mesh (Cross Flare)
+    const starburstGroup = new THREE.Group();
+    const starburstMat = new THREE.MeshBasicMaterial({
+      color: 0xFFFFFF,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+
+    const createDiamondSpike = (w: number, h: number) => {
+      const geo = new THREE.BufferGeometry();
+      const vertices = new Float32Array([
+        0, h / 2, 0,
+        w / 2, 0, 0,
+        0, -h / 2, 0,
+
+        0, h / 2, 0,
+        0, -h / 2, 0,
+        -w / 2, 0, 0,
+      ]);
+      geo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      return new THREE.Mesh(geo, starburstMat);
+    };
+
+    const rayHoriz = createDiamondSpike(26, 0.45);
+    const rayVert = createDiamondSpike(0.45, 22);
+    const rayDiag1 = createDiamondSpike(15, 0.32);
+    rayDiag1.rotation.z = Math.PI * 0.25;
+    const rayDiag2 = createDiamondSpike(15, 0.32);
+    rayDiag2.rotation.z = -Math.PI * 0.25;
+
+    starburstGroup.add(rayHoriz);
+    starburstGroup.add(rayVert);
+    starburstGroup.add(rayDiag1);
+    starburstGroup.add(rayDiag2);
+    starburstGroup.position.set(0, 0, 1.2);
+    scene.add(starburstGroup);
+
+    // E. Hyperspace Warp Tunnel Light Cone (Camera-Facing Vector Cone)
+    const warpTunnelGeo = new THREE.CylinderGeometry(0.8, 16, 26, 32, 2, true);
+    const warpTunnelMat = new THREE.MeshBasicMaterial({
+      color: 0x38BDF8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const warpTunnelMesh = new THREE.Mesh(warpTunnelGeo, warpTunnelMat);
+    warpTunnelMesh.rotation.x = Math.PI / 2;
+    warpTunnelMesh.position.set(0, 0, 3);
+    scene.add(warpTunnelMesh);
+
+    // F. Radiant 3D Volumetric Cosmic Sparks (240 Particles)
+    const sparkCount = 240;
     const sparkPositions = new Float32Array(sparkCount * 3);
     const sparkInitialPositions = new Float32Array(sparkCount * 3);
     const sparkVelocities = new Float32Array(sparkCount * 3);
     const sparkColors = new Float32Array(sparkCount * 3);
 
     for (let i = 0; i < sparkCount; i++) {
-      // Uniform spherical direction
       const u = Math.random();
       const v = Math.random();
       const theta = u * 2.0 * Math.PI;
@@ -450,7 +593,6 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
       const dy = Math.sin(phi) * Math.sin(theta);
       const dz = Math.cos(phi);
 
-      // Initial positions on globe surface
       sparkInitialPositions[i * 3] = dx * globeRadius;
       sparkInitialPositions[i * 3 + 1] = dy * globeRadius;
       sparkInitialPositions[i * 3 + 2] = dz * globeRadius;
@@ -459,21 +601,23 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
       sparkPositions[i * 3 + 1] = sparkInitialPositions[i * 3 + 1];
       sparkPositions[i * 3 + 2] = sparkInitialPositions[i * 3 + 2];
 
-      // Explosive radial velocities with natural variance
-      const speed = 14 + Math.random() * 22;
+      const speed = 16 + Math.random() * 26;
       sparkVelocities[i * 3] = dx * speed;
       sparkVelocities[i * 3 + 1] = dy * speed;
       sparkVelocities[i * 3 + 2] = dz * speed;
 
-      // Color: alternating luminous Gold and Cyan
-      if (i % 2 === 0) {
-        sparkColors[i * 3] = 0.95;     // R (Gold)
-        sparkColors[i * 3 + 1] = 0.78; // G
-        sparkColors[i * 3 + 2] = 0.32; // B
-      } else {
+      if (i % 3 === 0) {
+        sparkColors[i * 3] = 0.98;     // R (Gold)
+        sparkColors[i * 3 + 1] = 0.82; // G
+        sparkColors[i * 3 + 2] = 0.35; // B
+      } else if (i % 3 === 1) {
         sparkColors[i * 3] = 0.22;     // R (Cyan)
         sparkColors[i * 3 + 1] = 0.74; // G
         sparkColors[i * 3 + 2] = 0.98; // B
+      } else {
+        sparkColors[i * 3] = 1.0;      // R (White)
+        sparkColors[i * 3 + 1] = 1.0;  // G
+        sparkColors[i * 3 + 2] = 1.0;  // B
       }
     }
 
@@ -482,7 +626,7 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
     sparkGeo.setAttribute('color', new THREE.BufferAttribute(sparkColors, 3));
 
     const sparkMat = new THREE.PointsMaterial({
-      size: 0.35,
+      size: 0.32,
       vertexColors: true,
       transparent: true,
       opacity: 0,
@@ -598,11 +742,32 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
       if (isNowBlasting && !wasBlastingRef.current) {
         blastElapsedTime = 0;
         goldShockwaveMesh.scale.set(0.5, 0.5, 0.5);
-        cyanShockwaveMesh.scale.set(0.4, 0.4, 0.4);
+        cyanShockwaveMesh.scale.set(0.45, 0.45, 0.45);
+        platinumShockwaveMesh.scale.set(0.4, 0.4, 0.4);
         coreNovaMesh.scale.set(0.2, 0.2, 0.2);
+        starburstGroup.scale.set(0.3, 0.3, 0.3);
+        warpTunnelMesh.scale.set(1, 1, 1);
+        geodeticCageMesh.scale.set(1, 1, 1);
+
         goldShockwaveMat.opacity = 0;
         cyanShockwaveMat.opacity = 0;
+        platinumShockwaveMat.opacity = 0;
         coreNovaMat.opacity = 0;
+        starburstMat.opacity = 0;
+        warpTunnelMat.opacity = 0;
+        geodeticCageMat.opacity = 0;
+        crystalMat.opacity = 0;
+
+        // Reset crystal shards to surface
+        for (let i = 0; i < crystalCount; i++) {
+          crystalDummy.position.copy(crystalOrigins[i]);
+          crystalDummy.rotation.set(0, 0, 0);
+          crystalDummy.scale.set(0.01, 0.01, 0.01);
+          crystalDummy.updateMatrix();
+          crystalMesh.setMatrixAt(i, crystalDummy.matrix);
+        }
+        crystalMesh.instanceMatrix.needsUpdate = true;
+        crystalMesh.visible = false;
 
         // Reset spark positions
         const posAttr = sparkGeo.attributes.position as THREE.BufferAttribute;
@@ -629,64 +794,150 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
         }
         goldShockwaveMat.opacity = 0;
         cyanShockwaveMat.opacity = 0;
+        platinumShockwaveMat.opacity = 0;
         coreNovaMat.opacity = 0;
+        starburstMat.opacity = 0;
+        warpTunnelMat.opacity = 0;
+        geodeticCageMat.opacity = 0;
+        crystalMat.opacity = 0;
         sparkPoints.visible = false;
+        crystalMesh.visible = false;
+        geodeticCageMesh.visible = false;
+        starburstGroup.visible = false;
+        warpTunnelMesh.visible = false;
       } else if (isNowBlasting) {
-        // Active explosion phase: Unique multi-phase cosmic supernova detonation
+        // Active explosion phase: Unique Quantum Singularity & Prismatic Shatter
         blastElapsedTime += clampedDelta;
-        const progress = Math.min(1.0, blastElapsedTime / 0.80);
+        const progress = Math.min(1.0, blastElapsedTime / 0.92);
 
         if (globeGroupRef.current) {
           globeGroupRef.current.visible = true;
         }
 
-        if (progress < 0.15) {
-          // Phase 1: Kinetic Implosion & Energy Surge (Anticipation)
-          const tensionT = progress / 0.15;
-          const anticipation = Math.sin(tensionT * Math.PI) * 0.12;
+        if (progress < 0.16) {
+          // Phase 1: Gravitational Lensing & Quantum Singularity Implosion (0.00s - 0.15s)
+          const tensionT = progress / 0.16;
+          // Rapid vortex spin-up
           if (globeGroupRef.current) {
-            globeGroupRef.current.scale.setScalar(1.0 - anticipation);
+            globeGroupRef.current.rotation.y += clampedDelta * 3.8;
+            globeGroupRef.current.rotation.x += clampedDelta * 1.5;
+            // Dramatic compressive implosion
+            const implosion = 1.0 - Math.sin(tensionT * Math.PI * 0.5) * 0.22;
+            globeGroupRef.current.scale.setScalar(implosion);
           }
-          atmosphereMat.uniforms.uOpacity.value = 1.0 + tensionT * 2.5;
-          sphereMat.emissiveIntensity = 0.75 + tensionT * 2.2;
+          // Hyper-luminous atmospheric compression
+          atmosphereMat.uniforms.uOpacity.value = 1.0 + tensionT * 4.2;
+          sphereMat.emissiveIntensity = 0.75 + tensionT * 3.5;
+
+          // Planetary geodetic lattice lights up with quantum energy
+          geodeticCageMesh.visible = true;
+          geodeticCageMesh.rotation.y += clampedDelta * 4.5;
+          geodeticCageMesh.scale.setScalar(1.0 - tensionT * 0.18);
+          geodeticCageMat.opacity = tensionT * 0.85;
+
+          // Central core starburst ignition
+          starburstGroup.visible = true;
+          starburstGroup.scale.setScalar(0.2 + tensionT * 0.5);
+          starburstGroup.rotation.z += clampedDelta * 4.0;
+          starburstMat.opacity = tensionT * 0.6;
+
+          crystalMesh.visible = false;
           sparkPoints.visible = false;
+          warpTunnelMesh.visible = false;
         } else {
-          // Phase 2: Supernova Detonation & 3D Deconstruction
-          const detonateT = (progress - 0.15) / 0.85;
-          const ease = 1.0 - Math.pow(1.0 - detonateT, 3); // Smooth cubic ease-out
+          // Phase 2: Quantum Prism Detonation & 3D Tessellated Deconstruction
+          const detonateT = (progress - 0.16) / 0.84;
+          const ease = 1.0 - Math.pow(1.0 - detonateT, 3.2); // Smooth explosive cubic ease-out
 
-          // Globe hyper-expansion & ether dissolve
+          // Globe solid sphere hyper-expansion and ether dissolve
           if (globeGroupRef.current) {
-            globeGroupRef.current.scale.setScalar(0.88 + ease * 2.2);
+            globeGroupRef.current.scale.setScalar(0.78 + ease * 3.0);
+            globeGroupRef.current.rotation.y += clampedDelta * 1.2;
           }
-          sphereMat.opacity = Math.max(0, 1.0 - detonateT * 1.5);
-          atmosphereMat.uniforms.uOpacity.value = Math.max(0, 3.5 * (1.0 - detonateT * 1.7));
-          ringMat.opacity = Math.max(0, 1.0 - detonateT * 2.5);
+          sphereMat.opacity = Math.max(0, 1.0 - detonateT * 2.2);
+          atmosphereMat.uniforms.uOpacity.value = Math.max(0, 5.2 * (1.0 - detonateT * 2.2));
+          ringMat.opacity = Math.max(0, 1.0 - detonateT * 3.0);
 
-          // Equatorial Golden Shockwave
-          goldShockwaveMesh.scale.setScalar(0.5 + ease * 46);
-          goldShockwaveMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.4));
+          // Geodetic Cage expands and fractures into deep space
+          geodeticCageMesh.visible = true;
+          geodeticCageMesh.scale.setScalar(0.82 + ease * 3.8);
+          geodeticCageMesh.rotation.y += clampedDelta * 2.2;
+          geodeticCageMesh.rotation.z += clampedDelta * 1.5;
+          geodeticCageMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.65));
 
-          // Cyan Quantum Orbital Shockwave (Warp Ring)
-          cyanShockwaveMesh.scale.setScalar(0.4 + ease * 40);
-          cyanShockwaveMesh.rotation.z += clampedDelta * 1.8;
-          cyanShockwaveMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.5));
+          // 3D Prismatic Crystal Shards (Tumbling geometric diamonds erupting in 3D)
+          crystalMesh.visible = true;
+          for (let i = 0; i < crystalCount; i++) {
+            const org = crystalOrigins[i];
+            const vel = crystalVelocities[i];
+            const rotSpeed = crystalRotSpeeds[i];
 
-          // White-Hot Core Plasma Energy Flash
-          coreNovaMesh.scale.setScalar(0.3 + ease * 26);
-          coreNovaMat.opacity = Math.max(0, Math.pow(1.0 - detonateT, 2) * 1.6);
+            // Radial blast position with subtle gravitational curl
+            const px = org.x + vel.x * (ease * 1.25);
+            const py = org.y + vel.y * (ease * 1.25);
+            const pz = org.z + vel.z * (ease * 1.25);
+            crystalDummy.position.set(px, py, pz);
 
-          // Volumetric 3D Radiant Sparks
+            // Dynamic 3D rotation tumbling
+            crystalDummy.rotation.set(
+              rotSpeed.x * detonateT * 6.5,
+              rotSpeed.y * detonateT * 6.5,
+              rotSpeed.z * detonateT * 6.5
+            );
+
+            // Dynamic scale: surge at blast, taper into stardust
+            const shardScale = (0.2 + Math.sin(detonateT * Math.PI) * 1.3) * (1.0 - detonateT * 0.45);
+            crystalDummy.scale.set(shardScale, shardScale, shardScale);
+
+            crystalDummy.updateMatrix();
+            crystalMesh.setMatrixAt(i, crystalDummy.matrix);
+          }
+          crystalMesh.instanceMatrix.needsUpdate = true;
+          crystalMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.3));
+
+          // Multi-Axis Astrolabe Gyroscopic Shockwave Rings
+          // 1. Equatorial Tachyon Gold Ring
+          goldShockwaveMesh.scale.setScalar(0.5 + ease * 52);
+          goldShockwaveMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.35));
+
+          // 2. Cyan Polar Gyro-Warp Ring
+          cyanShockwaveMesh.scale.setScalar(0.45 + ease * 46);
+          cyanShockwaveMesh.rotation.z += clampedDelta * 2.4;
+          cyanShockwaveMesh.rotation.x += clampedDelta * 1.2;
+          cyanShockwaveMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.45));
+
+          // 3. Platinum Oblique Singularity Ring
+          platinumShockwaveMesh.scale.setScalar(0.4 + ease * 38);
+          platinumShockwaveMesh.rotation.y += clampedDelta * 2.8;
+          platinumShockwaveMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.5));
+
+          // 4. White-Hot Core Nova Plasma Flash
+          coreNovaMesh.scale.setScalar(0.25 + ease * 28);
+          coreNovaMat.opacity = Math.max(0, Math.pow(1.0 - detonateT, 2.2) * 2.0);
+
+          // Anamorphic 8-Point Starburst Cross Flare
+          starburstGroup.visible = true;
+          starburstGroup.scale.setScalar(0.5 + ease * 3.2);
+          starburstGroup.rotation.z += clampedDelta * 3.6;
+          starburstMat.opacity = Math.max(0, Math.pow(1.0 - detonateT, 1.8) * 1.9);
+
+          // Hyperspace Warp Tunnel Light Cone
+          warpTunnelMesh.visible = true;
+          warpTunnelMesh.scale.set(1.0 + ease * 2.2, 1.0 + ease * 1.2, 1.0 + ease * 2.2);
+          warpTunnelMesh.rotation.z += clampedDelta * 1.4;
+          warpTunnelMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * 0.5 * (1.0 - detonateT * 0.5));
+
+          // 240 Volumetric Cosmic Sparks
           sparkPoints.visible = true;
           const posAttr = sparkGeo.attributes.position as THREE.BufferAttribute;
           const posArr = posAttr.array as Float32Array;
           for (let i = 0; i < sparkCount; i++) {
-            posArr[i * 3] = sparkInitialPositions[i * 3] + sparkVelocities[i * 3] * (ease * 1.15);
-            posArr[i * 3 + 1] = sparkInitialPositions[i * 3 + 1] + sparkVelocities[i * 3 + 1] * (ease * 1.15);
-            posArr[i * 3 + 2] = sparkInitialPositions[i * 3 + 2] + sparkVelocities[i * 3 + 2] * (ease * 1.15);
+            posArr[i * 3] = sparkInitialPositions[i * 3] + sparkVelocities[i * 3] * (ease * 1.2);
+            posArr[i * 3 + 1] = sparkInitialPositions[i * 3 + 1] + sparkVelocities[i * 3 + 1] * (ease * 1.2);
+            posArr[i * 3 + 2] = sparkInitialPositions[i * 3 + 2] + sparkVelocities[i * 3 + 2] * (ease * 1.2);
           }
           posAttr.needsUpdate = true;
-          sparkMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.35));
+          sparkMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.3));
         }
       } else if (sceneIndexRef.current === 5) {
         // Step 5: Completely remove the globe group, circle, arcs, rings, and sparks
@@ -695,8 +946,17 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
         }
         goldShockwaveMat.opacity = 0;
         cyanShockwaveMat.opacity = 0;
+        platinumShockwaveMat.opacity = 0;
         coreNovaMat.opacity = 0;
+        starburstMat.opacity = 0;
+        warpTunnelMat.opacity = 0;
+        geodeticCageMat.opacity = 0;
+        crystalMat.opacity = 0;
         sparkPoints.visible = false;
+        crystalMesh.visible = false;
+        geodeticCageMesh.visible = false;
+        starburstGroup.visible = false;
+        warpTunnelMesh.visible = false;
       } else {
         // Step 4: Full, solid, brilliant 3D Earth Globe
         if (globeGroupRef.current) {
@@ -709,8 +969,17 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
         ringMat.opacity = 0.85;
         goldShockwaveMat.opacity = 0;
         cyanShockwaveMat.opacity = 0;
+        platinumShockwaveMat.opacity = 0;
         coreNovaMat.opacity = 0;
+        starburstMat.opacity = 0;
+        warpTunnelMat.opacity = 0;
+        geodeticCageMat.opacity = 0;
+        crystalMat.opacity = 0;
         sparkPoints.visible = false;
+        crystalMesh.visible = false;
+        geodeticCageMesh.visible = false;
+        starburstGroup.visible = false;
+        warpTunnelMesh.visible = false;
       }
 
       // Smooth inertia & continuous gentle rotation

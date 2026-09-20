@@ -10,11 +10,19 @@ class SoundEngine {
   public setMuted(_muted: boolean) {}
   public getMuted(): boolean { return true; }
   public playChime(_freq?: number, _type?: OscillatorType, _duration?: number, _volume?: number) {}
-  public playHandshakeChord() {}
-  public playLetterReveal(_index?: number) {}
+  public playHandshakeChord() {
+    bulletAudio.playHandshakeChord();
+  }
+  public playLetterReveal(index?: number) {
+    bulletAudio.playLetterReveal(index);
+  }
   public playRopePluck(_pitch?: number) {}
-  public playHoverTick() {}
-  public playClick() {}
+  public playHoverTick() {
+    bulletAudio.playHoverTick();
+  }
+  public playClick() {
+    bulletAudio.playHoverTick();
+  }
   public playTypewriterKey(jitter?: number, isFinal?: boolean) {
     bulletAudio.playBulletImpact(jitter, isFinal);
   }

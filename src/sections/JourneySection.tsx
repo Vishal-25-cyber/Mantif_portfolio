@@ -342,12 +342,44 @@ export const JourneySection: React.FC = () => {
         }}
       />
 
+      {/* ── TOP-LEFT BACKGROUND 04 WATERMARK ── */}
+      <div
+        className="absolute top-10 sm:top-12 md:top-14 left-2 sm:left-5 md:left-8 z-0 pointer-events-none select-none flex items-start gap-3 opacity-90 transition-opacity duration-700"
+        aria-hidden="true"
+      >
+        <span
+          className="font-serif font-black text-[6.5rem] sm:text-[9.5rem] md:text-[12.5rem] lg:text-[14.5rem] leading-[0.82] tracking-tighter select-none"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(223, 183, 74, 0.22) 0%, rgba(223, 183, 74, 0.08) 55%, rgba(0, 75, 121, 0.02) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textShadow: '0 0 35px rgba(223, 183, 74, 0.08)',
+            fontFeatureSettings: '"tnum"',
+          }}
+        >
+          04
+        </span>
+        <div className="hidden sm:flex flex-col gap-1 pt-3 opacity-30">
+          <span className="w-8 sm:w-12 h-[1px] bg-[#DFB74A]" />
+          <span className="font-mono text-[8px] sm:text-[9px] tracking-[0.25em] text-[#DFB74A] uppercase font-bold">
+            SECTION // 04
+          </span>
+          <span className="font-mono text-[7px] sm:text-[8px] tracking-[0.18em] text-white/60 uppercase">
+            THE MANTIF JOURNEY
+          </span>
+        </div>
+      </div>
+
       <div className="relative z-10 w-full max-w-[1400px] mx-auto flex-1 flex flex-col justify-between min-h-0">
         {/* ═══════════════════════════════════════════════════════════════════════ */}
         {/* 2. TOP AUDITORIUM MARQUEE & THEATRE STATUS BAR                          */}
         {/* ═══════════════════════════════════════════════════════════════════════ */}
         <header className="w-full flex flex-col sm:flex-row items-center justify-between gap-2 mb-1.5 sm:mb-2 pb-1.5 border-b border-white/[0.08] text-xs font-mono shrink-0">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <span className="px-2 py-0.5 rounded bg-[#DFB74A]/15 border border-[#DFB74A]/40 text-[#DFB74A] font-mono text-[9px] sm:text-[10px] font-bold tracking-wider">
+              04
+            </span>
             <span className="flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#DFB74A]/10 border border-[#DFB74A]/40 text-[#DFB74A] text-[9px] sm:text-[10px] font-bold tracking-[0.22em] uppercase shadow-[0_0_12px_rgba(223,183,74,0.3)]">
               <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
               NOW SHOWING · ORIGINAL THEATRE SCREEN
