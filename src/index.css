@@ -267,83 +267,34 @@ body {
   }
 }
 
-@keyframes anamorphicLaserFlare {
+@keyframes simpleBlastCore {
   0% {
     opacity: 0;
-    transform: scaleX(0.05) scaleY(0.4);
-    filter: brightness(1);
-  }
-  18% {
-    opacity: 1;
-    transform: scaleX(1.8) scaleY(2.2);
-    filter: brightness(2.8) drop-shadow(0 0 25px rgba(255,255,255,0.95));
-  }
-  45% {
-    opacity: 0.85;
-    transform: scaleX(2.6) scaleY(1.4);
-    filter: brightness(2);
-  }
-  100% {
-    opacity: 0;
-    transform: scaleX(3.4) scaleY(0.1);
-    filter: brightness(0.8);
-  }
-}
-
-@keyframes singleSupernovaBlast {
-  0% {
-    opacity: 0;
-    transform: scale(0.15) rotate(0deg);
-  }
-  18% {
-    opacity: 1;
-    transform: scale(0.8) rotate(15deg);
-  }
-  60% {
-    opacity: 0.7;
-    transform: scale(2.2) rotate(45deg);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(3.6) rotate(70deg);
-  }
-}
-
-@keyframes starburstRays {
-  0% {
-    opacity: 0;
-    transform: scale(0.2) rotate(0deg);
+    transform: scale(0.25);
   }
   20% {
-    opacity: 1;
-    transform: scale(1.2) rotate(30deg);
-  }
-  65% {
-    opacity: 0.5;
-    transform: scale(2.0) rotate(75deg);
+    opacity: 0.9;
+    transform: scale(0.85);
   }
   100% {
     opacity: 0;
-    transform: scale(2.8) rotate(110deg);
+    transform: scale(1.8);
   }
 }
 
-@keyframes quantumHexRipples {
+@keyframes simpleBlastRing {
   0% {
     opacity: 0;
-    transform: scale(0.3);
+    transform: scale(0.35);
   }
-  25% {
+  20% {
     opacity: 0.9;
-    transform: scale(1.1);
-  }
-  75% {
-    opacity: 0.4;
-    transform: scale(2.4);
+    box-shadow: 0 0 24px rgba(223, 183, 74, 0.7);
   }
   100% {
     opacity: 0;
-    transform: scale(3.5);
+    transform: scale(2.5);
+    box-shadow: 0 0 45px rgba(223, 183, 74, 0);
   }
 }
 

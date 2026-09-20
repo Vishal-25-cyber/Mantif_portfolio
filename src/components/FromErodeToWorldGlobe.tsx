@@ -806,139 +806,50 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
         starburstGroup.visible = false;
         warpTunnelMesh.visible = false;
       } else if (isNowBlasting) {
-        // Active explosion phase: Unique Quantum Singularity & Prismatic Shatter
+        // Simple, clean blast dissolution
         blastElapsedTime += clampedDelta;
-        const progress = Math.min(1.0, blastElapsedTime / 0.92);
+        const progress = Math.min(1.0, blastElapsedTime / 0.75);
+        const ease = 1.0 - Math.pow(1.0 - progress, 2.5);
 
         if (globeGroupRef.current) {
           globeGroupRef.current.visible = true;
+          globeGroupRef.current.scale.setScalar(1.0 + ease * 1.6);
+          globeGroupRef.current.rotation.y += clampedDelta * 0.8;
         }
 
-        if (progress < 0.16) {
-          // Phase 1: Gravitational Lensing & Quantum Singularity Implosion (0.00s - 0.15s)
-          const tensionT = progress / 0.16;
-          // Rapid vortex spin-up
-          if (globeGroupRef.current) {
-            globeGroupRef.current.rotation.y += clampedDelta * 3.8;
-            globeGroupRef.current.rotation.x += clampedDelta * 1.5;
-            // Dramatic compressive implosion
-            const implosion = 1.0 - Math.sin(tensionT * Math.PI * 0.5) * 0.22;
-            globeGroupRef.current.scale.setScalar(implosion);
-          }
-          // Hyper-luminous atmospheric compression
-          atmosphereMat.uniforms.uOpacity.value = 1.0 + tensionT * 4.2;
-          sphereMat.emissiveIntensity = 0.75 + tensionT * 3.5;
+        sphereMat.opacity = Math.max(0, 1.0 - progress * 1.5);
+        atmosphereMat.uniforms.uOpacity.value = Math.max(0, 2.5 * (1.0 - progress * 1.5));
+        ringMat.opacity = Math.max(0, 1.0 - progress * 2.0);
 
-          // Planetary geodetic lattice lights up with quantum energy
-          geodeticCageMesh.visible = true;
-          geodeticCageMesh.rotation.y += clampedDelta * 4.5;
-          geodeticCageMesh.scale.setScalar(1.0 - tensionT * 0.18);
-          geodeticCageMat.opacity = tensionT * 0.85;
+        // Clean single gold shockwave ring
+        goldShockwaveMesh.visible = true;
+        goldShockwaveMesh.scale.setScalar(0.5 + ease * 3.5);
+        goldShockwaveMat.opacity = Math.max(0, Math.sin(progress * Math.PI) * 0.8);
 
-          // Central core starburst ignition
-          starburstGroup.visible = true;
-          starburstGroup.scale.setScalar(0.2 + tensionT * 0.5);
-          starburstGroup.rotation.z += clampedDelta * 4.0;
-          starburstMat.opacity = tensionT * 0.6;
+        // Clean soft core flash
+        coreNovaMesh.visible = true;
+        coreNovaMesh.scale.setScalar(0.3 + ease * 2.0);
+        coreNovaMat.opacity = Math.max(0, Math.pow(1.0 - progress, 2.0));
 
-          crystalMesh.visible = false;
-          sparkPoints.visible = false;
-          warpTunnelMesh.visible = false;
-        } else {
-          // Phase 2: Quantum Prism Detonation & 3D Tessellated Deconstruction
-          const detonateT = (progress - 0.16) / 0.84;
-          const ease = 1.0 - Math.pow(1.0 - detonateT, 3.2); // Smooth explosive cubic ease-out
-
-          // Globe solid sphere hyper-expansion and ether dissolve
-          if (globeGroupRef.current) {
-            globeGroupRef.current.scale.setScalar(0.78 + ease * 3.0);
-            globeGroupRef.current.rotation.y += clampedDelta * 1.2;
-          }
-          sphereMat.opacity = Math.max(0, 1.0 - detonateT * 2.2);
-          atmosphereMat.uniforms.uOpacity.value = Math.max(0, 5.2 * (1.0 - detonateT * 2.2));
-          ringMat.opacity = Math.max(0, 1.0 - detonateT * 3.0);
-
-          // Geodetic Cage expands and fractures into deep space
-          geodeticCageMesh.visible = true;
-          geodeticCageMesh.scale.setScalar(0.82 + ease * 3.8);
-          geodeticCageMesh.rotation.y += clampedDelta * 2.2;
-          geodeticCageMesh.rotation.z += clampedDelta * 1.5;
-          geodeticCageMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.65));
-
-          // 3D Prismatic Crystal Shards (Tumbling geometric diamonds erupting in 3D)
-          crystalMesh.visible = true;
-          for (let i = 0; i < crystalCount; i++) {
-            const org = crystalOrigins[i];
-            const vel = crystalVelocities[i];
-            const rotSpeed = crystalRotSpeeds[i];
-
-            // Radial blast position with subtle gravitational curl
-            const px = org.x + vel.x * (ease * 1.25);
-            const py = org.y + vel.y * (ease * 1.25);
-            const pz = org.z + vel.z * (ease * 1.25);
-            crystalDummy.position.set(px, py, pz);
-
-            // Dynamic 3D rotation tumbling
-            crystalDummy.rotation.set(
-              rotSpeed.x * detonateT * 6.5,
-              rotSpeed.y * detonateT * 6.5,
-              rotSpeed.z * detonateT * 6.5
-            );
-
-            // Dynamic scale: surge at blast, taper into stardust
-            const shardScale = (0.2 + Math.sin(detonateT * Math.PI) * 1.3) * (1.0 - detonateT * 0.45);
-            crystalDummy.scale.set(shardScale, shardScale, shardScale);
-
-            crystalDummy.updateMatrix();
-            crystalMesh.setMatrixAt(i, crystalDummy.matrix);
-          }
-          crystalMesh.instanceMatrix.needsUpdate = true;
-          crystalMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.3));
-
-          // Multi-Axis Astrolabe Gyroscopic Shockwave Rings
-          // 1. Equatorial Tachyon Gold Ring
-          goldShockwaveMesh.scale.setScalar(0.5 + ease * 52);
-          goldShockwaveMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.35));
-
-          // 2. Cyan Polar Gyro-Warp Ring
-          cyanShockwaveMesh.scale.setScalar(0.45 + ease * 46);
-          cyanShockwaveMesh.rotation.z += clampedDelta * 2.4;
-          cyanShockwaveMesh.rotation.x += clampedDelta * 1.2;
-          cyanShockwaveMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.45));
-
-          // 3. Platinum Oblique Singularity Ring
-          platinumShockwaveMesh.scale.setScalar(0.4 + ease * 38);
-          platinumShockwaveMesh.rotation.y += clampedDelta * 2.8;
-          platinumShockwaveMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.5));
-
-          // 4. White-Hot Core Nova Plasma Flash
-          coreNovaMesh.scale.setScalar(0.25 + ease * 28);
-          coreNovaMat.opacity = Math.max(0, Math.pow(1.0 - detonateT, 2.2) * 2.0);
-
-          // Anamorphic 8-Point Starburst Cross Flare
-          starburstGroup.visible = true;
-          starburstGroup.scale.setScalar(0.5 + ease * 3.2);
-          starburstGroup.rotation.z += clampedDelta * 3.6;
-          starburstMat.opacity = Math.max(0, Math.pow(1.0 - detonateT, 1.8) * 1.9);
-
-          // Hyperspace Warp Tunnel Light Cone
-          warpTunnelMesh.visible = true;
-          warpTunnelMesh.scale.set(1.0 + ease * 2.2, 1.0 + ease * 1.2, 1.0 + ease * 2.2);
-          warpTunnelMesh.rotation.z += clampedDelta * 1.4;
-          warpTunnelMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * 0.5 * (1.0 - detonateT * 0.5));
-
-          // 240 Volumetric Cosmic Sparks
-          sparkPoints.visible = true;
-          const posAttr = sparkGeo.attributes.position as THREE.BufferAttribute;
-          const posArr = posAttr.array as Float32Array;
-          for (let i = 0; i < sparkCount; i++) {
-            posArr[i * 3] = sparkInitialPositions[i * 3] + sparkVelocities[i * 3] * (ease * 1.2);
-            posArr[i * 3 + 1] = sparkInitialPositions[i * 3 + 1] + sparkVelocities[i * 3 + 1] * (ease * 1.2);
-            posArr[i * 3 + 2] = sparkInitialPositions[i * 3 + 2] + sparkVelocities[i * 3 + 2] * (ease * 1.2);
-          }
-          posAttr.needsUpdate = true;
-          sparkMat.opacity = Math.max(0, Math.sin(detonateT * Math.PI) * (1.0 - detonateT * 0.3));
+        // Soft subtle spark dispersal
+        sparkPoints.visible = true;
+        const posAttr = sparkGeo.attributes.position as THREE.BufferAttribute;
+        const posArr = posAttr.array as Float32Array;
+        for (let i = 0; i < sparkCount; i++) {
+          posArr[i * 3] = sparkInitialPositions[i * 3] + sparkVelocities[i * 3] * (ease * 0.6);
+          posArr[i * 3 + 1] = sparkInitialPositions[i * 3 + 1] + sparkVelocities[i * 3 + 1] * (ease * 0.6);
+          posArr[i * 3 + 2] = sparkInitialPositions[i * 3 + 2] + sparkVelocities[i * 3 + 2] * (ease * 0.6);
         }
+        posAttr.needsUpdate = true;
+        sparkMat.opacity = Math.max(0, Math.sin(progress * Math.PI) * (1.0 - progress * 0.4));
+
+        // Hide heavy geometric clutter
+        starburstGroup.visible = false;
+        warpTunnelMesh.visible = false;
+        geodeticCageMesh.visible = false;
+        crystalMesh.visible = false;
+        cyanShockwaveMesh.visible = false;
+        platinumShockwaveMesh.visible = false;
       } else if (sceneIndexRef.current === 5) {
         // Step 5: Completely remove the globe group, circle, arcs, rings, and sparks
         if (globeGroupRef.current) {
