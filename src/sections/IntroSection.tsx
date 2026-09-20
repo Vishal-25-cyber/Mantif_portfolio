@@ -148,12 +148,24 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
       id="intro"
       className="relative w-full h-screen h-[100dvh] flex flex-col items-center justify-between overflow-hidden select-none bg-[#FAF8F5] px-4 sm:px-8"
     >
-      {/* Ambient radial gradient spotlight */}
+      {/* Full-bleed Checked Grid Background - Covers 100% of the screen edge-to-edge */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none z-0"
         aria-hidden="true"
         style={{
-          background: 'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,75,121,0.06) 0%, transparent 70%)',
+          backgroundImage:
+            'linear-gradient(rgba(0, 33, 55, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 33, 55, 0.08) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+          backgroundPosition: 'center center',
+        }}
+      />
+
+      {/* Ambient radial gradient spotlight */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1]"
+        aria-hidden="true"
+        style={{
+          background: 'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,75,121,0.05) 0%, transparent 70%)',
         }}
       />
 
@@ -165,14 +177,6 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ onIntroComplete }) =
 
           {/* Ground horizon line */}
           <div className="absolute bottom-[22%] inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#002137]/12 to-transparent pointer-events-none" />
-
-          {/* Subtle grid lines - editorial touch */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-            style={{
-              backgroundImage: 'linear-gradient(#002137 1px, transparent 1px), linear-gradient(90deg, #002137 1px, transparent 1px)',
-              backgroundSize: '80px 80px'
-            }}
-          />
 
           <div className="relative w-full max-w-3xl h-72 sm:h-[330px] flex items-end justify-center">
 
