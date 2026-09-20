@@ -284,16 +284,19 @@ export const FooterSection: React.FC = () => {
         />
       </div>
 
-      {/* 3D WebGL Globe Overlay: ONLY active in Step 4 Globe and during the blast explosion */}
+      {/* 3D WebGL Globe Overlay: ONLY active in Step 4 Globe (completely hidden in Step 5 Connect with Us) */}
       <div
-        className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-700 ${currentStep === 4 || isGlobeBlasting ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
+        className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-500 ${
+          currentStep === 4 ? 'opacity-100' : 'opacity-0 pointer-events-none hidden'
+        }`}
       >
-        <FromErodeToWorldGlobe
-          sceneIndex={currentStep}
-          interactive={currentStep === 4 && !isGlobeBlasting}
-          isBlasting={isGlobeBlasting}
-        />
+        {currentStep === 4 && (
+          <FromErodeToWorldGlobe
+            sceneIndex={currentStep}
+            interactive={!isGlobeBlasting}
+            isBlasting={isGlobeBlasting}
+          />
+        )}
       </div>
 
       {/* Clean Simple Blast Effect */}

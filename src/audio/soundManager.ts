@@ -37,6 +37,9 @@ class SoundEngine {
   public playCosmicGlobeBlast() {
     bulletAudio.playUniqueGlobeBlast();
   }
+  public playTorchFlash() {
+    bulletAudio.playTorchFlash();
+  }
   public playDigitalChirp() {}
   public playCinematicSwell() {}
   public playNotificationChime(_index?: number) {}

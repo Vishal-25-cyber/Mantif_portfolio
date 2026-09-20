@@ -329,6 +329,57 @@ class BulletSoundEngine {
     osc.start(now);
     osc.stop(now + 0.03);
   }
+
+  /**
+   * Mechanical Torch switch click & optical burst whoosh
+   */
+  public playTorchFlash() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
+    const now = ctx.currentTime;
+
+    // 1. Mechanical switch click
+    const oscClick = ctx.createOscillator();
+    const gainClick = ctx.createGain();
+    oscClick.type = 'triangle';
+    oscClick.frequency.setValueAtTime(2400, now);
+    oscClick.frequency.exponentialRampToValueAtTime(320, now + 0.04);
+    gainClick.gain.setValueAtTime(0.18, now);
+    gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+    oscClick.connect(gainClick);
+    gainClick.connect(ctx.destination);
+    oscClick.start(now);
+    oscClick.stop(now + 0.05);
+
+    // 2. Optical flare surge whoosh
+    const bufferSize = Math.floor(ctx.sampleRate * 0.25);
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(800, now);
+    filter.frequency.exponentialRampToValueAtTime(3200, now + 0.08);
+    filter.frequency.exponentialRampToValueAtTime(400, now + 0.25);
+    filter.Q.setValueAtTime(2.5, now);
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.001, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.12, now + 0.06);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noise.start(now);
+    noise.stop(now + 0.25);
+  }
 }
 
 export const bulletAudio = new BulletSoundEngine();

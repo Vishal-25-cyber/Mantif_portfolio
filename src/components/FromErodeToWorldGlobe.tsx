@@ -843,6 +843,13 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
         posAttr.needsUpdate = true;
         sparkMat.opacity = Math.max(0, Math.sin(progress * Math.PI) * (1.0 - progress * 0.4));
 
+        // Hide all hub dots, photons, and rings immediately
+        arcs.forEach((arc) => {
+          arc.photon.visible = false;
+        });
+        erodeCoreMesh.visible = false;
+        ringMesh.visible = false;
+
         // Hide heavy geometric clutter
         starburstGroup.visible = false;
         warpTunnelMesh.visible = false;
@@ -850,11 +857,17 @@ export const FromErodeToWorldGlobe: React.FC<FromErodeToWorldGlobeProps> = ({
         crystalMesh.visible = false;
         cyanShockwaveMesh.visible = false;
         platinumShockwaveMesh.visible = false;
-      } else if (sceneIndexRef.current === 5) {
+      } else if (sceneIndexRef.current >= 5) {
         // Step 5: Completely remove the globe group, circle, arcs, rings, and sparks
         if (globeGroupRef.current) {
           globeGroupRef.current.visible = false;
         }
+        arcs.forEach((arc) => {
+          arc.photon.visible = false;
+        });
+        erodeCoreMesh.visible = false;
+        ringMesh.visible = false;
+        sparkPoints.visible = false;
         goldShockwaveMat.opacity = 0;
         cyanShockwaveMat.opacity = 0;
         platinumShockwaveMat.opacity = 0;
