@@ -11,24 +11,24 @@ import { JourneySection } from './sections/JourneySection';
 import { PhilosophySection } from './sections/PhilosophySection';
 import { FooterSection } from './sections/FooterSection';
 
-// ── Background Music ──────────────────────────────────────────────────────────
-// Browsers block autoplay until the first user gesture. We attach one-time
-// listeners for click / touchstart / scroll and start the track then.
+// ── Background Music ─────────────────────────────────────────────────────────
+// 3-step autoplay strategy so the song starts as early as the browser allows:
+//   1. Try immediate unmuted play → fade in
+//   2. Try muted autoplay (almost always allowed) → unmute on first gesture
+//   3. Full fallback → play on very first user interaction
 function useBgMusic(src: string): React.MutableRefObject<(() => void) | null> {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const started = useRef(false);
-  // stopRef holds a callable that the consumer can invoke to fade-out & stop
   const stopRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const audio = new Audio(src);
     audio.loop = true;
-    audio.volume = 0.45;
     audioRef.current = audio;
 
-    // Fade-out helper: ramps volume to 0 over ~1.2 s then pauses
+    // Smooth fade-out over ~1.2 s
     stopRef.current = () => {
-      const step = audio.volume / 24; // ~50 ms × 24 steps = 1.2 s
+      const step = (audio.volume || 0.45) / 24;
       const fade = setInterval(() => {
         if (audio.volume > step) {
           audio.volume = Math.max(0, audio.volume - step);
@@ -40,33 +40,82 @@ function useBgMusic(src: string): React.MutableRefObject<(() => void) | null> {
       }, 50);
     };
 
-    const tryPlay = () => {
-      if (started.current) return;
-      started.current = true;
-      audio.play().catch(() => {});
-      window.removeEventListener('click', tryPlay);
-      window.removeEventListener('touchstart', tryPlay);
-      window.removeEventListener('keydown', tryPlay);
-      window.removeEventListener('scroll', tryPlay, true);
+    // Smooth fade-in from 0 → target over ~1.5 s
+    const fadeIn = (target = 0.45) => {
+      audio.volume = 0;
+      let v = 0;
+      const step = target / 30;
+      const timer = setInterval(() => {
+        v = Math.min(v + step, target);
+        audio.volume = v;
+        if (v >= target) clearInterval(timer);
+      }, 50);
     };
 
-    window.addEventListener('click', tryPlay, { once: true });
-    window.addEventListener('touchstart', tryPlay, { once: true, passive: true });
-    window.addEventListener('keydown', tryPlay, { once: true });
-    window.addEventListener('scroll', tryPlay, { once: true, passive: true, capture: true });
+    // Called when we need to unmute/start the audio via user gesture
+    const unlock = () => {
+      if (started.current) return;
+      started.current = true;
+      if (audio.muted) {
+        // Was muted-autoplaying — just unmute and fade in
+        audio.muted = false;
+        fadeIn();
+      } else {
+        audio.play().then(() => fadeIn()).catch(() => {});
+      }
+      window.removeEventListener('click', unlock);
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('scroll', unlock, true);
+      window.removeEventListener('keydown', unlock);
+    };
+
+    // ── Step 1: Try direct unmuted autoplay ──────────────────────────────────
+    audio.volume = 0;
+    audio.muted = false;
+    audio
+      .play()
+      .then(() => {
+        // Browser allowed it — mark started and fade in
+        started.current = true;
+        fadeIn();
+      })
+      .catch(() => {
+        // ── Step 2: Try muted autoplay (nearly always succeeds) ────────────
+        audio.muted = true;
+        audio.volume = 0.45;
+        audio
+          .play()
+          .then(() => {
+            // Playing muted — unmute the moment the user touches anything
+            window.addEventListener('click', unlock, { once: true });
+            window.addEventListener('touchstart', unlock, { once: true, passive: true });
+            window.addEventListener('scroll', unlock, { once: true, passive: true, capture: true });
+            window.addEventListener('keydown', unlock, { once: true });
+          })
+          .catch(() => {
+            // ── Step 3: Full gesture fallback ────────────────────────────
+            audio.muted = false;
+            audio.volume = 0;
+            window.addEventListener('click', unlock, { once: true });
+            window.addEventListener('touchstart', unlock, { once: true, passive: true });
+            window.addEventListener('scroll', unlock, { once: true, passive: true, capture: true });
+            window.addEventListener('keydown', unlock, { once: true });
+          });
+      });
 
     return () => {
       audio.pause();
       audio.src = '';
-      window.removeEventListener('click', tryPlay);
-      window.removeEventListener('touchstart', tryPlay);
-      window.removeEventListener('keydown', tryPlay);
-      window.removeEventListener('scroll', tryPlay, true);
+      window.removeEventListener('click', unlock);
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('scroll', unlock, true);
+      window.removeEventListener('keydown', unlock);
     };
   }, [src]);
 
   return stopRef;
 }
+
 
 export function App() {
   // Track if the animated intro sequence is currently active/playing.
