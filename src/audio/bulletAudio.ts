@@ -51,9 +51,76 @@ class BulletSoundEngine {
   }
 
   /**
-   * Typing / bullet impact sound removed per user request
+   * Cinematic Web Audio Bullet Impact Synthesizer
+   * Synthesizes sharp, punchy bullet strike sounds on each character reveal.
    */
-  public playBulletImpact(_index: number = 0, _isFinal: boolean = false) {}
+  public playBulletImpact(index: number = 0, isFinal: boolean = false) {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
+    const now = ctx.currentTime;
+    const pitchJitter = (index % 5) * 25;
+
+    // 1. Sharp Transient Strike (Mechanical Snap: 2200Hz -> 280Hz in 18ms)
+    const snapOsc = ctx.createOscillator();
+    const snapGain = ctx.createGain();
+    snapOsc.type = 'triangle';
+    snapOsc.frequency.setValueAtTime(2200 + pitchJitter, now);
+    snapOsc.frequency.exponentialRampToValueAtTime(280, now + 0.018);
+
+    snapGain.gain.setValueAtTime(isFinal ? 0.35 : 0.22, now);
+    snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+
+    snapOsc.connect(snapGain);
+    snapGain.connect(ctx.destination);
+    snapOsc.start(now);
+    snapOsc.stop(now + 0.025);
+
+    // 2. Punchy Sub-Bass Impact (Low Thump)
+    const thumOsc = ctx.createOscillator();
+    const thumGain = ctx.createGain();
+    thumOsc.type = 'sine';
+    thumOsc.frequency.setValueAtTime(isFinal ? 240 : 160, now);
+    thumOsc.frequency.exponentialRampToValueAtTime(40, now + (isFinal ? 0.08 : 0.04));
+
+    thumGain.gain.setValueAtTime(isFinal ? 0.45 : 0.28, now);
+    thumGain.gain.exponentialRampToValueAtTime(0.001, now + (isFinal ? 0.09 : 0.045));
+
+    thumOsc.connect(thumGain);
+    thumGain.connect(ctx.destination);
+    thumOsc.start(now);
+    thumOsc.stop(now + 0.1);
+
+    // 3. Metallic Snap Noise Burst
+    const bufferSize = Math.floor(ctx.sampleRate * 0.025);
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      noiseData[i] = Math.random() * 2 - 1;
+    }
+
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.setValueAtTime(2800 + pitchJitter * 2, now);
+    noiseFilter.Q.setValueAtTime(3.0, now);
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(isFinal ? 0.25 : 0.14, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+
+    noiseSource.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+
+    noiseSource.start(now);
+    noiseSource.stop(now + 0.03);
+  }
 
   /**
    * Unique Cinematic 3D Globe Quantum Prismatic Detonation Sound

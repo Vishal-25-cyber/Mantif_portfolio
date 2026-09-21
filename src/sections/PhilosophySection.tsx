@@ -177,6 +177,7 @@ export const PhilosophySection: React.FC = () => {
 
       charIdx++;
       setTypedCharsCount(charIdx);
+      bulletAudio.playBulletImpact(charIdx, charIdx >= TOTAL_ENTRY_LETTERS);
 
       if (charIdx >= TOTAL_ENTRY_LETTERS) {
         isFinished = true;
