@@ -785,13 +785,13 @@ export const JourneySection: React.FC = () => {
                   {/* ── 2. DOCUMENTARY SCENE SPLIT: WIDESCREEN FILM MONITOR & BALANCED NARRATIVE ── */}
                   <div
                     key={`chapter-split-${activeChapterIdx}`}
-                    className="flex-1 w-full max-w-[1340px] mx-auto grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center my-auto py-1 sm:py-2 px-3 sm:px-6 lg:px-8 min-h-0 overflow-hidden"
+                    className="flex-1 w-full max-w-[1340px] mx-auto grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 sm:gap-6 lg:gap-12 xl:gap-16 items-center my-auto py-1 sm:py-2 px-3 sm:px-6 lg:px-8 min-h-0 overflow-hidden"
                     style={{
                       animation: 'theatreChapterFadeIn 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     }}
                   >
                     {/* LEFT: WIDESCREEN FILM FRAME (LITTLE BIG & CRISP) */}
-                    <div className="relative w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[450px] xl:max-w-[480px] aspect-video max-h-[190px] sm:max-h-[215px] lg:max-h-[235px] rounded-xl overflow-hidden bg-[#00111E] border-2 border-[#DFB74A]/45 shadow-[0_12px_35px_rgba(0,0,0,0.88),0_0_25px_rgba(223,183,74,0.22)] group mx-auto lg:mx-0 shrink-0">
+                    <div className="relative w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[450px] xl:max-w-[480px] aspect-video max-h-[170px] sm:max-h-[215px] lg:max-h-[235px] rounded-xl overflow-hidden bg-[#00111E] border-2 border-[#DFB74A]/45 shadow-[0_12px_35px_rgba(0,0,0,0.88),0_0_25px_rgba(223,183,74,0.22)] group mx-auto lg:mx-0 shrink-0">
                       <div className="absolute inset-0 pointer-events-none z-20 bg-gradient-to-t from-black/85 via-transparent to-black/20" />
 
                       {/* Video or Image */}
@@ -832,18 +832,14 @@ export const JourneySection: React.FC = () => {
                               srcSet={
                                 activeItem.letter === 'M'
                                   ? chapter1Gallery[selectedGalleryIdx].src
-                                  : activeItem.mediaSrc.endsWith('.webp')
-                                  ? activeItem.mediaSrc
-                                  : activeItem.mediaSrc.replace(/\.(jpg|png)$/, '.webp')
+                                  : activeItem.mediaSrc
                               }
-                              type="image/webp"
+                              type={activeItem.mediaSrc.endsWith('.jpg') ? 'image/jpeg' : 'image/webp'}
                             />
                             <img
                               src={
                                 activeItem.letter === 'M'
-                                  ? chapter1Gallery[selectedGalleryIdx].fallback
-                                  : activeItem.mediaSrc.endsWith('.webp')
-                                  ? activeItem.mediaSrc.replace(/\.webp$/, '.jpg')
+                                  ? chapter1Gallery[selectedGalleryIdx].src
                                   : activeItem.mediaSrc
                               }
                               alt={activeItem.milestone}
@@ -851,9 +847,10 @@ export const JourneySection: React.FC = () => {
                               decoding="async"
                               onError={(e) => {
                                 const target = e.currentTarget;
-                                const fallbackJpg = activeItem.mediaSrc.replace(/\.webp$/, '.jpg');
-                                if (target.src !== fallbackJpg) {
-                                  target.src = fallbackJpg;
+                                if (target.src.endsWith('.webp')) {
+                                  target.src = activeItem.mediaSrc.replace(/\.webp$/, '.jpg');
+                                } else if (target.src.endsWith('.jpg')) {
+                                  target.src = activeItem.mediaSrc.replace(/\.jpg$/, '.webp');
                                 }
                               }}
                               className="w-full h-full object-cover transition-transform duration-[12000ms] ease-out group-hover:scale-105"
