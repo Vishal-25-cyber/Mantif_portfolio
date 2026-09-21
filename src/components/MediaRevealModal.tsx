@@ -77,26 +77,21 @@ export const MediaRevealModal: React.FC<MediaModalProps> = ({
               className="w-full h-full object-contain"
             />
           ) : mediaType === 'image' && src ? (
-            <picture className="w-full h-full flex items-center justify-center">
-              <source
-                srcSet={src.endsWith('.webp') ? src : src.replace(/\.(jpg|png)$/, '.webp')}
-                type="image/webp"
-              />
-              <img
-                src={src.endsWith('.webp') ? src.replace(/\.webp$/, '.jpg') : src}
-                alt={title}
-                loading="eager"
-                decoding="async"
-                className="w-full h-full object-contain animate-fadeIn"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  const fallbackJpg = src.replace(/\.webp$/, '.jpg');
-                  if (target.src !== fallbackJpg) {
-                    target.src = fallbackJpg;
-                  }
-                }}
-              />
-            </picture>
+            <img
+              src={src}
+              alt={title}
+              loading="eager"
+              decoding="async"
+              className="w-full h-full object-contain animate-fadeIn"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src.endsWith('.webp')) {
+                  target.src = src.replace(/\.webp$/, '.jpg');
+                } else if (target.src.endsWith('.jpg')) {
+                  target.src = src.replace(/\.jpg$/, '.webp');
+                }
+              }}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center text-[#FAF8F5]">
               <div className="w-16 h-16 rounded-full border border-[#DFB74A]/40 flex items-center justify-center mb-4 bg-[#002137]">

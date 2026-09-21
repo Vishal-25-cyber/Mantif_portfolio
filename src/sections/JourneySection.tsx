@@ -827,44 +827,34 @@ export const JourneySection: React.FC = () => {
                           className="relative w-full h-full cursor-pointer overflow-hidden"
                         >
                           {/* Continuous Slow Ken Burns Motion */}
-                          <picture className="w-full h-full block">
-                            <source
-                              srcSet={
-                                activeItem.letter === 'M'
-                                  ? chapter1Gallery[selectedGalleryIdx].src
-                                  : activeItem.mediaSrc
+                          <img
+                            src={
+                              activeItem.letter === 'M'
+                                ? chapter1Gallery[selectedGalleryIdx].src
+                                : activeItem.mediaSrc
+                            }
+                            alt={activeItem.milestone}
+                            loading="eager"
+                            decoding="async"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              if (target.src.endsWith('.webp')) {
+                                target.src = activeItem.mediaSrc.replace(/\.webp$/, '.jpg');
+                              } else if (target.src.endsWith('.jpg')) {
+                                target.src = activeItem.mediaSrc.replace(/\.jpg$/, '.webp');
                               }
-                              type={activeItem.mediaSrc.endsWith('.jpg') ? 'image/jpeg' : 'image/webp'}
-                            />
-                            <img
-                              src={
-                                activeItem.letter === 'M'
-                                  ? chapter1Gallery[selectedGalleryIdx].src
-                                  : activeItem.mediaSrc
-                              }
-                              alt={activeItem.milestone}
-                              loading="eager"
-                              decoding="async"
-                              onError={(e) => {
-                                const target = e.currentTarget;
-                                if (target.src.endsWith('.webp')) {
-                                  target.src = activeItem.mediaSrc.replace(/\.webp$/, '.jpg');
-                                } else if (target.src.endsWith('.jpg')) {
-                                  target.src = activeItem.mediaSrc.replace(/\.jpg$/, '.webp');
-                                }
-                              }}
-                              className="w-full h-full object-cover transition-transform duration-[12000ms] ease-out group-hover:scale-105"
-                              style={{
-                                animation: 'theatreKenBurns 16s ease-in-out infinite alternate',
-                                objectPosition:
-                                  activeItem.letter === 'T'
-                                    ? 'center 22%'
-                                    : activeItem.letter === 'F'
-                                    ? 'center 45%'
-                                    : 'center',
-                              }}
-                            />
-                          </picture>
+                            }}
+                            className="w-full h-full object-cover transition-transform duration-[12000ms] ease-out group-hover:scale-105"
+                            style={{
+                              animation: 'theatreKenBurns 16s ease-in-out infinite alternate',
+                              objectPosition:
+                                activeItem.letter === 'T'
+                                  ? 'center 22%'
+                                  : activeItem.letter === 'F'
+                                  ? 'center 45%'
+                                  : 'center',
+                            }}
+                          />
 
                           {/* Timecode overlay */}
                           <div className="absolute top-2.5 left-2.5 z-30 font-mono text-[8px] sm:text-[9px] text-[#FAF8F5] tracking-widest uppercase flex items-center gap-1.5 bg-black/85 px-2.5 py-0.5 rounded border border-white/10 backdrop-blur-xs shadow-md">
