@@ -832,6 +832,8 @@ export const JourneySection: React.FC = () => {
                               srcSet={
                                 activeItem.letter === 'M'
                                   ? chapter1Gallery[selectedGalleryIdx].src
+                                  : activeItem.mediaSrc.endsWith('.webp')
+                                  ? activeItem.mediaSrc
                                   : activeItem.mediaSrc.replace(/\.(jpg|png)$/, '.webp')
                               }
                               type="image/webp"
@@ -840,6 +842,8 @@ export const JourneySection: React.FC = () => {
                               src={
                                 activeItem.letter === 'M'
                                   ? chapter1Gallery[selectedGalleryIdx].fallback
+                                  : activeItem.mediaSrc.endsWith('.webp')
+                                  ? activeItem.mediaSrc.replace(/\.webp$/, '.jpg')
                                   : activeItem.mediaSrc
                               }
                               alt={activeItem.milestone}
@@ -847,8 +851,9 @@ export const JourneySection: React.FC = () => {
                               decoding="async"
                               onError={(e) => {
                                 const target = e.currentTarget;
-                                if (!target.src.endsWith('.jpg')) {
-                                  target.src = activeItem.mediaSrc;
+                                const fallbackJpg = activeItem.mediaSrc.replace(/\.webp$/, '.jpg');
+                                if (target.src !== fallbackJpg) {
+                                  target.src = fallbackJpg;
                                 }
                               }}
                               className="w-full h-full object-cover transition-transform duration-[12000ms] ease-out group-hover:scale-105"
